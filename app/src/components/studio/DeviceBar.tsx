@@ -14,6 +14,8 @@ function deviceName(d: Device) {
 }
 const COMPUTERS = ALL.filter((d) => isComputerName(deviceName(d)));
 const PHONES = ALL.filter((d) => !isComputerName(deviceName(d)));
+const FLAGSHIPS = PHONES.filter((d) => d.price_band === "premium").sort((a, b) => b.year - a.year || a.brand.localeCompare(b.brand));
+const BUDGET = PHONES.filter((d) => d.price_band !== "premium");
 
 function matches(d: Device, q: string) {
   const parts = q.trim().toLowerCase().split(/\s+/).filter(Boolean);
@@ -79,10 +81,17 @@ function DevicePicker({ graph }: { graph: Graph }) {
   useClickAway(ref, () => setOpen(false), open);
   const groups = useMemo(() => {
     const s = q.trim();
-    const phones = s ? PHONES.filter((d) => matches(d, s)).slice(0, 30) : PHONES.slice(0, 14);
     const comps = s ? COMPUTERS.filter((d) => matches(d, s) || /laptop|computer|pc|clinic/i.test(s)) : COMPUTERS;
+    if (s) {
+      return [
+        { title: "Phones", items: PHONES.filter((d) => matches(d, s)).slice(0, 30) },
+        { title: "Laptops and clinic PCs", items: comps }
+      ].filter((g) => g.items.length);
+    }
+    // No search: the whole list, flagships (recent iPhones, Galaxy S, Pixel) first, then budget and mid-range phones.
     return [
-      { title: "Phones", items: phones },
+      { title: "Flagship phones", items: FLAGSHIPS },
+      { title: "Budget and mid-range phones", items: BUDGET },
       { title: "Laptops and clinic PCs", items: comps }
     ].filter((g) => g.items.length);
   }, [q]);
@@ -115,7 +124,7 @@ function DevicePicker({ graph }: { graph: Graph }) {
             <span className="lk-devopt__spec">Type RAM and storage</span>
           </button>
           {custom && <CustomDevice graph={graph} onDone={close} />}
-          <ul role="listbox" className="lk-devlist">
+          <ul role="listbox" className="lk-devlist" style={{ maxHeight: "60vh" }}>
             {groups.map((g) => (
               <li key={g.title}>
                 <p className="lk-packsel__group">{g.title}</p>

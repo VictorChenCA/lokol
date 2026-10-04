@@ -65,6 +65,10 @@ export default function Recommend() {
   const setGraph = useStudio((s) => s.setGraph);
   const [step, setStep] = useState(0);
   const [sector, setSector] = useState<Sector>("health");
+  /* 'Custom sector': any guideline. Sector is a strict union, so it runs the health graph shape
+     (offline retrieval + small model + safety rules) with retrieval over the user's own guideline,
+     built under Packs > New pack. */
+  const [custom, setCustom] = useState(false);
   const [langs, setLangs] = useState<string[]>(["pis", "en"]);
   const [voiceIn, setVoiceIn] = useState(true);
   const [voiceOut, setVoiceOut] = useState(true);
@@ -220,12 +224,15 @@ export default function Recommend() {
           <div>
             <h2 className="font-display text-d-sm font-bold">Which sector is this for?</h2>
             <p className="mt-1 text-[14px] text-ink-3">The sector picks the guideline corpus and the safety rules. The node graph is the same.</p>
-            <div role="radiogroup" aria-label="Sector" className="mt-5 grid gap-3 sm:grid-cols-3">
+            <div role="radiogroup" aria-label="Sector" className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {(["health", "agriculture", "tourism"] as Sector[]).map((s) => (
                 <Option
                   key={s}
-                  on={sector === s}
-                  onClick={() => setSector(s)}
+                  on={!custom && sector === s}
+                  onClick={() => {
+                    setCustom(false);
+                    setSector(s);
+                  }}
                   title={SECTOR_COPY[s].title}
                   body={SECTOR_COPY[s].line}
                 >
@@ -234,6 +241,19 @@ export default function Recommend() {
                   </span>
                 </Option>
               ))}
+              <Option
+                on={custom}
+                onClick={() => {
+                  setCustom(true);
+                  setSector("health");
+                }}
+                title="Custom sector"
+                body="Any guideline you have: water, schools, fisheries, disaster response. Same offline flow, answering from your own manual."
+              >
+                <span className="mt-auto pt-3">
+                  <Badge tone="white">Your guideline</Badge>
+                </span>
+              </Option>
             </div>
           </div>
         )}
@@ -385,6 +405,12 @@ export default function Recommend() {
             <div className="mt-2 flex flex-wrap items-center gap-2 text-[13px] text-ink-3">
               <span>{result.graph.name}</span>
             </div>
+            {custom && (
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-reef/40 bg-white px-4 py-3">
+                <p className="text-[14px] text-ink-2">Custom sector: this uses the same graph shape, with lookups over your own guideline. Build the pack from your PDF to swap in its text.</p>
+                <button type="button" className={btnClass("ink", "sm")} onClick={() => navigate("/packs/new")}>Build a pack from your guideline</button>
+              </div>
+            )}
 
             <div className="mt-5 rounded-xl border border-line bg-white p-4">
               <div className="flex flex-wrap items-baseline justify-between gap-2">

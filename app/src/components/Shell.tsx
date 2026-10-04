@@ -312,7 +312,7 @@ export function AppShell() {
               to="/deploy"
               aria-current={pathname === "/deploy" ? "page" : undefined}
               className={`!px-3 !py-1.5 text-[13.5px] ${dark ? "btn-glow btn-sm" : "btn-ink"}`}
-              title="Pick a pack, finalize settings, and launch it on a phone, laptop or WhatsApp"
+              title="See what ships from Studio and launch it on a phone, laptop or WhatsApp"
             >
               Deploy
             </Link>

@@ -4,7 +4,6 @@ import { PRESETS, SECTOR_COPY } from "../data/presets";
 import { getModel } from "../models";
 import { Badge, btnClass, mb } from "../components/ui";
 import { SAMPLE_USER } from "../components/Profile";
-import { listPacks, type SavedPack } from "../runtime/corpus_builder";
 import { useModelCard } from "../components/ModelCard";
 
 /* Headline from public/eval/results.json (300 held-out cases); used until the file loads. */
@@ -95,37 +94,23 @@ function packSize(sector: "health" | "agriculture" | "tourism") {
 
 export default function AppHome() {
   const { h, n } = useHeadline();
-  const [saved, setSaved] = useState<SavedPack[] | null>(null);
-  useEffect(() => {
-    let alive = true;
-    listPacks()
-      .then((p) => alive && setSaved(p))
-      .catch(() => alive && setSaved([]));
-    return () => {
-      alive = false;
-    };
-  }, []);
   const first = SAMPLE_USER.name.split(" ")[0];
   const openCard = useModelCard((s) => s.open);
 
   return (
-    <div className="pb-20">
-      <div className="page pt-8 sm:pt-10">
+    <div className="pb-8">
+      <div className="page pt-6 sm:pt-7">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-white px-2.5 py-1 text-[12.5px] font-medium text-ink-2">
-              <span className="h-2 w-2 rounded-full bg-palm" aria-hidden />
-              {SAMPLE_USER.workspace}
-            </span>
-            <h1 className="mt-3 font-display text-d-lg font-bold" style={{ fontVariationSettings: '"wdth" 86' }}>
+            <h1 className="font-display text-d-md font-bold" style={{ fontVariationSettings: '"wdth" 86' }}>
               Welcome back, {first}
             </h1>
-            <p className="lede mt-2">Lokol Studio builds small helper agents that run offline. Check a device, build a pack from a guideline, shape it in Studio, then deploy it.</p>
+            <p className="mt-1.5 text-[15.5px] leading-snug text-ink-2">Lokol Studio builds small helper agents that run offline. Check a device, build a pack from a guideline, shape it in Studio, then deploy it.</p>
           </div>
         </div>
 
         {/* Quick actions */}
-        <section aria-labelledby="qa" className="mt-8">
+        <section aria-labelledby="qa" className="mt-5">
           <h2 id="qa" className="sr-only">Quick actions</h2>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <QuickAction to="/recommend" title="Check a device" body="Name the phone; see which model sizes fit it and what will not." icon={I.phone} />
@@ -136,36 +121,34 @@ export default function AppHome() {
         </section>
 
         {/* Packs */}
-        <section aria-labelledby="packs" className="mt-12">
+        <section aria-labelledby="packs" className="mt-6">
           <div className="flex flex-wrap items-end justify-between gap-3">
-            <h2 id="packs" className="font-display text-d-sm font-bold">Your packs</h2>
-            <Link to="/packs/new" className={btnClass("ghost", "sm")}>New pack</Link>
+            <h2 id="packs" className="font-display text-[22px] font-bold">Packs</h2>
+            <Link to="/packs" className={btnClass("quiet", "sm")}>All packs</Link>
           </div>
-          <div className="mt-5 grid gap-5 lg:grid-cols-3">
+          <div className="mt-3 grid gap-4 lg:grid-cols-3">
             {/* Lokol Health: the live, tuned pack */}
-            <article className="flex flex-col rounded-2xl border border-ink/80 bg-white p-5 shadow-lift lg:col-span-1">
+            <article className="flex flex-col rounded-2xl border border-ink/80 bg-white p-4 shadow-lift lg:col-span-1">
               <div className="flex items-center justify-between gap-2">
                 <h3 className="font-display text-[22px] font-bold leading-tight">{SECTOR_COPY.health.title}</h3>
                 <Badge tone="reef">Custom pack</Badge>
               </div>
-              <p className="mt-2 text-[14.5px] leading-relaxed text-ink-2">{SECTOR_COPY.health.line}</p>
-              <p className="mt-2 text-[13px] font-medium text-ink">Built from: Solomon Islands Standard Treatment Manual for Children, 2017</p>
-              <ul className="mt-4 grid grid-cols-3 gap-2 border-t border-line-2 pt-3">
+              <p className="mt-1.5 text-[14px] leading-snug text-ink-2">{SECTOR_COPY.health.line}</p>
+              <p className="mt-1.5 text-[12.5px] font-medium text-ink">Built in Lokol Studio from the Solomon Islands Standard Treatment Manual for Children, 2017</p>
+              <ul className="mt-3 grid grid-cols-3 gap-2 border-t border-line-2 pt-2.5">
                 {HEALTH_SIZES.map((s) => {
                   const m = getModel(s.id);
                   return (
                     <li key={s.id} className="min-w-0">
                       <button type="button" onClick={() => openCard(s.id)} className="w-full rounded-lg text-left hover:bg-sand/60" title="Model card: training and evaluation">
                         <p className="font-display text-[17px] font-semibold text-ink">{s.label}</p>
-                        <p className="text-[12px] text-ink-3">{m ? mb(m.size_mb) : ""}</p>
-                        <p className="text-[12px] text-ink-3">{s.where}</p>
-                        <p className="text-[11.5px] font-semibold text-reef-deep">Model card</p>
+                        <p className="text-[12px] text-ink-3">{m ? mb(m.size_mb) : ""}, {s.where}</p>
                       </button>
                     </li>
                   );
                 })}
               </ul>
-              <div className="mt-auto flex flex-wrap gap-2 pt-5">
+              <div className="mt-auto flex flex-wrap gap-2 pt-3">
                 <Link to="/studio?pack=health" className={btnClass("ink", "sm")}>Open in Studio</Link>
                 <Link to="/deploy?pack=health" className={btnClass("ghost", "sm")}>Deploy</Link>
                 <Link to="/demo" className={btnClass("ghost", "sm")}>Field app</Link>
@@ -173,68 +156,33 @@ export default function AppHome() {
             </article>
 
             {(["agriculture", "tourism"] as const).map((s) => (
-              <article key={s} className="flex flex-col rounded-2xl border border-line bg-white p-5">
+              <article key={s} className="flex flex-col rounded-2xl border border-line bg-white p-4">
                 <div className="flex items-center justify-between gap-2">
                   <h3 className="font-display text-[22px] font-bold leading-tight">{SECTOR_COPY[s].title}</h3>
                   <Badge tone="sand">Sample pack</Badge>
                 </div>
-                <p className="mt-2 text-[14.5px] leading-relaxed text-ink-2">{SECTOR_COPY[s].line}</p>
-                <p className="mt-3 text-[13px] text-ink-3">
+                <p className="mt-1.5 text-[14px] leading-snug text-ink-2">{SECTOR_COPY[s].line}</p>
+                <p className="mt-2 text-[13px] text-ink-3">
                   {PRESETS[s].nodes.length} steps, {mb(packSize(s))} download.
                 </p>
-                <div className="mt-auto flex flex-wrap gap-2 pt-5">
+                <div className="mt-auto flex flex-wrap gap-2 pt-3">
                   <Link to={`/studio?pack=${s}`} className={btnClass("ghost", "sm")}>Open in Studio</Link>
                   <Link to={`/deploy?pack=${s}`} className={btnClass("quiet", "sm")}>Deploy</Link>
                 </div>
               </article>
             ))}
           </div>
-
-          <div className="mt-6">
-            <h3 className="text-[14px] font-semibold text-ink">Built from your manuals</h3>
-            {saved === null ? (
-              <p className="mt-2 text-[13.5px] text-ink-3">Looking for packs saved in this browser...</p>
-            ) : saved.length === 0 ? (
-              <div className="mt-2 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-dashed border-line bg-paper-2/60 px-4 py-4">
-                <p className="text-[14px] text-ink-2">No custom packs yet. Build one from any PDF guideline; it stays in this browser.</p>
-                <Link to="/packs/new" className={btnClass("ink", "sm")}>Build from a manual</Link>
-              </div>
-            ) : (
-              <ul className="mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {saved.map((p) => {
-                  const chunks = (p.manifest as any)?.corpus_inline?.chunks?.length as number | undefined;
-                  const packId = (p.manifest as any)?.pack_id as string | undefined;
-                  return (
-                    <li key={p.id} className="flex flex-col rounded-2xl border border-line bg-white p-4">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="min-w-0 truncate font-display text-[17px] font-bold">{p.name}</p>
-                        <Badge tone="reef">Custom</Badge>
-                      </div>
-                      <p className="mt-1 text-[12.5px] text-ink-3">
-                        Saved {new Date(p.created_at).toLocaleDateString()}
-                        {chunks ? `, ${chunks} sections of text` : ""}
-                      </p>
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        <Link to={`/studio?pack=${encodeURIComponent(`idb:${p.id}`)}`} className={btnClass("ink", "sm")}>Open in Studio</Link>
-                        <Link to={`/deploy?pack=${encodeURIComponent(`idb:${packId ?? p.id}`)}`} className={btnClass("ghost", "sm")}>Deploy</Link>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </div>
         </section>
 
         {/* Evidence strip */}
-        <section aria-labelledby="ev" className="mt-12 overflow-hidden rounded-2xl bg-ink text-white">
-          <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1.1fr_2fr] lg:items-center">
+        <section aria-labelledby="ev" className="mt-6 overflow-hidden rounded-2xl bg-ink text-white">
+          <div className="grid gap-5 p-5 sm:px-6 sm:py-5 lg:grid-cols-[1.1fr_2fr] lg:items-center">
             <div>
-              <h2 id="ev" className="font-display text-[22px] font-bold">Evidence: stock vs custom model, {h.size}</h2>
-              <p className="mt-2 text-[14px] leading-relaxed text-white/70">
+              <h2 id="ev" className="font-display text-[20px] font-bold">Evidence: stock vs custom model, {h.size}</h2>
+              <p className="mt-1.5 text-[13.5px] leading-snug text-white/70">
                 {n} held-out cases the model never saw in training. Same small model before and after fine-tuning on the treatment manual.
               </p>
-              <button type="button" onClick={() => openCard("lokol-health-qwen3-0.6b")} className="mt-4 inline-flex text-[14px] font-semibold text-reef-bright underline decoration-reef-bright/40 underline-offset-[3px] hover:decoration-reef-bright">
+              <button type="button" onClick={() => openCard("lokol-health-qwen3-0.6b")} className="mt-2 inline-flex text-[14px] font-semibold text-reef-bright underline decoration-reef-bright/40 underline-offset-[3px] hover:decoration-reef-bright">
                 Open the model card
               </button>
             </div>
@@ -246,7 +194,7 @@ export default function AppHome() {
               ].map((x) => (
                 <div key={x.k} className="min-w-0">
                   <dt className="text-[12.5px] leading-snug text-white/70">{x.k}</dt>
-                  <dd className="mt-1 font-display text-[34px] font-bold leading-none tabular-nums sm:text-[40px]">{pct(x.t)}</dd>
+                  <dd className="mt-1 font-display text-[30px] font-bold leading-none tabular-nums sm:text-[34px]">{pct(x.t)}</dd>
                   <dd className="mt-1 text-[12.5px] text-glow-rag" title="The stock model is never shown the reply format the app reads, so the app cannot use any of its answers and every check counts them as wrong.">Stock model, same prompt: {pct(x.b)}</dd>
                   {h.fewshot && <dd className="text-[12.5px] text-white/60">Stock + 2 examples: {pct(x.f ?? 0)}</dd>}
                 </div>

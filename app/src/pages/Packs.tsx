@@ -1,35 +1,27 @@
 import { Suspense, lazy, useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { listPacks } from "../runtime/corpus_builder";
-import { DeployConfig, applyCfg, cfgFrom, type DeployCfg } from "../components/deploy/DeployConfig";
-import { PRESETS, SECTOR_COPY } from "../data/presets";
-import { getModel } from "../models";
+import { useLocation, useNavigate } from "react-router-dom";
+import { PRESETS } from "../data/presets";
+import { useStudio } from "../store";
 import {
   BRIDGE_URL,
+  LAPTOP_9B_COMMAND,
   SYSTEM_PROMPT,
   TWILIO_SANDBOX_NUMBER,
   buildManifest,
-  download,
+  deployTarget,
+  fieldAppRoute,
   HOSTED_DEMO_URL,
   hfRepo,
-  installUrl,
   installerCommand,
-  isHosted,
   laptopCommands,
-  manifestUrl,
-  modelSize,
   ollamaCommand,
   packLlm,
-  packZip,
   qrDataUrl,
-  slug,
   totalMb
 } from "../pack";
 import {
   Badge,
   Boundary,
-  Callout,
-  Chip,
   CodeBlock,
   CopyButton,
   Empty,
@@ -38,15 +30,13 @@ import {
   StatusDot,
   Tabs,
   btnClass,
-  mb,
-  toast
+  mb
 } from "../components/ui";
-import type { Manifest, Sector } from "../types";
-
+import type { Graph, Manifest, Sector } from "../types";
 
 // The graph preview is lazy and fenced, so this page still works if the canvas bundle is slow or fails.
 const GraphViewLazy = lazy(() => import("../components/GraphView").then((m) => ({ default: m.GraphView })));
-function SafeGraph({ graph, height }: { graph: import("../types").Graph; height: number }) {
+function SafeGraph({ graph, height }: { graph: Graph; height: number }) {
   const box = <div className="grid place-items-center rounded-xl border border-line bg-white/60 text-[13px] text-ink-3" style={{ height }}>Graph preview unavailable. Open it in Studio.</div>;
   return (
     <Boundary fallback={box}>
@@ -58,15 +48,7 @@ function SafeGraph({ graph, height }: { graph: import("../types").Graph; height:
 }
 
 const SECTORS: Sector[] = ["health", "agriculture", "tourism"];
-
-function loadSaved(): Manifest[] {
-  try {
-    const v = JSON.parse(localStorage.getItem("lokol.packs") ?? "[]");
-    return Array.isArray(v) ? v : [];
-  } catch {
-    return [];
-  }
-}
+const ALIAS: Record<string, string> = { farm: "agriculture", host: "tourism" };
 
 /* ------------------------------------------------------------------ bridge status */
 
@@ -250,42 +232,37 @@ function OneLiner({ title, note, code }: { title: string; note?: string; code: s
   );
 }
 
+
 /* ------------------------------------------------------------------ targets */
 
-function PhoneTarget({ m, qr }: { m: Manifest; qr: string }) {
-  const url = installUrl(m);
-  const hosted = isHosted(m);
+function PhoneTarget({ m, qr, onLaunch }: { m: Manifest; qr: string; onLaunch: () => void }) {
   return (
     <Target
       icon="phone"
       title="Phone app (offline PWA)"
-      pis="Long fon, no nid signal"
       badges={<><Badge tone="palm" dot>Works offline</Badge><Badge tone="white">{mb(totalMb(m))} once</Badge></>}
     >
-      <div className="grid gap-5 sm:grid-cols-[176px_1fr]">
+      <div className="grid gap-5 sm:grid-cols-[160px_1fr]">
         <div className="text-center">
-          <div className="mx-auto w-[176px] rounded-2xl border border-line bg-white p-2 shadow-card">
-            {qr ? <img src={qr} alt={`QR code that opens ${m.graph.name} on a phone`} className="block w-full" width={180} height={180} /> : <div className="aspect-square w-full animate-pulse rounded-lg bg-sand" />}
+          <div className="mx-auto w-[160px] rounded-2xl border border-line bg-white p-2 shadow-card">
+            {qr ? <img src={qr} alt="QR code that opens the Lokol field app on a phone" className="block w-full" width={160} height={160} /> : <div className="aspect-square w-full animate-pulse rounded-lg bg-sand" />}
           </div>
           <p className="mt-2 text-[12.5px] text-ink-3">Scan with the phone camera</p>
         </div>
         <div className="min-w-0">
-          <Steps
-            items={[
-              <>Scan the code, or open the link in Chrome on Android or Safari on iPhone.</>,
-              <>Wait once, with signal, while {mb(totalMb(m))} of models download. They stay cached on the phone.</>,
-              <>Tap <b className="font-semibold text-ink">Add to home screen</b>. From then on it opens and answers in airplane mode.</>
-            ]}
-          />
-          <div className="mt-4 flex min-w-0 items-center gap-1 rounded-lg border border-line bg-white py-1 pl-3 pr-1">
-            <a href={url} className="min-w-0 flex-1 truncate font-mono text-[12.5px] text-reef" title={url}>{url}</a>
-            <CopyButton text={url} dark={false} />
+          <button type="button" className={`${btnClass("ink")} w-full justify-center sm:w-auto`} onClick={onLaunch}>
+            Launch field app
+          </button>
+          <p className="mt-1.5 text-[12.5px] text-ink-3">Opens {m.graph.name} on this device, exactly as set in Studio.</p>
+          <div className="mt-4">
+            <Steps
+              items={[
+                <>Scan the code, or open <a className="link" href={HOSTED_DEMO_URL} target="_blank" rel="noreferrer">{HOSTED_DEMO_URL.replace("https://", "")}</a> in Chrome on Android or Safari on iPhone.</>,
+                <>Wait once, with signal, while {mb(totalMb(m))} of models download. They stay cached on the phone.</>,
+                <>Add to Home Screen: Chrome menu <b className="font-semibold text-ink">Add to home screen</b>, or Safari <b className="font-semibold text-ink">Share, Add to Home Screen</b>. From then on it opens and answers in airplane mode.</>
+              ]}
+            />
           </div>
-          {!hosted && (
-            <p className="mt-3 text-[13px] leading-relaxed text-ink-3">
-              This pack's manifest is not published with the app yet. Download the zip and host <code className="font-mono text-[12px]">manifest.json</code> at the address in the link; the code then works as is.
-            </p>
-          )}
         </div>
       </div>
     </Target>
@@ -296,7 +273,7 @@ function AndroidTarget({ m }: { m: Manifest }) {
   const llm = packLlm(m);
   const repo = llm ? hfRepo(llm.url) : null;
   return (
-    <Target icon="android" title="Android, native" pis="GGUF long PocketPal" badges={<><Badge tone="palm" dot>Works offline</Badge>{llm && <Badge tone="white">{mb(llm.size_mb)}</Badge>}</>}>
+    <Target icon="android" title="Android, native" badges={<><Badge tone="palm" dot>Works offline</Badge>{llm && <Badge tone="white">{mb(llm.size_mb)}</Badge>}</>}>
       {llm ? (
         <>
           <Steps
@@ -309,7 +286,7 @@ function AndroidTarget({ m }: { m: Manifest }) {
               ) : (
                 <>Copy <Inline>{llm.file}</Inline> to the phone by USB or SD card, then <b className="font-semibold text-ink">Models</b>, <b className="font-semibold text-ink">Add local model</b>.</>
               ),
-              <>Load it, open the model settings and paste the system prompt below. Then message in the Lokol protocol: flags line, guideline line, the nurse's question.</>
+              <>Load it, open the model settings and paste the system prompt below.</>
             ]}
           />
           <div className="mt-4 overflow-hidden rounded-xl border border-line bg-sand/60">
@@ -319,10 +296,7 @@ function AndroidTarget({ m }: { m: Manifest }) {
             </div>
             <p className="max-h-[96px] overflow-y-auto px-3 py-2 text-[12.5px] leading-relaxed text-ink-2">{SYSTEM_PROMPT}</p>
           </div>
-          <p className="mt-3 text-[13px] leading-relaxed text-ink-3">
-            PocketPal runs the tuned model only; the guideline lookup and safety gate live in the phone app. No Lokol APK is built yet: the phone app installs from the browser instead.
-          </p>
-          <a className={`${btnClass("ghost", "sm")} mt-4 self-start`} href={llm.url} target="_blank" rel="noreferrer">Download {llm.file.length > 34 ? "the GGUF" : llm.file}</a>
+          <p className="mt-3 text-[13px] leading-relaxed text-ink-3">PocketPal runs the tuned model only; the guideline lookup and safety gate live in the phone app.</p>
         </>
       ) : (
         <Empty title="No language model in this pack" body="Add a Language model node in Studio, then come back to deploy it to Android." />
@@ -331,71 +305,35 @@ function AndroidTarget({ m }: { m: Manifest }) {
   );
 }
 
-function LaptopTarget({ m, bridge, check }: { m: Manifest; bridge: Bridge; check: () => void }) {
-  const packModel = packLlm(m);
-  const big = getModel("lokol-health-qwen3.5-9b");
-  const [which, setWhich] = useState<"pack" | "9b">("pack");
-  const model = which === "9b" && big ? big : packModel;
+function LaptopTarget({ m }: { m: Manifest }) {
+  const llm = packLlm(m);
+  // Lokol Health packs run the 1.7B on a laptop (the phone default is 0.6B); other packs run their own model.
+  const own = llm && !/^lokol-health/.test(llm.id) ? llm : undefined;
   return (
-    <Target
-      icon="laptop"
-      title="Laptop or clinic PC"
-      pis="Long laptop blong klinik"
-      badges={<><Badge tone="palm" dot>Works offline</Badge>{model && <Badge tone="white">{mb(model.size_mb)}</Badge>}</>}
-    >
-      <div className="grid gap-5">
-      <div className="min-w-0">
-      {big && packModel && big.id !== packModel.id && (
-        <div className="mb-3">
-          <Segmented
-            value={which}
-            onChange={setWhich}
-            label="Model for the laptop"
-            options={[
-              { value: "pack", label: packModel.id.replace("lokol-health-", "") },
-              { value: "9b", label: "9B, River-tuned" }
-            ]}
-          />
-        </div>
-      )}
-      {which === "9b" ? (
-        <CodeBlock code={laptopCommands(model)} title="From the Lokol repo folder" />
-      ) : (
-        <div className="space-y-3">
-          <OneLiner title="Ollama, one line" note="Template, system prompt and settings come from the Hugging Face repo." code={ollamaCommand(model)} />
-          <OneLiner title="Lokol installer: model server + WhatsApp/Messenger bridge" note="macOS or Linux. Add --voice for Pijin speech, --tunnel for a public URL, --dry-run to see the plan." code={installerCommand(modelSize(model))} />
-          <details className="group rounded-xl border border-line bg-white/60">
-            <summary className="cursor-pointer select-none px-3 py-2 text-[13px] font-medium text-ink-2 hover:text-ink">By hand, step by step</summary>
-            <div className="px-3 pb-3"><CodeBlock code={laptopCommands(model)} title="From the Lokol repo folder" /></div>
-          </details>
-        </div>
-      )}
-      </div>
-      <div className="min-w-0 space-y-3">
-        <BridgeStatus bridge={bridge} check={check} />
-        <p className="text-[13px] leading-relaxed text-ink-3">
-          The installer checks for llama.cpp and Python, downloads the GGUF once, starts llama-server on 8080 and the bridge on 8090, and prints the URLs. After the first run it starts with no internet. A 16 GB laptop runs the 9B; any laptop runs the phone models.
-        </p>
-      </div>
+    <Target icon="laptop" title="Laptop or clinic PC" badges={<Badge tone="palm" dot>Works offline</Badge>}>
+      <div className="space-y-3">
+        <OneLiner title="Ollama, one line" note="Template, system prompt and settings come from the Hugging Face repo." code={ollamaCommand(own)} />
+        <OneLiner title="Lokol installer: model server + WhatsApp/Messenger bridge" note="macOS or Linux. Add --voice for Pijin speech, --tunnel for a public URL, --dry-run to see the plan." code={installerCommand()} />
+        <OneLiner title="Offline 9B on a 16 GB laptop" note="Qwen3.5-9B with the Lokol Health LoRA, served by llama.cpp." code={LAPTOP_9B_COMMAND} />
+        <details className="group rounded-xl border border-line bg-white/60">
+          <summary className="cursor-pointer select-none px-3 py-2 text-[13px] font-medium text-ink-2 hover:text-ink">By hand, step by step</summary>
+          <div className="px-3 pb-3"><CodeBlock code={laptopCommands(llm)} title="From the Lokol repo folder" /></div>
+        </details>
       </div>
     </Target>
   );
 }
 
-function ChatTarget({ bridge, check, m }: { bridge: Bridge; check: () => void; m: Manifest }) {
+function ChatTarget({ bridge, check }: { bridge: Bridge; check: () => void }) {
   const [ch, setCh] = useState<"whatsapp" | "messenger">("whatsapp");
   return (
-    <Target
-      icon={ch}
-      title="WhatsApp or Messenger"
-      pis="Tok long WhatsApp o Messenger"
-      badges={<><Badge tone="reef" dot>Needs signal</Badge><Badge tone="white">Model stays on the laptop</Badge></>}
-    >
-      <OneLiner title="Start the bridge with a public tunnel" note="Same installer as the laptop; prints the webhook URLs to paste below." code={installerCommand(modelSize(packLlm(m)), { tunnel: true })} />
+    <Target icon={ch} title="WhatsApp or Messenger" badges={<><Badge tone="reef" dot>Needs signal</Badge><Badge tone="white">Model stays on the laptop</Badge></>}>
+      <OneLiner title="Start the bridge with a public tunnel" note="Same installer as the laptop; prints the webhook URLs to paste below." code={installerCommand("1.7b", { tunnel: true })} />
       <div className="mt-4 mb-3">
         <Segmented value={ch} onChange={setCh} label="Channel" options={[{ value: "whatsapp", label: "WhatsApp (Twilio)" }, { value: "messenger", label: "Messenger" }]} />
       </div>
       {ch === "whatsapp" ? <WhatsAppSteps bridge={bridge} /> : <MessengerSteps bridge={bridge} />}
+      <p className="mt-3 text-[13px] leading-relaxed text-ink-3">SMS works on a Twilio free trial too: set the trial number's incoming-message webhook to <Inline copy>{"<PUBLIC_BASE_URL>/twilio/sms"}</Inline>.</p>
       <div className="mt-auto pt-4">
         <BridgeStatus bridge={bridge} check={check} />
       </div>
@@ -441,273 +379,166 @@ function MessengerSteps({ bridge }: { bridge: Bridge }) {
 
 /* ------------------------------------------------------------------ page */
 
-type View = "targets" | "graph" | "manifest";
+type Launch = "phone" | "android" | "laptop" | "chat";
+type Source = { graph: Graph; packKey: string; via: "studio" | "query" | "store" | "preset" };
 
-const ALIAS: Record<string, string> = { farm: "agriculture", host: "tourism" };
+/** The pack Deploy ships: the graph handed over by the Studio Deploy button, else ?pack=, else the Studio's saved canvas, else Lokol Health. */
+function useDeploySource(): Source {
+  const loc = useLocation();
+  const st = loc.state as { graph?: Graph; packKey?: string } | null;
+  const storeGraph = useStudio((s) => s.graph);
+  const storeKey = useStudio((s) => s.packKey);
+  const query = new URLSearchParams(loc.search).get("pack");
+  const [queried, setQueried] = useState<Source | null>(null);
+  useEffect(() => {
+    if (!query || st?.graph) return;
+    const q = ALIAS[query] ?? query;
+    if (SECTORS.includes(q as Sector)) {
+      setQueried({ graph: PRESETS[q as Sector], packKey: q, via: "query" });
+      return;
+    }
+    if (!q.startsWith("idb:")) return;
+    let alive = true;
+    import("../runtime/corpus_builder")
+      .then(({ getPack }) => getPack(q.slice(4)))
+      .then((p) => {
+        const g = (p?.manifest as unknown as Manifest | undefined)?.graph;
+        if (alive && p && g) setQueried({ graph: { ...g, name: p.name }, packKey: q, via: "query" });
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [query, st?.graph]);
+  if (st?.graph) return { graph: st.graph, packKey: st.packKey ?? storeKey, via: "studio" };
+  if (queried) return queried;
+  if (storeGraph) return { graph: storeGraph, packKey: storeKey, via: "store" };
+  return { graph: PRESETS.health, packKey: "health", via: "preset" };
+}
 
-function StepHead({ n, title, lede }: { n: number; title: string; lede?: string }) {
+function Fact({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="flex items-start gap-3">
-      <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-ink font-display text-[14px] font-bold text-white">{n}</span>
-      <div className="min-w-0">
-        <h2 className="font-display text-[22px] font-bold leading-tight">{title}</h2>
-        {lede && <p className="mt-0.5 text-[14px] text-ink-3">{lede}</p>}
-      </div>
+    <div className="min-w-0">
+      <dt className="text-[12px] text-ink-3">{label}</dt>
+      <dd className="truncate text-[14px] font-semibold text-ink">{children}</dd>
     </div>
   );
 }
 
 export default function Packs() {
   const navigate = useNavigate();
-  const presets = useMemo(() => SECTORS.map((s) => buildManifest(PRESETS[s], undefined, s)), []);
-  const [saved, setSaved] = useState<Manifest[]>(loadSaved);
-  const [built, setBuilt] = useState<Manifest[]>([]);
+  const source = useDeploySource();
+  const target = useMemo(() => deployTarget(source.packKey, source.graph), [source.packKey, source.graph]);
+  const current = useMemo(() => buildManifest(source.graph, undefined, target.pack_id), [source.graph, target.pack_id]);
+  const [qr, setQr] = useState<string>("");
+  const [launch, setLaunch] = useState<Launch>("phone");
+  const { bridge, check } = useBridge();
+
   useEffect(() => {
     let alive = true;
-    listPacks()
-      .then((ps) => alive && setBuilt(ps.map((p) => ({ ...(p.manifest as unknown as Manifest), pack_id: p.id, graph: { ...(p.manifest as unknown as Manifest).graph, name: p.name } }))))
-      .catch(() => {});
+    qrDataUrl(HOSTED_DEMO_URL).then((u) => alive && setQr(u)).catch(() => alive && setQr(""));
     return () => {
       alive = false;
     };
   }, []);
-  const all = [...presets, ...built, ...saved.filter((m) => !built.some((b) => b.pack_id === m.pack_id))];
-  const builtIds = new Set(built.map((b) => b.pack_id));
-  const [sel, setSel] = useState<string>(() => {
-    const q = typeof location !== "undefined" ? new URLSearchParams(location.search).get("pack") : null;
-    if (!q) return "health";
-    const id = q.startsWith("idb:") ? q.slice(4) : ALIAS[q] ?? q;
-    return id;
-  });
-  const base = all.find((m) => m.pack_id === sel) ?? all[0];
-  const [cfg, setCfg] = useState<DeployCfg | null>(null);
-  useEffect(() => {
-    if (base) setCfg(cfgFrom(base.graph));
-  }, [base?.pack_id]); // eslint-disable-line react-hooks/exhaustive-deps
-  const current = useMemo<Manifest | undefined>(() => {
-    if (!base) return undefined;
-    if (!cfg) return base;
-    return { ...base, ...buildManifest(applyCfg(base.graph, cfg), base.pwa_url, base.pack_id) };
-  }, [base, cfg]);
-  const [qr, setQr] = useState<string>("");
-  const [view, setView] = useState<View>("targets");
-  const [busy, setBusy] = useState(false);
-  const { bridge, check } = useBridge();
-
-  useEffect(() => {
-    if (!current) return;
-    let alive = true;
-    setQr("");
-    qrDataUrl(installUrl(current)).then((u) => alive && setQr(u)).catch(() => alive && setQr(""));
-    return () => {
-      alive = false;
-    };
-  }, [current?.pack_id]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const remove = (id: string) => {
-    const next = saved.filter((m) => m.pack_id !== id);
-    setSaved(next);
-    try {
-      localStorage.setItem("lokol.packs", JSON.stringify(next));
-    } catch {
-      /* ignore */
-    }
-    if (sel === id) setSel("health");
-    toast("Export removed", { body: "It is gone from this browser only." });
-  };
-
-  const exportZip = async () => {
-    if (!current) return;
-    setBusy(true);
-    try {
-      const name = `${slug(current.graph.name)}.zip`;
-      download(await packZip(current), name);
-      toast("Pack downloaded", { body: `${name}: manifest, README with every deploy target, QR code.`, tone: "palm" });
-    } catch (e) {
-      toast("Could not build the zip", { body: (e as Error).message, tone: "hibiscus" });
-    } finally {
-      setBusy(false);
-    }
-  };
 
   const launchFieldApp = () => {
-    if (!current) return;
-    if (builtIds.has(current.pack_id)) navigate(`/demo?pack=${encodeURIComponent(`idb:${current.pack_id}`)}`);
+    // A saved custom pack opens by id (it carries its own guideline index); everything else runs this exact graph.
+    if (target.idb) navigate(fieldAppRoute(target));
     else navigate("/demo", { state: { graph: current.graph } });
   };
+  const editInStudio = () => navigate(source.via === "query" ? `/studio?pack=${encodeURIComponent(source.packKey)}` : "/studio");
 
-  if (!current || !base) return <div className="page py-16"><Empty title="No packs yet" body="Build one under Packs, or export one from Studio." /></div>;
-
-  const onlineNodes = current.graph.nodes.filter((n) => n.online).length;
-  const studioKey = SECTORS.includes(current.pack_id as Sector) ? current.pack_id! : builtIds.has(current.pack_id) ? `idb:${current.pack_id}` : `export:${current.pack_id}`;
+  const g = current.graph;
+  const rag = g.nodes.find((n) => n.type === "rag");
+  const voiceIn = g.nodes.some((n) => n.type === "stt");
+  const voiceOut = g.nodes.some((n) => n.type === "tts");
+  const online = g.nodes.filter((n) => n.online).length;
+  const kind = target.idb ? "Custom pack" : target.pack_id === "health" ? "Lokol Health" : SECTORS.includes(target.pack_id as Sector) ? "Sample pack" : "Studio pack";
 
   return (
-    <div className="pb-20">
-      <div className="page pt-8 sm:pt-12">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
+    <div className="pb-16">
+      <div className="page pt-6 sm:pt-8">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div className="min-w-0">
             <h1 className="font-display text-d-lg font-bold" style={{ fontVariationSettings: '"wdth" 86' }}>Deploy</h1>
-            <p className="lede mt-3">Pick a pack, finalize its settings, then launch it: the field app on a phone, a laptop or clinic PC, Android, or WhatsApp. Every target uses the same graph and model files.</p>
+            <p className="lede mt-2">Ships the pack as set in Studio. Change anything there, then come back.</p>
           </div>
+          <button type="button" className={btnClass("ghost")} onClick={editInStudio}>
+            Edit in Studio
+          </button>
         </div>
 
-        {/* 1. Pack picker */}
-        <section className="mt-8" aria-labelledby="dep-1">
-          <div id="dep-1"><StepHead n={1} title="Select a pack" /></div>
-          <div className="mt-4" role="radiogroup" aria-label="Pack">
-            <div className="no-scrollbar -mx-4 flex gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0 lg:grid-cols-4">
-              {all.map((m) => {
-                const on = m.pack_id === base.pack_id;
-                const isPreset = SECTORS.includes(m.pack_id as Sector);
-                const isBuilt = builtIds.has(m.pack_id);
-                const copy = isPreset ? SECTOR_COPY[m.pack_id as Sector] : null;
-                return (
-                  <div key={m.pack_id} className="relative min-w-[230px] sm:min-w-0">
-                    <button
-                      type="button"
-                      role="radio"
-                      aria-checked={on}
-                      onClick={() => setSel(m.pack_id!)}
-                      className={`h-full w-full rounded-2xl border p-4 text-left transition-[border-color,box-shadow,background-color] ${
-                        on ? "border-ink bg-white shadow-lift ring-1 ring-ink" : "border-line bg-white/60 hover:border-ink-4 hover:bg-white"
-                      }`}
-                    >
-                      <span className="flex items-center justify-between gap-2">
-                        <span className="min-w-0 truncate font-display text-[17px] font-bold leading-tight">{copy?.title ?? m.graph.name}</span>
-                        {m.pack_id === "health" ? <Badge tone="reef">Custom pack</Badge> : isPreset ? <Badge tone="white">Sample pack</Badge> : isBuilt ? <Badge tone="reef">Your pack</Badge> : <Badge tone="sand">Your export</Badge>}
-                      </span>
-                      <span className="mt-1 block text-[13px] text-ink-3">
-                        {m.models.length} models, {mb(totalMb(m))}, {m.graph.language.join(" + ")}
-                      </span>
-                    </button>
-                    {!isPreset && !isBuilt && (
-                      <button type="button" onClick={() => remove(m.pack_id!)} className="absolute bottom-2 right-2 rounded-md px-2 py-1 text-[12px] text-ink-3 hover:bg-hibiscus-tint hover:text-hibiscus" aria-label={`Remove ${m.graph.name}`}>
-                        Remove
-                      </button>
-                    )}
-                  </div>
-                );
-              })}
-              <Link to="/packs/new" className="flex min-w-[230px] flex-col justify-center rounded-2xl border border-dashed border-line p-4 text-[13px] text-ink-3 hover:border-ink-4 hover:text-ink">
-                <span className="font-display text-[15px] font-semibold text-ink">+ New pack from a guideline</span>
-                Upload a manual; it shows up here.
-              </Link>
+        {/* 1. What ships */}
+        <section className="card mt-6 p-5 sm:p-6" aria-labelledby="dep-ships">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 id="dep-ships" className="font-display text-[22px] font-bold leading-tight">What ships</h2>
+            <div className="flex flex-wrap gap-1.5">
+              <Badge tone={target.idb || target.pack_id === "health" ? "reef" : "white"}>{kind}</Badge>
+              <Badge tone={online ? "reef" : "palm"} dot>{online ? `Internet on, ${online} online steps` : "Internet off"}</Badge>
             </div>
           </div>
-        </section>
-
-        {/* 2. Configuration */}
-        {cfg && (
-          <section className="mt-10" aria-labelledby="dep-2">
-            <div id="dep-2"><StepHead n={2} title="Finalize configuration" lede="These settings go into the pack. The bars update as you change them." /></div>
-            <div className="mt-4">
-              <DeployConfig base={base.graph} cfg={cfg} onChange={setCfg} />
-            </div>
-          </section>
-        )}
-
-        {/* 3. Launch */}
-        <section className="mt-10" aria-labelledby="dep-3">
-          <div id="dep-3"><StepHead n={3} title="Launch" /></div>
-          <div className="mt-4 flex flex-wrap items-center gap-2">
-            <button type="button" className={btnClass("ink")} onClick={launchFieldApp}>
-              Launch field app
-            </button>
-            <button type="button" className={btnClass("ghost")} onClick={exportZip} disabled={busy}>
-              {busy ? <><Spinner className="h-3.5 w-3.5" /> Building zip</> : "Download pack zip"}
-            </button>
-            <Link to={`/studio?pack=${encodeURIComponent(studioKey)}`} className={btnClass("quiet")}>Open in Studio</Link>
-          </div>
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-b border-line pb-0">
-            <Tabs
-              value={view}
-              onChange={setView}
-              label="Launch options"
-              className="border-b-0"
-              tabs={[
-                { value: "targets", label: "Where it runs", count: 4 },
-                { value: "graph", label: "Graph and models", count: current.models.length },
-                { value: "manifest", label: "Manifest" }
-              ]}
-            />
-            <div className="flex flex-wrap gap-1.5 pb-2 text-[12px]">
-              <Chip tone="white">{current.graph.nodes.length} steps</Chip>
-              <Chip tone={onlineNodes ? "reef" : "palm"}>{onlineNodes ? `${onlineNodes} online steps` : "all steps offline"}</Chip>
-            </div>
-          </div>
-        </section>
-      </div>
-
-      <div className="page mt-6">
-        {view === "targets" && (
-          <div className="space-y-10">
-            <section aria-label="Where it runs">
-              <p className="text-[14px] text-ink-3">
-                Three run with no signal. Chat channels need a signal, but the model still answers from the clinic laptop. Hosted demo: <a className="link" href={HOSTED_DEMO_URL} target="_blank" rel="noreferrer">{HOSTED_DEMO_URL.replace("https://", "")}</a>
-              </p>
-              <div className="mt-4 grid gap-5 lg:grid-cols-2">
-                <PhoneTarget m={current} qr={qr} />
-                <AndroidTarget m={current} />
-                <LaptopTarget m={current} bridge={bridge} check={check} />
-                <ChatTarget m={current} bridge={bridge} check={check} />
-              </div>
-              <div className="mt-5">
-                <Callout tone="slate" title="Where the data sits">
-                  On the phone app, notes stay on the device behind a PIN. On WhatsApp and Messenger, messages pass through Meta and Twilio to the clinic laptop; per-user settings live in <code className="font-mono text-[12.5px]">bridge/.state/users.json</code> on that laptop and nowhere else.
-                </Callout>
-              </div>
-            </section>
-          </div>
-        )}
-
-        {view === "graph" && (
-          <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
+          <div className="mt-4 grid gap-5 lg:grid-cols-[1fr_minmax(0,420px)]">
             <div className="min-w-0">
-              <SafeGraph graph={current.graph} height={360} />
-            </div>
-            <div className="card min-w-0 overflow-hidden">
-              <h3 className="border-b border-line-2 px-4 py-3 font-display text-[16px] font-bold">Model files</h3>
-              <ul className="divide-y divide-line-2">
+              <dl className="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-3">
+                <Fact label="Pack">{g.name}</Fact>
+                <Fact label="Device">{g.target.device} ({g.target.ram_gb} GB RAM)</Fact>
+                <Fact label="Download, once">{mb(totalMb(current))}</Fact>
+                <Fact label="Voice in">{voiceIn ? "On" : "Off, text only"}</Fact>
+                <Fact label="Voice out">{voiceOut ? "On" : "Off, text only"}</Fact>
+                <Fact label="Answers from">{rag ? rag.label : "No guideline lookup"}</Fact>
+              </dl>
+              <ul className="mt-4 divide-y divide-line-2 overflow-hidden rounded-xl border border-line bg-white/60">
                 {current.models.map((x) => (
-                  <li key={x.id} className="px-4 py-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <a className="min-w-0 truncate text-[14px] font-medium text-reef hover:underline" href={x.url.startsWith("http") ? x.url : undefined} target="_blank" rel="noreferrer" title={x.url}>{x.id}</a>
-                      <span className="shrink-0 text-[13px] font-semibold">{mb(x.size_mb)}</span>
-                    </div>
-                    <div className="mt-0.5 flex flex-wrap gap-x-3 text-[12px] text-ink-3">
-                      <span>{x.license}</span>
-                      <span>{x.runtime}</span>
-                    </div>
+                  <li key={x.id} className="flex items-center justify-between gap-3 px-3 py-2">
+                    <span className="min-w-0">
+                      <a className="block truncate text-[13.5px] font-medium text-reef hover:underline" href={x.url.startsWith("http") ? x.url : undefined} target="_blank" rel="noreferrer" title={x.url}>{x.id}</a>
+                      <span className="text-[12px] text-ink-3">{x.license} · {x.runtime}</span>
+                    </span>
+                    <span className="shrink-0 text-[13px] font-semibold">{mb(x.size_mb)}</span>
                   </li>
                 ))}
-                {current.models.length === 0 && <li className="px-4 py-3 text-[13px] text-ink-3">No model files; this pack is rules only.</li>}
+                {current.models.length === 0 && <li className="px-3 py-2 text-[13px] text-ink-3">No model files; this pack is rules only.</li>}
               </ul>
-              <div className="flex items-center justify-between border-t border-line-2 bg-sand/60 px-4 py-2.5 text-[13px]">
-                <span className="text-ink-3">Total download</span>
-                <span className="font-semibold">{mb(totalMb(current))}</span>
-              </div>
+            </div>
+            <div className="min-w-0">
+              <SafeGraph graph={g} height={230} />
             </div>
           </div>
-        )}
+          <details className="group mt-4 overflow-hidden rounded-xl border border-canvas-line bg-canvas">
+            <summary className="cursor-pointer select-none px-4 py-2 text-[13px] font-medium text-canvas-text">
+              Finalized configuration (manifest.json, read-only)
+            </summary>
+            <div className="flex justify-end border-t border-canvas-line px-2 py-1">
+              <CopyButton text={JSON.stringify(current, null, 2)} label="Copy JSON" />
+            </div>
+            <pre className="max-h-[420px] overflow-auto border-t border-canvas-line p-4 font-mono text-[12px] leading-relaxed text-canvas-text"><code>{JSON.stringify(current, null, 2)}</code></pre>
+          </details>
+        </section>
 
-        {view === "manifest" && (
-          <div className="overflow-hidden rounded-2xl border border-canvas-line bg-canvas">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-canvas-line px-4 py-2">
-              <span className="min-w-0 truncate font-mono text-[12px] text-canvas-muted" title={manifestUrl(current)}>{manifestUrl(current)}</span>
-              <div className="flex items-center gap-1">
-                <CopyButton text={JSON.stringify(current, null, 2)} label="Copy JSON" />
-                <button
-                  type="button"
-                  className="rounded-md px-2 py-1 text-[12px] font-medium text-canvas-muted hover:bg-canvas-3 hover:text-white"
-                  onClick={() => download(new Blob([JSON.stringify(current, null, 2)], { type: "application/json" }), "manifest.json")}
-                >
-                  Download manifest.json
-                </button>
-              </div>
-            </div>
-            <pre className="max-h-[620px] overflow-auto p-4 font-mono text-[12px] leading-relaxed text-canvas-text"><code>{JSON.stringify(current, null, 2)}</code></pre>
+        {/* 2. Launch */}
+        <section className="mt-8" aria-labelledby="dep-launch">
+          <h2 id="dep-launch" className="font-display text-[22px] font-bold leading-tight">Launch</h2>
+          <div className="mt-3">
+            <Tabs
+              value={launch}
+              onChange={setLaunch}
+              label="Launch target"
+              tabs={[
+                { value: "phone", label: "Phone app" },
+                { value: "android", label: "Android native" },
+                { value: "laptop", label: "Laptop / PC" },
+                { value: "chat", label: "WhatsApp / Messenger" }
+              ]}
+            />
           </div>
-        )}
+          <div className="mt-4">
+            {launch === "phone" && <PhoneTarget m={current} qr={qr} onLaunch={launchFieldApp} />}
+            {launch === "android" && <AndroidTarget m={current} />}
+            {launch === "laptop" && <LaptopTarget m={current} />}
+            {launch === "chat" && <ChatTarget bridge={bridge} check={check} />}
+          </div>
+        </section>
       </div>
     </div>
   );

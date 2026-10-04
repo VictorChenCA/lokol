@@ -7,7 +7,7 @@ import { listPacks, type SavedPack } from "../runtime/corpus_builder";
 import { useModelCard } from "../components/ModelCard";
 import type { Manifest, Sector } from "../types";
 
-/** Packs library: Lokol Health (a custom pack built from a guideline), two sample packs, and the user's own packs. */
+/** Packs library: one grid. Lokol Health (a custom pack built in Lokol Studio), two sample packs, then any pack the user builds, with the same card. */
 
 interface CorpusCount {
   sections: number;
@@ -19,13 +19,13 @@ const BUILT_IN: { sector: Sector; kind: "Custom pack" | "Sample pack"; source: s
   {
     sector: "health",
     kind: "Custom pack",
-    source: "Built from: Solomon Islands Standard Treatment Manual for Children, 2017",
+    source: "Custom pack, built in Lokol Studio from the Solomon Islands Standard Treatment Manual for Children (2017)",
     langs: "English and Solomon Islands Pijin",
     count: { sections: 56, chunks: 183, words: 29236 },
     models: ["lokol-health-qwen3-0.6b", "lokol-health-qwen3-1.7b", "lokol-health-qwen3.5-9b"]
   },
-  { sector: "agriculture", kind: "Sample pack", source: "Built from: a sample crop, pest and market guide", langs: "English" },
-  { sector: "tourism", kind: "Sample pack", source: "Built from: a sample guesthouse and ferry guide", langs: "English" }
+  { sector: "agriculture", kind: "Sample pack", source: "Sample pack, built from a sample crop, pest and market guide", langs: "English" },
+  { sector: "tourism", kind: "Sample pack", source: "Sample pack, built from a sample guesthouse and ferry guide", langs: "English" }
 ];
 
 function useCorpusCount(sector: Sector, fixed?: CorpusCount): CorpusCount | null {
@@ -145,57 +145,47 @@ export default function PackLibrary() {
           {BUILT_IN.map((p) => (
             <BuiltInCard key={p.sector} p={p} />
           ))}
+          {(saved ?? []).map((p) => {
+            const m = p.manifest as { corpus_inline?: { chunks?: unknown[]; sections?: unknown[]; source?: string }; pack_id?: string; description?: string };
+            return (
+              <article key={p.id} className="flex flex-col rounded-2xl border border-ink/80 bg-white p-5 shadow-lift">
+                <div className="flex items-center justify-between gap-2">
+                  <h2 className="min-w-0 truncate font-display text-[22px] font-bold leading-tight">{p.name}</h2>
+                  <Badge tone="reef">Custom pack</Badge>
+                </div>
+                {m.description && <p className="mt-2 text-[14.5px] leading-relaxed text-ink-2">{m.description}</p>}
+                <p className="mt-3 text-[13.5px] font-medium text-ink">Custom pack, built in Lokol Studio from {m.corpus_inline?.source || "your guideline"}</p>
+                <ul className="mt-2 flex flex-wrap gap-1.5 text-[12.5px]">
+                  <li><Badge tone="white">{m.corpus_inline?.sections?.length ?? 0} sections</Badge></li>
+                  <li><Badge tone="white">{m.corpus_inline?.chunks?.length ?? 0} passages</Badge></li>
+                  <li><Badge tone="white">Saved {new Date(p.created_at).toLocaleDateString()}</Badge></li>
+                </ul>
+                <div className="mt-auto flex flex-wrap gap-2 pt-5">
+                  <Link to={`/studio?pack=${encodeURIComponent(`idb:${p.id}`)}`} className={btnClass("ink", "sm")}>Open in Studio</Link>
+                  <Link to={`/deploy?pack=${encodeURIComponent(`idb:${p.id}`)}`} className={btnClass("ghost", "sm")}>Deploy</Link>
+                </div>
+              </article>
+            );
+          })}
+          {exports.map((m) => (
+            <article key={m.pack_id} className="flex flex-col rounded-2xl border border-ink/80 bg-white p-5 shadow-lift">
+              <div className="flex items-center justify-between gap-2">
+                <h2 className="min-w-0 truncate font-display text-[22px] font-bold leading-tight">{m.graph.name}</h2>
+                <Badge tone="reef">Custom pack</Badge>
+              </div>
+              <p className="mt-3 text-[13.5px] font-medium text-ink">Custom pack, built in Lokol Studio</p>
+              <ul className="mt-2 flex flex-wrap gap-1.5 text-[12.5px]">
+                <li><Badge tone="white">{m.graph.nodes.length} steps</Badge></li>
+                <li><Badge tone="white">{m.models.length} models</Badge></li>
+                <li><Badge tone="white">Built for {m.graph.target.device}</Badge></li>
+              </ul>
+              <div className="mt-auto flex flex-wrap gap-2 pt-5">
+                <Link to={`/studio?pack=${encodeURIComponent(`export:${m.pack_id}`)}`} className={btnClass("ink", "sm")}>Open in Studio</Link>
+                <Link to={`/deploy?pack=${encodeURIComponent(m.pack_id!)}`} className={btnClass("ghost", "sm")}>Deploy</Link>
+              </div>
+            </article>
+          ))}
         </div>
-
-        <section aria-labelledby="yours" className="mt-12">
-          <h2 id="yours" className="font-display text-d-sm font-bold">Your packs</h2>
-          <p className="mt-1 text-[14px] text-ink-3">Packs you built from a guideline or exported from Studio. They are saved in this browser.</p>
-          {saved === null ? (
-            <p className="mt-4 text-[13.5px] text-ink-3">Looking for packs saved in this browser…</p>
-          ) : saved.length === 0 && exports.length === 0 ? (
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-dashed border-line bg-paper-2/60 px-4 py-4">
-              <p className="text-[14px] text-ink-2">No packs of your own yet. Upload any PDF guideline and Lokol turns it into a pack that cites its pages, offline.</p>
-              <Link to="/packs/new" className={btnClass("ink", "sm")}>New pack from a guideline</Link>
-            </div>
-          ) : (
-            <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {saved.map((p) => {
-                const m = p.manifest as { corpus_inline?: { chunks?: unknown[]; sections?: unknown[]; source?: string }; pack_id?: string; description?: string };
-                return (
-                  <li key={p.id} className="flex flex-col rounded-2xl border border-line bg-white p-4">
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="min-w-0 truncate font-display text-[18px] font-bold">{p.name}</p>
-                      <Badge tone="reef">Custom pack</Badge>
-                    </div>
-                    <p className="mt-1 text-[13px] text-ink-2">Built from: {m.corpus_inline?.source || "your manual"}</p>
-                    <p className="mt-1 text-[12.5px] text-ink-3">
-                      {m.corpus_inline?.sections?.length ?? 0} sections, {m.corpus_inline?.chunks?.length ?? 0} passages. Saved {new Date(p.created_at).toLocaleDateString()}.
-                    </p>
-                    <div className="mt-auto flex flex-wrap gap-2 pt-4">
-                      <Link to={`/studio?pack=${encodeURIComponent(`idb:${p.id}`)}`} className={btnClass("ink", "sm")}>Open in Studio</Link>
-                      <Link to={`/deploy?pack=${encodeURIComponent(`idb:${p.id}`)}`} className={btnClass("ghost", "sm")}>Deploy</Link>
-                    </div>
-                  </li>
-                );
-              })}
-              {exports.map((m) => (
-                <li key={m.pack_id} className="flex flex-col rounded-2xl border border-line bg-white p-4">
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="min-w-0 truncate font-display text-[18px] font-bold">{m.graph.name}</p>
-                    <Badge tone="sand">Studio export</Badge>
-                  </div>
-                  <p className="mt-1 text-[12.5px] text-ink-3">
-                    {m.graph.nodes.length} steps, {m.models.length} models, built for {m.graph.target.device}.
-                  </p>
-                  <div className="mt-auto flex flex-wrap gap-2 pt-4">
-                    <Link to={`/studio?pack=${encodeURIComponent(`export:${m.pack_id}`)}`} className={btnClass("ink", "sm")}>Open in Studio</Link>
-                    <Link to={`/deploy?pack=${encodeURIComponent(m.pack_id!)}`} className={btnClass("ghost", "sm")}>Deploy</Link>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
       </div>
     </div>
   );

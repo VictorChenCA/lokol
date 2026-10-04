@@ -65,3 +65,16 @@ describe("buildManifest with voice switched off", () => {
     for (const id of speechIds) if (!kept.has(id)) expect(m.models.some((x) => x.id === id)).toBe(false);
   });
 });
+
+describe("deploy target", () => {
+  it("keeps a saved pack id, a sector id or an export id, and opens saved packs by id", async () => {
+    const { deployTarget, fieldAppRoute, LAPTOP_9B_COMMAND } = await import("./pack");
+    expect(deployTarget("idb:custom-abc", HEALTH_GRAPH)).toEqual({ pack_id: "custom-abc", idb: true });
+    expect(deployTarget("health", HEALTH_GRAPH)).toEqual({ pack_id: "health", idb: false });
+    expect(deployTarget("export:my-pack", HEALTH_GRAPH)).toEqual({ pack_id: "my-pack", idb: false });
+    expect(deployTarget("custom", { ...HEALTH_GRAPH, name: "My Clinic" })).toEqual({ pack_id: "my-clinic", idb: false });
+    expect(fieldAppRoute({ pack_id: "custom-abc", idb: true })).toBe("/demo?pack=idb%3Acustom-abc");
+    expect(fieldAppRoute({ pack_id: "health", idb: false })).toBe("/demo");
+    expect(LAPTOP_9B_COMMAND).toMatch(/--lora lokol-health-9b-lora-f16\.gguf --jinja -c 4096$/);
+  });
+});

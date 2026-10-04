@@ -410,6 +410,7 @@ function Canvas({ onReady }: { onReady: () => void }) {
 
 function StudioHeader() {
   const graph = useStudio((s) => s.graph);
+  const packKey = useStudio((s) => s.packKey);
   const setInternet = useStudio((s) => s.setInternet);
   const setVoice = useStudio((s) => s.setVoice);
   const navigate = useNavigate();
@@ -475,6 +476,10 @@ function StudioHeader() {
         </button>
         <button type="button" className="btn-glow btn-sm" onClick={() => navigate("/demo", { state: { graph: activeGraph(graph) } })}>
           Open in field app
+        </button>
+        {/* Deploy ships exactly this canvas: switched-off speech nodes dropped, the pack id kept so a saved pack opens as itself. */}
+        <button type="button" className="btn-on-dark btn-sm" onClick={() => navigate("/deploy", { state: { graph: activeGraph(graph), packKey } })}>
+          Deploy
         </button>
       </div>
     </div>

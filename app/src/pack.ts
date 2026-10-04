@@ -199,3 +199,26 @@ export function download(blob: Blob, filename: string) {
     a.remove();
   }, 1000);
 }
+
+/** The offline 9B on a 16 GB laptop: base Qwen3.5-9B with the Lokol Health LoRA. */
+export const LAPTOP_9B_COMMAND = "llama-server -m Qwen3.5-9B-Q4_K_M.gguf --lora lokol-health-9b-lora-f16.gguf --jinja -c 4096";
+
+const SECTOR_KEYS = new Set(["health", "agriculture", "tourism"]);
+
+/**
+ * Which pack Deploy launches, from the Studio's pack key: a saved pack ("idb:<id>") keeps its id so
+ * the field app opens that exact pack (with its guideline index); a sector preset keeps its sector id;
+ * an export keeps its pack_id; anything else is named after the graph.
+ */
+export function deployTarget(packKey: string | null | undefined, graph: Graph): { pack_id: string; idb: boolean } {
+  const k = packKey ?? "";
+  if (k.startsWith("idb:") && k.length > 4) return { pack_id: k.slice(4), idb: true };
+  if (k.startsWith("export:") && k.length > 7) return { pack_id: k.slice(7), idb: false };
+  if (SECTOR_KEYS.has(k)) return { pack_id: k, idb: false };
+  return { pack_id: slug(graph.name), idb: false };
+}
+
+/** Field-app route for a deploy target: a saved pack opens by id, everything else runs the graph itself. */
+export function fieldAppRoute(target: { pack_id: string; idb: boolean }): string {
+  return target.idb ? `/demo?pack=${encodeURIComponent(`idb:${target.pack_id}`)}` : "/demo";
+}
