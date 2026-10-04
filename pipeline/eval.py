@@ -244,6 +244,12 @@ def load_bench(size):
     return out
 
 def report(paths, out_md):
+    # Default target: pipeline/report_studio.py owns eval/results.md, eval/results.json and the Studio results.json
+    # (adds the with-gate and dose-audit columns, samples and limitations). A custom --out keeps the plain table below.
+    if Path(out_md).resolve() == (ROOT / "eval" / "results.md").resolve() and (HERE / "report_studio.py").exists():
+        import report_studio
+        report_studio.main(["--print"])
+        return
     evs = []
     for p in paths:
         for f in sorted(glob.glob(p)):
@@ -292,6 +298,10 @@ def write_studio_results(evs):
     rows[{model,size,variant,runtime,metrics{format_compliance,action_accuracy,stm_accuracy,red_flag_recall,abstain_precision,
     abstain_recall,pijin_glossary_hit_rate,judge_faithfulness_0_3,tokens_per_s?,ram_mb?}}]. Eval names must look like
     base-0.8b / tuned-0.8b / tuned-9b[-suffix]; other names are skipped. Returns the written path or None."""
+    if (HERE / "report_studio.py").exists():  # the full Studio shape (rows + per_lang/per_task + samples + meta)
+        import report_studio
+        report_studio.build()
+        return report_studio.STUDIO_OUT
     out = ROOT / "app" / "public" / "eval" / "results.json"
     if not out.parent.exists():
         return None

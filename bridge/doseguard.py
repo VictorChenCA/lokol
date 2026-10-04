@@ -4,7 +4,8 @@ Mirrors ``app/src/runtime/doseguard.ts`` (same regexes, same 15% tolerance, same
 
 A dose expression is a number or range plus a unit (mg/kg, mg, mcg/kg, mcg, microgram, g/kg, g,
 ml/kg, ml, units/kg, IU; "mg per kg", "mg/kilo" and Pijin "mg fo evri kilo" are all mg/kg). It is SUPPORTED when
-  (a) the same number + unit appears in the excerpt (a range matches if either endpoint does), or
+  (a) the same number + unit appears in the excerpt (for a range, the TOP endpoint must appear: "15-150 mg/kg"
+      is not grounded by "15mg/kg", while "10-15 mg/kg" is, since a lower bottom only under-doses), or
   (b) it is an absolute amount (mg, mcg, g, ml), the nurse message gives a weight, and every endpoint
       is within 15% of an excerpt per-kg dose x weight (or inside an excerpt per-kg range x weight),
       or appears in the excerpt as an absolute amount (weight-band tables).
@@ -15,18 +16,30 @@ are not checked here.
 from __future__ import annotations
 
 import re
+import unicodedata
 from dataclasses import dataclass
 
-_NUM = r"\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?"
+# ASCII digits only (JS \d is ASCII). "1,000" is thousands; "12,5" is a decimal comma; ".5" is 0.5.
+_NUM = r"[0-9]{1,3}(?:,[0-9]{3})+(?:\.[0-9]+)?|[0-9]+(?:[.,][0-9]+)?|\.[0-9]+"
 DOSE_RE = re.compile(
-    rf"(^|[^A-Za-z0-9_.])({_NUM})(?:\s*(?:-|–|to)\s*({_NUM}))?\s*"
-    r"(mg|milligrams?|mcg|µg|micrograms?|g|gm|grams?|mls?|millilit(?:re|er)s?|iu|units?)"
+    # "2x250mg": a digit + x/× before the number also starts a dose. Range dashes: - ‐ ‑ ‒ – — ― − and "to".
+    rf"(^|[^A-Za-z0-9_.]|[0-9][xX×])({_NUM})(?:\s*(?:[-\u2010-\u2015\u2212]|to)\s*({_NUM}))?\s*"
+    r"(mgs?|milligram(?:me)?s?|mcgs?|[µμ]g|microgram(?:me)?s?|g|gms?|gram(?:me)?s?|mls?|millilit(?:re|er)s?|iu|units?)"
     # per-kg: "/kg", "per kg", Pijin "fo evri kilo" / "long wan kilo", "every kg"
     r"(\s*(?:/|per\b|(?:fo|for|long|lo)\s+(?:evri|every|each|wan|one|1)\b|(?:evri|every|each)\b)\s*(?:kg|kilograms?|kilos?)(?![A-Za-z]))?(?![A-Za-z])",
     re.I,
 )
-WEIGHT_RE = re.compile(r"(^|[^A-Za-z0-9_.])(\d+(?:\.\d+)?)\s*(?:kgs?|kilos?|kilograms?)(?![A-Za-z])", re.I)
-WEIGHT2_RE = re.compile(r"\bweigh(?:t|s|ing)?\s*(?:is|of|=|:)?\s*(\d+(?:\.\d+)?)", re.I)
+WEIGHT_RE = re.compile(r"(^|[^A-Za-z0-9_.])([0-9]+(?:\.[0-9]+)?)\s*(?:kgs?|kilos?|kilograms?)(?![A-Za-z])", re.I)
+WEIGHT2_RE = re.compile(r"\bweigh(?:t|s|ing)?\s*(?:is|of|=|:)?\s*([0-9]+(?:\.[0-9]+)?)", re.I)
+_INVISIBLE = re.compile("[\u00ad\u200b-\u200d\u2060\ufeff]")
+
+
+def _clean(s: str) -> str:
+    """NFKC (fullwidth digits, NBSP/thin spaces, Kelvin sign, micro sign) and drop zero-width characters,
+    so a zero-width space inside "50 mg/kg" or fullwidth digits cannot hide a dose, and the app and bridge
+    read the same text."""
+    return _INVISIBLE.sub("", unicodedata.normalize("NFKC", s or ""))
+
 
 ABSOLUTE = {"mg", "mcg", "g", "ml"}
 TOL = 0.15
@@ -42,16 +55,18 @@ class Dose:
 
 
 def _num(s: str) -> float:
-    return float(s.replace(",", ""))
+    if re.fullmatch(r"[0-9]{1,3}(?:,[0-9]{3})+(?:\.[0-9]+)?", s):
+        return float(s.replace(",", ""))
+    return float(s.replace(",", "."))
 
 
 def _norm_unit(u: str, per_kg: bool) -> str:
     b = u.lower()
-    if b in ("µg", "μg") or b.startswith("microgram"):
+    if b in ("µg", "μg", "mcgs") or b.startswith("microgram"):
         b = "mcg"
-    elif b.startswith("milligram"):
+    elif b == "mgs" or b.startswith("milligram"):
         b = "mg"
-    elif b == "gm" or b.startswith("gram"):
+    elif b in ("gm", "gms") or b.startswith("gram"):
         b = "g"
     elif b == "mls" or b.startswith("millilit"):
         b = "ml"
@@ -62,7 +77,7 @@ def _norm_unit(u: str, per_kg: bool) -> str:
 
 def extract_doses(text: str) -> list[Dose]:
     out: list[Dose] = []
-    for m in DOSE_RE.finditer(text or ""):
+    for m in DOSE_RE.finditer(_clean(text)):
         unit = _norm_unit(m.group(4), bool(m.group(5)))
         if unit == "units":  # bare "units" is not a dose unit here; units/kg is
             continue
@@ -73,8 +88,9 @@ def extract_doses(text: str) -> list[Dose]:
 
 
 def extract_weights(message: str) -> list[float]:
-    ws = [_num(m.group(2)) for m in WEIGHT_RE.finditer(message or "")]
-    ws += [_num(m.group(1)) for m in WEIGHT2_RE.finditer(message or "")]
+    message = _clean(message)
+    ws = [_num(m.group(2)) for m in WEIGHT_RE.finditer(message)]
+    ws += [_num(m.group(1)) for m in WEIGHT2_RE.finditer(message)]
     return [w for w in ws if 0.5 < w < 150]
 
 
@@ -99,7 +115,7 @@ def _by_weight(v: float, unit: str, ex: list[Dose], weights: list[float]) -> boo
 
 
 def dose_supported(d: Dose, ex: list[Dose], weights: list[float]) -> bool:
-    if _in_excerpt(d.lo, d.unit, ex) or _in_excerpt(d.hi, d.unit, ex):
+    if _in_excerpt(d.hi, d.unit, ex):  # the top of a range must be on the page
         return True
     if d.unit in ABSOLUTE and weights:
         return all(_by_weight(v, d.unit, ex, weights) for v in (d.lo, d.hi))

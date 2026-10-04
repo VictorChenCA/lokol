@@ -76,12 +76,15 @@ elif ! command -v cloudflared >/dev/null 2>&1; then
   echo "cloudflared not installed (brew install cloudflared); running local only" >&2
 else
   : >"$CF_LOG"
-  cloudflared tunnel --no-autoupdate --url "http://localhost:$PORT" >"$CF_LOG" 2>&1 &
+  # 127.0.0.1, not localhost: the bridge binds IPv4 only and localhost may resolve to ::1 first.
+  cloudflared tunnel --no-autoupdate --url "http://127.0.0.1:$PORT" >"$CF_LOG" 2>&1 &
   CF_PID=$!
   PIDS+=("$CF_PID")
   echo "waiting for cloudflared ..."
   for _ in $(seq 1 60); do
-    PUBLIC_URL="$(grep -Eo 'https://[a-z0-9-]+\.trycloudflare\.com' "$CF_LOG" | head -n 1 || true)"
+    # Skip cloudflared's own service hosts: a failed request logs 'Post "https://api.trycloudflare.com/tunnel"'.
+    PUBLIC_URL="$(grep -Eo 'https://[a-z0-9-]+\.trycloudflare\.com' "$CF_LOG" |
+      grep -Ev '^https://(api|login|www)\.trycloudflare\.com$' | head -n 1 || true)"
     [ -n "$PUBLIC_URL" ] && break
     kill -0 "$CF_PID" 2>/dev/null || { echo "cloudflared exited; see $CF_LOG" >&2; break; }
     sleep 1
@@ -90,7 +93,7 @@ else
     printf '%s\n' "$PUBLIC_URL" >"$URL_FILE"
     export PUBLIC_BASE_URL="$PUBLIC_URL"
   else
-    echo "no trycloudflare URL after 60 s; continuing local only (see $CF_LOG)" >&2
+    echo "no trycloudflare URL; continuing local only (see $CF_LOG)" >&2
   fi
 fi
 

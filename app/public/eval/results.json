@@ -1,6 +1,6 @@
 {
   "sample": false,
-  "generated_at": "2026-10-03T23:48:17-0700",
+  "generated_at": "2026-10-03T23:56:32-0700",
   "test_set": {
     "n": 300,
     "path": "data/synth/test.jsonl",
@@ -442,16 +442,74 @@
   ],
   "samples": [
     {
-      "id": "j8-00046-4",
-      "task": "abstain",
-      "lang": "en",
+      "id": "j7-00416-0",
+      "task": "referral",
+      "lang": "pis",
       "flags": {
         "rdt": "unknown",
-        "act": "no",
-        "transport": "none"
+        "act": "unknown",
+        "transport": "now"
+      },
+      "guideline": {
+        "section": "MEASLES",
+        "page": 61
+      },
+      "message": "Pikinini boe 6 yia, 22.1 kilo. Hem garem hot bodi an nao rash kala red hem kam aot long face an nek. Eye blong hem red, nose hem ron, an hem kough. Hem no dring gud. Truck blong hospital hem stap nao.",
+      "gold": {
+        "action": "REFER_NOW",
+        "stm": "MEASLES"
+      },
+      "unseen_presentation": false,
+      "outputs": [
+        {
+          "variant": "base",
+          "model": "Qwen3-0.6B (llama.cpp Q4_K_M)",
+          "size": "0.6B",
+          "text": "Pikinini boe 6 yia, 22.1 kilo. Hem garem hot bodi an nao rash kala red hem kam aot long face an nek. Eye blong hem red, nose hem ron, an hem kough. Hem no dring gud. Truck blong hospital hem stap nao.",
+          "action": null,
+          "stm": null,
+          "format_ok": false
+        },
+        {
+          "variant": "tuned",
+          "model": "Lokol Health 0.6B (Apple silicon LoRA, llama.cpp Q4_K_M)",
+          "size": "0.6B",
+          "text": "ACTION: REFER_NOW\nSTM: MEASLES\n---\nHem red hot bodi an no dring gud: hem mas go long hospital long truck nao.\nGivim Vitamin A 200,000 Units long maot 2-4 wiks, an 3rd dose 2-4 wiks afta eye sign.\nSapos hem no dring, toraot evri samting, slip tumas, o brit hariap, sendem go long hospital long truck.\nKipim hem warm, letem mama givim susu sapos hem fit.\nKolem hospital o AHC long radio o fon, talem olketa pikinini hem kam.\nRaetem note: age 6 yia, weight 22.1 kg, hot bodi, no dring gud, no red flag, Vitamin A dose an taem.",
+          "action": "REFER_NOW",
+          "stm": "MEASLES",
+          "format_ok": true
+        },
+        {
+          "variant": "base",
+          "model": "Qwen3.5-9B",
+          "size": "9B",
+          "text": "[lang=pis] [rdt=measles] [act=admit] [transport=now]\n[guideline: MEASLES p61] - Measles is a viral infection which causes a red, raised rash - It is transmitted by droplets produced by sneezing and coughing - The incubation period is between 7 and 21 days - Measles is very infectious from 7 days before until 2 days after the rash appears SIGNS & SYMPTOMS - Fever (before the rash appears) - Blotchy red rash, starting on head/neck moving down over the body (day 3-7) - Look for the 3 C's: Cough, Coryza (runny nose), Conjunctivitis - Sore mouth - Koplick spots (may have small white spots in mouth…",
+          "action": null,
+          "stm": null,
+          "format_ok": false
+        },
+        {
+          "variant": "tuned",
+          "model": "Lokol Health 9B (River LoRA, step 180)",
+          "size": "9B",
+          "text": "ACTION: REFER_NOW\nSTM: MEASLES\n---\nPikinini garem saen blong denja: no dring gud. Sendem hem go long hospital long truck nao.\nGivim Vitamin A 200,000 Units long maot bifo hem go.\nLukluk pneumonia, stridor, diarrhoea an dehydration.\nSapos hem no fit dring o hem toraot evri samting, talem long dokta long hospital.\nKolem AHC o hospital long fon o radio bifo hem go.\nRaetem referral leta: 6 yia, 22.1 kilo, rash, no dring gud, Vitamin A taem.",
+          "action": "REFER_NOW",
+          "stm": "MEASLES",
+          "format_ok": true
+        }
+      ]
+    },
+    {
+      "id": "j8-00088-2",
+      "task": "abstain",
+      "lang": "pis",
+      "flags": {
+        "rdt": "yes",
+        "act": "unknown",
+        "transport": "next_boat"
       },
       "guideline": null,
-      "message": "A mother wants to leave her 6 month old baby with the neighbour and go away. She is asking me who she must report to and whether the baby can stay with the neighbour. What does the manual say about this?",
+      "message": "Mi garem wanfala pikinini 72 months, 22.1 kilo. Skin blong hem garem samfala spot an hem no garem hot bodi. Mama blong hem askem mi strong: \"Wanem disease blong pikinini blong mi?\" Mi no save talem stret nomoa. Hao nao?",
       "gold": {
         "action": "ASK_PERSON",
         "stm": "NONE"
@@ -462,16 +520,16 @@
           "variant": "base",
           "model": "Qwen3-0.6B (llama.cpp Q4_K_M)",
           "size": "0.6B",
-          "text": "It is important to ensure the child's safety and well-being. If the child is in danger or requires immediate medical attention, you should report them to the appropriate health authority. If the child is safe and can be left with the neighbor, you should inform the neighbor and follow the standard procedures for leaving a child. Please consult with a health professional for further guidance.",
+          "text": "Wanem disease blong pikinini blong mi? Mi no save talem stret nomoa. Hao nao?",
           "action": null,
           "stm": null,
           "format_ok": false
         },
         {
           "variant": "tuned",
-          "model": "Lokol Health 0.6B (Apple silicon LoRA) (llama.cpp Q4_K_M)",
+          "model": "Lokol Health 0.6B (Apple silicon LoRA, llama.cpp Q4_K_M)",
           "size": "0.6B",
-          "text": "ACTION: ASK_PERSON\nSTM: NONE\n---\nI am not sure about mother leave or what to report to. The manual does not cover this.\nAsk the nurse in charge or the doctor at the AHC for the child's leave and the mother's leave report.\nCheck the baby's temperature and check the baby's weight. If the baby is under 2 months, give the mother a warm blanket and keep offering the breast.\nWrite the note: age 6 months, weight 2.5 kg, mother's leave report, mother's leave report, mother's leave report, mother's leave report, mother's leave report.",
+          "text": "ACTION: ASK_PERSON\nSTM: NONE\n---\nMi no sua long pikinini blong pikinini. Mi no save talem stret nomoa.\nAskem mama fo letem hem go long hospital o hospital long radio o fon.\nTalem olketa: pikinini 72 months, 22.1 kilo, skin garem spot an no hot bodi.\nSapos hem no fit dring o hem toraot, kolem dokta long radio.",
           "action": "ASK_PERSON",
           "stm": "NONE",
           "format_ok": true
@@ -480,7 +538,7 @@
           "variant": "base",
           "model": "Qwen3.5-9B",
           "size": "9B",
-          "text": "**Important:** I cannot give you a diagnosis or tell you exactly what to do in this specific case, as I do not know the full details of the baby's health or the mother's situation. You must use the **Solomon Islands Standard Treatment Manual for Children** to make the final decision.\n\nHowever, here is how you should approach this using the manual:\n\n1.  **Check for Danger Signs:** Look at the baby immediately. Does the baby have any of the \"Danger Signs\" listed in the manual (e.g., unable to drink or breastfeed, vomits everything, convulsions, lethargic/unconscious, or has a fever)?\n    *   **…",
+          "text": "Mi no save talem wanem disease blong pikinini. Mi no save talem disease. Mi save help yu lukluk long Standard Treatment Manual blong Children blong Solomon Islands.\n\nLukluk long yu:\n1. Pikinini 72 months (6 years).\n2. Weight 22.1 kg.\n3. Skin garem spot, no hot bodi.\n\n**Step 1: Lukluk long Weight**\nPikinini 72 months, normal weight long Solomon Islands Standard Treatment Manual blong Children:\n- Normal weight: 14.5 kg to 20.5 kg (approx).\n- 22.1 kg: Pikinini heavy long normal range. No malnutrition.\n\n**Step 2: Lukluk long Symptoms**\n- Skin spot: No hot bodi.\n- No fever.\n- No cough, no diarrhea…",
           "action": null,
           "stm": null,
           "format_ok": false
@@ -489,7 +547,7 @@
           "variant": "tuned",
           "model": "Lokol Health 9B (River LoRA, step 180)",
           "size": "9B",
-          "text": "ACTION: ASK_PERSON\nSTM: NONE\n---\nI am not sure. Custody and reporting are not covered in the health manual.\nAsk the nurse in charge and phone the doctor at the AHC or NRH, and tell them the mother's name, the baby's age, and what she said.\nKeep the baby with the mother and do not let the baby go with the neighbour until the nurse in charge or the doctor has spoken.",
+          "text": "ACTION: ASK_PERSON\nSTM: NONE\n---\nMi no save talem wanem disease. Mi no dokta, an mi no save lukim skin blong pikinini.\nAskem nes in charge o kolem dokta long AHC o NRH long fon o radio, talem: pikinini 72 months, 22.1 kilo, skin spot, no hot bodi.\nSapos spot blong hem garem saen blong infection (red, hot, pus), sendem hem go long klinik kwiktaem.\nNo givim eni meresin fo skin yet.",
           "action": "ASK_PERSON",
           "stm": "NONE",
           "format_ok": true
@@ -497,80 +555,19 @@
       ]
     },
     {
-      "id": "j8-00080-0",
+      "id": "j7-00603-2",
       "task": "guidance",
       "lang": "pis",
       "flags": {
         "rdt": "no",
         "act": "unknown",
-        "transport": "next_boat"
-      },
-      "guideline": {
-        "section": "SURGICAL PROBLEMS",
-        "page": 100
-      },
-      "message": "Pikinini 42 manis olsem 3 haf yia, 14.1 kilo. Skrotum blong hem swol an hat tumas, no save pushum bek. Bel blong hem bikfala tu an hem no save kakae kaikai. Taem mi presum long bel hem krai. Transport long vilij blong mifala hemi next bot long moning.",
-      "gold": {
-        "action": "REFER_NEXT_TRANSPORT",
-        "stm": "SURGICAL PROBLEMS"
-      },
-      "unseen_presentation": true,
-      "outputs": [
-        {
-          "variant": "base",
-          "model": "Qwen3-0.6B (llama.cpp Q4_K_M)",
-          "size": "0.6B",
-          "text": "Pikinini 42 manis olsem 3 haf yia, 14.1 kilo. Skrotum blong hem swol an hat tumas, no save pushum bek. Bel blong hem bikfala tu an hem no save kakae kaikai. Taem mi presum long bel hem krai. Transport long vilij blong mifala hemi next bot long moning.",
-          "action": null,
-          "stm": null,
-          "format_ok": false
-        },
-        {
-          "variant": "tuned",
-          "model": "Lokol Health 0.6B (Apple silicon LoRA) (llama.cpp Q4_K_M)",
-          "size": "0.6B",
-          "text": "ACTION: REFER_NEXT_TRANSPORT\nSTM: SURGICAL PROBLEMS\n---\nBebi krai an no save kaikai hem saen blong denja. Sendem hem long hospital long next boat.\nTaem yu wet: givim ORS sapos hem fit, an givim wata plande.\nKipim hem warm, letem mama givim susu sapos hem fit.\nKolem hospital o AHC long radio o fon, talem bebi 42 manis, 14.1 kilo, swol an hat, no kaikai.\nRaetem long note: age 42 manis, weight 14.1 kg, scrotum swol, hat krai, no kaikai, taem yu wet.",
-          "action": "REFER_NEXT_TRANSPORT",
-          "stm": "SURGICAL PROBLEMS",
-          "format_ok": true
-        },
-        {
-          "variant": "base",
-          "model": "Qwen3.5-9B",
-          "size": "9B",
-          "text": "[lang=pis] [rdt=yes] [act=refer] [transport=next_boat]\n\n**Decision:** Refer immediately to the Surgical Team.\n\n**Reasoning:**\nThe child has a tender, swollen scrotum that **cannot be pushed back** (non-reducible). The abdomen is also distended, and the child is not eating. According to the *Solomon Islands Standard Treatment Manual for Children* (Surgical Problems p100), a hernia that cannot be pushed back (non-reducible) or causes a tender, swollen, sometimes discoloured scrotum is a surgical emergency. This indicates the bowel is stuck (incarcerated), which can lead to bowel obstruction or…",
-          "action": null,
-          "stm": null,
-          "format_ok": false
-        },
-        {
-          "variant": "tuned",
-          "model": "Lokol Health 9B (River LoRA, step 180)",
-          "size": "9B",
-          "text": "ACTION: REFER_NEXT_TRANSPORT\nSTM: SURGICAL PROBLEMS\n---\nDiswan hem saen blong denja: skrotum swol an no save pushum, bel bigfala, no kakae. Pikinini mas go long hospital long next bot.\nTaem yu wet: letem hem sidaon o slip, no letem hem run o play.\nSapos hem krai o hem no fit, kolem AHC long radio kwiktaem.\nNo givim meresin blong bel o skrotum.\nKolem dokta long fon o radio sapos yu save.\nRaetem referral leta: 42 manis, 14.1 kilo, skrotum swol, bel bigfala, no kakae.",
-          "action": "REFER_NEXT_TRANSPORT",
-          "stm": "SURGICAL PROBLEMS",
-          "format_ok": true
-        }
-      ]
-    },
-    {
-      "id": "j7-00267-4",
-      "task": "guidance",
-      "lang": "en",
-      "flags": {
-        "rdt": "no",
-        "act": "yes",
         "transport": "none"
       },
-      "guideline": {
-        "section": "SKIN DISEASES",
-        "page": 96
-      },
-      "message": "Boy 10 years, 33 kilo, big boil on his thigh full of pus. He has no fever and walks OK. Our clinic has no transport today. What is the tablet dose?",
+      "guideline": null,
+      "message": "Wanfala pikinini 8 months, wei 7.9 kg, hem kam long klinik. Hem garem sitsit wata an hem floppy tumas, ai blong hem go insaed an hem no dring. Mi no garem RDT an mi no sua wanem fo givim.",
       "gold": {
-        "action": "ADVISE",
-        "stm": "SKIN DISEASES"
+        "action": "REFER_NOW",
+        "stm": "DIARRHOEA"
       },
       "unseen_presentation": false,
       "outputs": [
@@ -578,25 +575,25 @@
           "variant": "base",
           "model": "Qwen3-0.6B (llama.cpp Q4_K_M)",
           "size": "0.6B",
-          "text": "For a boy 10 years old weighing 33 kilos with a boil on his thigh containing pus, the appropriate dose of cloxacillin is 25 mg/kg orally every 6 hours for 7 days. Since the child is 33 kilos, the dose would be 25 mg/kg × 10 = 250 mg. However, it is important to note that if there is pus present, incision and drainage should be arranged immediately. If the child has a high fever or a hot, swollen, tender limb, they may require further evaluation for underlying conditions.",
+          "text": "Wanfala pikinini 8 months, 7.9 kg, with a weight of 7.9 kg, and the child is currently in the hospital. The child has a weight of 7.9 kg, and the child has a weight of 7.9 kg. The child has a weight of 7.9 kg, and the child has a weight of 7.9 kg. The child has a weight of 7.9 kg, and the child has a weight of 7.9 kg. The child has a weight of 7.9 kg, and the child has a weight of 7.9 kg. The child has a weight of 7.9 kg, and the child has a weight of 7.9 kg.",
           "action": null,
           "stm": null,
           "format_ok": false
         },
         {
           "variant": "tuned",
-          "model": "Lokol Health 0.6B (Apple silicon LoRA) (llama.cpp Q4_K_M)",
+          "model": "Lokol Health 0.6B (Apple silicon LoRA, llama.cpp Q4_K_M)",
           "size": "0.6B",
-          "text": "ACTION: ADVISE\nSTM: SKIN DISEASES\n---\nGive cloxacillin 25 mg/kg orally every 6 hours for 7 days.\nIf pus is present arrange incision and drainage.\nIf the child has a high fever and a hot leg, check for osteomyelitis or septic arthritis.\nIf the child has a high fever and a hot leg, check for danger signs and refer him to hospital.\nCall the hospital or AHC by radio or phone to say a high fever and a hot leg with cloxacillin.\nWrite the note: age 10 years, weight 33 kg, fever, no fever, no transport available, cloxacillin dose and time.",
-          "action": "ADVISE",
-          "stm": "SKIN DISEASES",
+          "text": "ACTION: REFER_NOW\nSTM: DIARRHOEA\n---\nFloppy, ai go insaed an no dring: hem mas go long hospital long radio.\nNo givim eni meresin fo dring, an kolem AHC long radio.\nKolem hospital o AHC long fon o radio, talem pikinini 8 months, 7.9 kg, sitsit wata an floppy.\nGivim oxygen sapos yu garem, an putum IV line sapos yu fit.\nRaetem note: age 8 months, weight 7.9 kg, sitsit wata, floppy, ai go insaed an no dring, no RDT done.",
+          "action": "REFER_NOW",
+          "stm": "DIARRHOEA",
           "format_ok": true
         },
         {
           "variant": "base",
           "model": "Qwen3.5-9B",
           "size": "9B",
-          "text": "Hello! Based on the **Solomon Islands Standard Treatment Manual for Children (p96)** for **Boils or Abscesses**, here is the guidance for your patient:\n\n**Patient Assessment:**\n*   **Age:** 10 years\n*   **Weight:** 33 kg\n*   **Condition:** Big boil on thigh full of pus.\n*   **Status:** No fever, walks OK (no signs of osteomyelitis/septic arthritis).\n\n**Treatment Plan:**\n1.  **Medication:** Prescribe **Cloxacillin**.\n2.  **Dose Calculation:**\n    *   Guideline: 25 mg/kg per dose.\n    *   Calculation: $33 \\text{ kg} \\times 25 \\text{ mg} = 825 \\text{ mg}$.\n    *   **Check Maximum:** The manual s…",
+          "text": "[lang=pis] [rdt=no] [act=refer] [transport=urgent]\n[guideline: Solomon Islands Standard Treatment Manual for Children - Severe Malnutrition / Shock]\n\n**Lokol Health Advice:**\n\nPikinini 8 months, wei 7.9 kg (BMI low for age), garem sitsit wata, floppy, an no dring. Dis sign long **Severe Malnutrition** (wimpy/floppy) na **Shock** (no dring, sitsit wata).\n\n**Action:**\n1. **Refer immediately** long hospital long Honiara (Makogai) or nearest hospital long urgent transport.\n2. **Do not give oral rehydration salts (ORS)** or food yet because hem no dring an hem floppy (risk long aspiration).\n3. **D…",
           "action": null,
           "stm": null,
           "format_ok": false
@@ -605,9 +602,67 @@
           "variant": "tuned",
           "model": "Lokol Health 9B (River LoRA, step 180)",
           "size": "9B",
-          "text": "ACTION: ADVISE\nSTM: SKIN DISEASES\n---\nGive cloxacillin 825 mg by mouth every 6 hours for 7 days (25 mg for each kilo, max 500 mg per dose, so use the maximum 500 mg).\nArrange incision and drainage of the pus.\nCheck the whole limb for a hot, swollen, tender area that might mean osteomyelitis or septic arthritis.\nCome back in 2 days, or sooner if the leg gets worse, he gets a fever, or the pus spreads.",
-          "action": "ADVISE",
-          "stm": "SKIN DISEASES",
+          "text": "ACTION: REFER_NOW\nSTM: DIARRHOEA\n---\nPikinini hem floppy an no dring, olketa saen blong denja. Kolem AHC o hospital long radio o phone nao.\nGivim ORS long hem sapos hem save dring smol smol.\nSapos hem no save dring, no forcim, talem long dokta long phone.\nKipim hem warm an lukim hem long rot.\nTalem long dokta: 8 months, 7.9 kg, sitsit wata, floppy, ai go insaed, no dring.",
+          "action": "REFER_NOW",
+          "stm": "DIARRHOEA",
+          "format_ok": true
+        }
+      ]
+    },
+    {
+      "id": "j7-00529-2",
+      "task": "guidance",
+      "lang": "en",
+      "flags": {
+        "rdt": "unknown",
+        "act": "unknown",
+        "transport": "now"
+      },
+      "guideline": {
+        "section": "OEDEMA",
+        "page": 76
+      },
+      "message": "Child 54 months, around 17 kg. Face is swollen, especially around the eyes, and the belly looks a bit big. He is alert and drinking but the mother says he has been tired this week. I do not know if we have RDT or ACT. We can go to hospital now. Please advise.",
+      "gold": {
+        "action": "REFER_NOW",
+        "stm": "OEDEMA"
+      },
+      "unseen_presentation": false,
+      "outputs": [
+        {
+          "variant": "base",
+          "model": "Qwen3-0.6B (llama.cpp Q4_K_M)",
+          "size": "0.6B",
+          "text": "Child 54 months, around 17 kg. Face is swollen, especially around the eyes, and the belly looks a bit big. He is alert and drinking, but the mother says he has been tired this week. I do not know if we have RDT or ACT. We can go to hospital now. Please advise.  \n\n**Oedema** is a sign of fluid overload or dehydration. Since the child is alert and drinking, but shows signs of **fluid overload** (e.g., swollen face, swollen belly), we should **refer urgently** to hospital. The **underlying cause** could be due to **low blood protein**, **nephrotic syndrome**, **parasites**, **liver disease**, **…",
+          "action": null,
+          "stm": null,
+          "format_ok": false
+        },
+        {
+          "variant": "tuned",
+          "model": "Lokol Health 0.6B (Apple silicon LoRA, llama.cpp Q4_K_M)",
+          "size": "0.6B",
+          "text": "ACTION: REFER_NOW\nSTM: OEDEMA\n---\nThis is a generalised oedema of the face and belly, which is a danger sign. Send him to hospital now.\nCall the hospital or AHC by radio or phone to say he is coming.\nKeep him warm, keep offering small amounts of breast milk, and write the time of the oedema.\nWrite the note: age, weight, face swelling, belly swelling, tired, RDT result, any ACT given.",
+          "action": "REFER_NOW",
+          "stm": "OEDEMA",
+          "format_ok": true
+        },
+        {
+          "variant": "base",
+          "model": "Qwen3.5-9B",
+          "size": "9B",
+          "text": "**Lokol Health Advice**\n\nHello. Based on the Solomon Islands Standard Treatment Manual for Children (STM), here is the guidance for this 54-month-old child with facial oedema (swelling around the eyes) and a distended belly.\n\n**1. Assessment of Severity**\n*   **Signs:** Swelling around the eyes (periorbital oedema) and belly (ascites/generalised oedema).\n*   **Status:** The child is alert and drinking, which is good. However, the mother reports he has been **tired** this week.\n*   **Risk:** Generalised oedema (face + belly) in a child who is tired is a sign of **severe illness** or significan…",
+          "action": null,
+          "stm": null,
+          "format_ok": false
+        },
+        {
+          "variant": "tuned",
+          "model": "Lokol Health 9B (River LoRA, step 180)",
+          "size": "9B",
+          "text": "ACTION: REFER_NOW\nSTM: OEDEMA\n---\nGeneralised oedema with facial swelling is a red flag. Send this child to hospital now.\nCheck for danger signs: fast breathing, chest indrawing, floppy, not drinking, vomiting everything, blood in urine.\nIf any of these are present, call the AHC or hospital by radio or phone before you leave.\nKeep the child warm and let the mother stay with him. Do not give extra fluids.\nWrite the referral note: age, weight, where the swelling is, how long it has been there, and any urine colour change.",
+          "action": "REFER_NOW",
+          "stm": "OEDEMA",
           "format_ok": true
         }
       ]
@@ -630,7 +685,7 @@
   ],
   "meta": {
     "test_set": "300 held-out synthetic test cases (data/synth/test.jsonl, same teacher pipeline as training). 150 of them use 14 presentations that never appear in training. Languages: Pijin 122, English 126, code-switched 52. Tasks: guidance 121, referral 61, visit note 60, follow-up 32, abstain 26.",
-    "date": "2026-10-03T23:48:17-0700",
+    "date": "2026-10-03T23:56:32-0700",
     "limitations": [
       "The test data is synthetic and written by the same teacher models as the training data, so it rewards imitating the teacher; it is not a clinical validation.",
       "Judge faithfulness (headless Claude, 0 to 3, first 60 cases) is low for every model and lowest for the small ones: tuned 9B 1.3, tuned 0.6B 0.5.",

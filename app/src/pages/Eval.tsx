@@ -196,7 +196,7 @@ export default function Eval() {
               </div>
             )}
           </Block>
-          <Block id="speed" title="Speed and memory" pis="Hariap an memori" lede="Measured with llama.cpp on an M1 Max laptop; phones run slower. Memory is what the model needs loaded.">
+          <Block id="speed" title="Speed and memory" pis="Hariap an memori" lede="Small models: llama.cpp on an M1 Max laptop during the eval; phones run slower. 9B: the hosted River API, network time included. Memory is the Q4 weight file.">
             <div className="card-flat p-4 sm:p-5">
               <SpeedPanel rows={data.rows} />
             </div>

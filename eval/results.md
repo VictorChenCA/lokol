@@ -1,6 +1,6 @@
 # Lokol Health eval: base vs tuned
 
-_Generated 2026-10-03T23:48:17-0700 by `pipeline/report_studio.py` from `eval/*.json`._
+_Generated 2026-10-03T23:56:32-0700 by `pipeline/report_studio.py` from `eval/*.json`._
 
 300 held-out synthetic test cases (data/synth/test.jsonl, same teacher pipeline as training). 150 of them use 14 presentations that never appear in training. Languages: Pijin 122, English 126, code-switched 52. Tasks: guidance 121, referral 61, visit note 60, follow-up 32, abstain 26.
 

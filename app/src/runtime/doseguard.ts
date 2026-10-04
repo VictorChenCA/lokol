@@ -4,7 +4,8 @@
 // A dose expression is a number or range plus a unit (mg/kg, mg, mcg/kg, mcg, microgram, g/kg, g,
 // ml/kg, ml, units/kg, IU). It is SUPPORTED when
 // ("mg per kg", "mg/kilo" and Pijin "mg fo evri kilo" are all mg/kg.)
-//   (a) the same number + unit appears in the excerpt (a range matches if either endpoint does), or
+//   (a) the same number + unit appears in the excerpt (for a range, the TOP endpoint must appear: "15-150 mg/kg"
+//       is not grounded by "15mg/kg", while "10-15 mg/kg" is, since a lower bottom only under-doses), or
 //   (b) it is an absolute amount (mg, mcg, g, ml), the nurse message gives a weight, and every endpoint
 //       is within 15% of an excerpt per-kg dose x weight (or inside an excerpt per-kg range x weight),
 //       or appears in the excerpt as an absolute amount (weight-band tables).
@@ -18,28 +19,35 @@ export interface Dose {
   unit: string; // normalised: mg, mcg, g, ml, iu, units, each optionally with "/kg"
 }
 
-const NUM = '\\d{1,3}(?:,\\d{3})+(?:\\.\\d+)?|\\d+(?:\\.\\d+)?';
+// "1,000" is thousands; "12,5" is a decimal comma; ".5" is 0.5.
+const THOUSANDS = '[0-9]{1,3}(?:,[0-9]{3})+(?:\\.[0-9]+)?';
+const NUM = `${THOUSANDS}|[0-9]+(?:[.,][0-9]+)?|\\.[0-9]+`;
 const DOSE_SRC =
-  `(^|[^A-Za-z0-9_.])(${NUM})(?:\\s*(?:-|–|to)\\s*(${NUM}))?\\s*` +
-  '(mg|milligrams?|mcg|µg|micrograms?|g|gm|grams?|mls?|millilit(?:re|er)s?|iu|units?)' +
+  // "2x250mg": a digit + x/× before the number also starts a dose. Range dashes: - ‐ ‑ ‒ – — ― − and "to".
+  `(^|[^A-Za-z0-9_.]|[0-9][xX×])(${NUM})(?:\\s*(?:[-\\u2010-\\u2015\\u2212]|to)\\s*(${NUM}))?\\s*` +
+  '(mgs?|milligram(?:me)?s?|mcgs?|[µμ]g|microgram(?:me)?s?|g|gms?|gram(?:me)?s?|mls?|millilit(?:re|er)s?|iu|units?)' +
   // per-kg: "/kg", "per kg", Pijin "fo evri kilo" / "long wan kilo", "every kg"
   '(\\s*(?:/|per\\b|(?:fo|for|long|lo)\\s+(?:evri|every|each|wan|one|1)\\b|(?:evri|every|each)\\b)\\s*(?:kg|kilograms?|kilos?)(?![A-Za-z]))?(?![A-Za-z])';
 const WEIGHT_SRC = `(^|[^A-Za-z0-9_.])(\\d+(?:\\.\\d+)?)\\s*(?:kgs?|kilos?|kilograms?)(?![A-Za-z])`;
 const WEIGHT2_SRC = '\\bweigh(?:t|s|ing)?\\s*(?:is|of|=|:)?\\s*(\\d+(?:\\.\\d+)?)';
+
+// NFKC (fullwidth digits, NBSP/thin spaces, Kelvin sign, micro sign) and drop zero-width characters, so a
+// zero-width space inside "50 mg/kg" or fullwidth digits cannot hide a dose, and app and bridge read the same text.
+const clean = (s: string) => (s ?? '').normalize('NFKC').replace(/[\u00ad\u200b-\u200d\u2060\ufeff]/g, '');
 
 const ABSOLUTE = new Set(['mg', 'mcg', 'g', 'ml']);
 const TOL = 0.15;
 const EPS = 1e-9;
 
 function num(s: string): number {
-  return parseFloat(s.replace(/,/g, ''));
+  return new RegExp(`^(?:${THOUSANDS})$`).test(s) ? parseFloat(s.replace(/,/g, '')) : parseFloat(s.replace(',', '.'));
 }
 
 function normUnit(u: string, perKg: boolean): string {
   let b = u.toLowerCase();
-  if (b === 'µg' || b.startsWith('microgram')) b = 'mcg';
-  else if (b.startsWith('milligram')) b = 'mg';
-  else if (b === 'gm' || b.startsWith('gram')) b = 'g';
+  if (b === 'µg' || b === 'μg' || b === 'mcgs' || b.startsWith('microgram')) b = 'mcg';
+  else if (b === 'mgs' || b.startsWith('milligram')) b = 'mg';
+  else if (b === 'gm' || b === 'gms' || b.startsWith('gram')) b = 'g';
   else if (b === 'mls' || b.startsWith('millilit')) b = 'ml';
   else if (b === 'unit') b = 'units';
   return perKg ? `${b}/kg` : b;
@@ -47,7 +55,7 @@ function normUnit(u: string, perKg: boolean): string {
 
 export function extractDoses(text: string): Dose[] {
   const out: Dose[] = [];
-  for (const m of text.matchAll(new RegExp(DOSE_SRC, 'gi'))) {
+  for (const m of clean(text).matchAll(new RegExp(DOSE_SRC, 'gi'))) {
     const unit = normUnit(m[4], !!m[5]);
     if (unit === 'units') continue; // bare "units" is not a dose unit here; units/kg is
     const a = num(m[2]);
@@ -59,6 +67,7 @@ export function extractDoses(text: string): Dose[] {
 
 export function extractWeights(message: string): number[] {
   const ws: number[] = [];
+  message = clean(message);
   for (const m of message.matchAll(new RegExp(WEIGHT_SRC, 'gi'))) ws.push(num(m[2]));
   for (const m of message.matchAll(new RegExp(WEIGHT2_SRC, 'gi'))) ws.push(num(m[1]));
   return ws.filter((w) => w > 0.5 && w < 150);
@@ -82,7 +91,7 @@ function byWeight(v: number, unit: string, ex: Dose[], weights: number[]): boole
 }
 
 export function doseSupported(d: Dose, ex: Dose[], weights: number[]): boolean {
-  if (inExcerpt(d.lo, d.unit, ex) || inExcerpt(d.hi, d.unit, ex)) return true;
+  if (inExcerpt(d.hi, d.unit, ex)) return true; // the top of a range must be on the page
   if (ABSOLUTE.has(d.unit) && weights.length) return [d.lo, d.hi].every((v) => byWeight(v, d.unit, ex, weights));
   return false;
 }

@@ -52,6 +52,10 @@ ALTS = [
          model="Lokol Health 9B (River LoRA, step 90)", runtime="river", runtime_detail="River LoRA r16 (hosted), step 90", gguf=None),
 ]
 
+# Gallery ids read and kept for clinical sense (measles referral, floppy dehydrated baby, facial oedema). Used first while
+# they still pass every hard rule in pick_samples(); otherwise the automatic ranking picks.
+PINNED = {"Pijin red-flag referral": ["j7-00416-0"], "Pijin guidance": ["j7-00603-2"], "English guidance": ["j7-00529-2"]}
+
 TEST_SET_TEXT = ("300 held-out synthetic test cases (data/synth/test.jsonl, same teacher pipeline as training). "
                  "150 of them use 14 presentations that never appear in training. Languages: Pijin 122, English 126, "
                  "code-switched 52. Tasks: guidance 121, referral 61, visit note 60, follow-up 32, abstain 26.")
@@ -167,6 +171,13 @@ def clip(text, n=600):
     return t if len(t) <= n else t[: n - 1].rstrip() + "…"
 
 
+def repetitive(text):
+    lines = [ln.strip().lower() for ln in text.splitlines() if ln.strip()]
+    words = re.findall(r"\w+", text.lower())
+    grams = [" ".join(words[k:k + 4]) for k in range(len(words) - 3)]
+    return len(set(lines)) < len(lines) or any(grams.count(g) >= 3 for g in set(grams))
+
+
 def pick_samples(evs, test_rows, unseen):
     """4 gallery prompts. Hard rules: the tuned reply is right (format + ACTION) at every size shown, has no dose the dose
     guard flags, and is not a JSON note on a non-note task. Preferences, relaxed in order when nothing qualifies: the tuned
@@ -205,6 +216,8 @@ def pick_samples(evs, test_rows, unseen):
                 return None  # a visit-note JSON answer to a question
             if guard_doses(tb, excerpt, message, guide and guide["page"], row.get("lang", "en"))[1]:
                 return None  # never showcase a tuned reply with an unsupported dose
+            if repetitive(tb):
+                return None  # degenerate loops ("report, report, report") are a decoding failure, not a typical reply
             stm_all &= (t["pred"]["stm"] or "").upper() == (gold["stm"] or "").upper()
             score += 2 * (b["pred"]["action"] != gold["action"])
             score += (t.get("judge") or {}).get("score") or 0
@@ -213,19 +226,24 @@ def pick_samples(evs, test_rows, unseen):
         score -= len(message) / 400
         return dict(score=score, id=i, row=row, guide=guide, message=message, gold=gold, stm_all=stm_all)
 
+    stm = lambda c: c["stm_all"]
+    red = lambda c: bool(c["gold"].get("red_flag"))
+    is_task = lambda t: (lambda c: c["row"]["task"] == t)
+    advise = lambda c: c["gold"]["action"] == "ADVISE"
+    both = lambda *fs: (lambda c: all(f(c) for f in fs))
+    # (label, hard filter on (test row, gold), preference tiers tried in order)
     cats = [
-        ("referral", lambda r, g: r["task"] == "referral" and r["lang"] == "pis" and g["action"] in REFER and g.get("red_flag")),
-        ("abstain", lambda r, g: r["task"] == "abstain" and g["action"] == "ASK_PERSON"),
-        ("guidance", lambda r, g: r["task"] == "guidance" and r["lang"] == "pis"),
-        ("guidance", lambda r, g: r["task"] == "guidance" and r["lang"] == "en"),
+        ("Pijin red-flag referral", lambda r, g: r["lang"] == "pis" and g["action"] in REFER,
+         [both(is_task("referral"), red, stm), both(is_task("referral"), red), both(is_task("referral"), stm), is_task("referral"), both(red, stm)]),
+        ("abstain", lambda r, g: r["task"] == "abstain" and g["action"] == "ASK_PERSON", [stm]),
+        ("Pijin guidance", lambda r, g: r["task"] == "guidance" and r["lang"] == "pis", [both(advise, stm), stm]),
+        ("English guidance", lambda r, g: r["task"] == "guidance" and r["lang"] == "en", [both(advise, stm), stm]),
     ]
-    tiers = [lambda c: c["stm_all"] and (c["row"]["task"] != "guidance" or c["gold"]["action"] == "ADVISE"),
-             lambda c: c["stm_all"],
-             lambda c: True]
     out, used = [], set()
-    for task, want in cats:
+    for task, want, prefs in cats:
         cands = sorted((c for i in sorted(ids - used) if (c := candidate(i, want))), key=lambda c: (-c["score"], c["id"]))
-        c = next((c for tier in tiers for c in cands if tier(c)), None)
+        pinned = [c for c in cands if c["id"] in PINNED.get(task, [])]
+        c = pinned[0] if pinned else next((c for tier in prefs + [lambda c: True] for c in cands if tier(c)), None)
         if not c:
             print(f"[report] no clean sample for {task}", file=sys.stderr)
             continue
@@ -236,7 +254,10 @@ def pick_samples(evs, test_rows, unseen):
             for variant in ("base", "tuned"):
                 spec, preds = v[variant]
                 p = preds[i]
-                outputs.append({"variant": variant, "model": spec["model"] + (f" ({spec['runtime_detail'].split(' (')[0]})" if spec["gguf"] else ""),
+                label, rt = spec["model"], spec["runtime_detail"].split(" (")[0]
+                if spec["gguf"]:  # one parenthetical: "Lokol Health 0.6B (Apple silicon LoRA, llama.cpp Q4_K_M)"
+                    label = f"{label[:-1]}, {rt})" if label.endswith(")") else f"{label} ({rt})"
+                outputs.append({"variant": variant, "model": label,
                                 "size": sz, "text": clip(p["text"]), "action": p["pred"]["action"], "stm": p["pred"]["stm"],
                                 "format_ok": bool(p["pred"]["format_ok"])})
         out.append({"id": i, "task": row["task"], "lang": row["lang"],
@@ -378,7 +399,7 @@ def build(print_md=False):
                                             for _, e in evs + alts]}, indent=2, ensure_ascii=False) + "\n")
     if print_md:
         print(md)
-    print(f"wrote {STUDIO_OUT.relative_to(ROOT)} ({len(rows)} rows, {len(samples)} samples), {MD_OUT.relative_to(ROOT)}, eval/results.json", file=sys.stderr)
+    print(f"wrote {STUDIO_OUT} ({len(rows)} rows, {len(samples)} samples), {MD_OUT}, {EVAL_DIR / 'results.json'}", file=sys.stderr)
     return studio
 
 

@@ -28,7 +28,7 @@ WITH_VOICE=1 LLM_BACKEND=river bridge/run_local.sh  # + speech sidecar on :8091 
 LLM_BACKEND=llama bridge/run_local.sh               # local llama-server on :8080 (start it first, below)
 ```
 
-`run_local.sh` starts `cloudflared tunnel --url http://localhost:8090`, waits for the `https://<random>.trycloudflare.com` URL, writes it to `bridge/.state/public_url` (gitignored, deleted on exit; `.env` is never edited), then starts the bridge with that `PUBLIC_BASE_URL` (and the sidecar when `WITH_VOICE=1`) and prints:
+`run_local.sh` starts `cloudflared tunnel --url http://127.0.0.1:8090`, waits for the `https://<random>.trycloudflare.com` URL, writes it to `bridge/.state/public_url` (gitignored, deleted on exit; `.env` is never edited), then starts the bridge with that `PUBLIC_BASE_URL` (and the sidecar when `WITH_VOICE=1`) and prints:
 
 ```
  Public URL     https://<random>.trycloudflare.com

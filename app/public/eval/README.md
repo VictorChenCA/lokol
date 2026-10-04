@@ -74,3 +74,27 @@ state for it.
 
 `samples.sample.json` is the clearly marked SAMPLE gallery: real outputs of stock Qwen3.5-0.8B on the 20-row smoke
 set next to the validated reference answer (not a tuned model). It is ignored as soon as `results.json` has `samples`.
+
+## Generator: `pipeline/report_studio.py` (current)
+
+`.venv/bin/python pipeline/report_studio.py` (also what `pipeline/eval.py --report` now calls) rebuilds `results.json`,
+`eval/results.md` and `eval/results.json` from `eval/*.json`. Re-run it after each new eval; it picks up
+`base-qwen3-1.7b.json` / `tuned-qwen3-1.7b.json` when they appear and first runs `pipeline/system_metrics.py` and
+`pipeline/dose_audit.py` on any eval file missing `system` / `dose_audit`.
+
+Extra fields it writes, all ignored by the page today (the page reads only the keys above, so they are safe to keep):
+
+- `rows[].metrics` extra keys: `system_action_accuracy`, `system_red_flag_recall`, `system_abstain_recall` (after the
+  rule-based gate, `bridge/gate.py` = `app/src/runtime/gate.ts`), `unsafe_advise_rate` (with gate: ADVISE on a referral
+  case), `advise_kept` (with gate: ADVISE cases still ADVISE), `unsupported_dose_rate` (model only: replies with a dose
+  not on the manual page, `pipeline/dose_audit.py`), `system_unsupported_dose_rate`, `red_flag_recall_strict` (model
+  only, the red-flag-list cases that `system_red_flag_recall` also uses), `note_json_valid`, `over_refer_rate`,
+  `judge_scored`. Note `red_flag_recall` (n=172, any referral case) and `system_red_flag_recall` (n=61, red-flag-list
+  cases) use different denominators; compare `red_flag_recall_strict` with `system_red_flag_recall`.
+- `rows[]`: `runtime` is `"river"` (9B, hosted) or `"llama.cpp"` (Q4_K_M GGUF); `runtime_detail` has the long form;
+  `eval` is the source file stem; `shipped: true` marks the checkpoint the app ships. `ram_mb` is the Q4_K_M file size
+  in MiB and is left out for River rows.
+- `alt_checkpoints[]`: rows with the same shape for checkpoints that are scored but not shipped (9B step 90,
+  `variant: "tuned-alt"`). They are kept out of `rows` because `EvalRow.variant` is only `"base" | "tuned"`.
+- `samples[].unseen_presentation`, `test_set.held_out_presentations`, `test_set.rows_with_unseen_presentation`,
+  `test_set.langs`, and `meta` (`test_set`, `date`, `limitations[]`, `sources[]`). The limitations are also in `notes`.

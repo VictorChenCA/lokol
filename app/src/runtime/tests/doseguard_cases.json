@@ -247,5 +247,100 @@
   "lang": "en",
   "expect_body": null,
   "expect_unsupported": []
+ },
+ {
+  "name": "range whose top is not in page -> replaced (15-150 mg/kg)",
+  "body": "Give paracetamol 15-150 mg/kg.",
+  "excerpt": "Consider giving paracetamol if fever above 38ºC AND the child is irritable o Dose: 15mg/kg (max 1g) every 4 to 6 hours (maximum 4 doses in 24 hours) o Do not use aspirin in children for fever",
+  "message": "fever",
+  "page": 40,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 40 before giving it. I could not find this dose in the page I used.",
+  "expect_unsupported": [
+   "15-150 mg/kg"
+  ]
+ },
+ {
+  "name": "em-dash range: top endpoint checked",
+  "body": "Give paracetamol 15—20 mg/kg.",
+  "excerpt": "Consider giving paracetamol if fever above 38ºC AND the child is irritable o Dose: 15mg/kg (max 1g) every 4 to 6 hours (maximum 4 doses in 24 hours) o Do not use aspirin in children for fever",
+  "message": "fever",
+  "page": 40,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 40 before giving it. I could not find this dose in the page I used.",
+  "expect_unsupported": [
+   "15—20 mg/kg"
+  ]
+ },
+ {
+  "name": "zero-width space cannot hide a dose",
+  "body": "Give paracetamol 50​mg/kg now.\nGive extra fluids.",
+  "excerpt": "Consider giving paracetamol if fever above 38ºC AND the child is irritable o Dose: 15mg/kg (max 1g) every 4 to 6 hours (maximum 4 doses in 24 hours) o Do not use aspirin in children for fever",
+  "message": "fever",
+  "page": 40,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 40 before giving it. I could not find this dose in the page I used.\nGive extra fluids.",
+  "expect_unsupported": [
+   "50mg/kg"
+  ]
+ },
+ {
+  "name": "decimal comma 12,5 is 12.5, not 5",
+  "body": "Phenobarbitone 12,5 mg/kg daily.",
+  "excerpt": "Maintenance Dose: 5mg/kg",
+  "message": "fits, 10 kg",
+  "page": 118,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 118 before giving it. I could not find this dose in the page I used.",
+  "expect_unsupported": [
+   "12,5 mg/kg"
+  ]
+ },
+ {
+  "name": "milligrammes and mgs are doses",
+  "body": "Give 300 milligrammes, then 500 mgs.",
+  "excerpt": "Consider giving paracetamol if fever above 38ºC AND the child is irritable o Dose: 15mg/kg (max 1g) every 4 to 6 hours (maximum 4 doses in 24 hours) o Do not use aspirin in children for fever",
+  "message": "fever",
+  "page": 40,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 40 before giving it. I could not find this dose in the page I used.",
+  "expect_unsupported": [
+   "300 milligrammes",
+   "500 mgs"
+  ]
+ },
+ {
+  "name": "2x250mg is a dose",
+  "body": "Give 2x250mg tablets.",
+  "excerpt": "Consider giving paracetamol if fever above 38ºC AND the child is irritable o Dose: 15mg/kg (max 1g) every 4 to 6 hours (maximum 4 doses in 24 hours) o Do not use aspirin in children for fever",
+  "message": "fever",
+  "page": 40,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 40 before giving it. I could not find this dose in the page I used.",
+  "expect_unsupported": [
+   "250mg"
+  ]
+ },
+ {
+  "name": "fullwidth digits normalised",
+  "body": "Give ５０ mg/kg.",
+  "excerpt": "Consider giving paracetamol if fever above 38ºC AND the child is irritable o Dose: 15mg/kg (max 1g) every 4 to 6 hours (maximum 4 doses in 24 hours) o Do not use aspirin in children for fever",
+  "message": "fever",
+  "page": 40,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 40 before giving it. I could not find this dose in the page I used.",
+  "expect_unsupported": [
+   "50 mg/kg"
+  ]
+ },
+ {
+  "name": "Greek mu g/kg = micrograms/kg -> kept",
+  "body": "Give adrenaline 10 μg/kg IM.",
+  "excerpt": "Adrenaline 10 micrograms/kg IM",
+  "message": "wheeze, 12 kg",
+  "page": 20,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
  }
 ]
