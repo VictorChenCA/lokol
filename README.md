@@ -11,8 +11,20 @@ Built for Hack-Nation 7 × World Bank **Small AI for Development**, Track A: Hea
 | | |
 |---|---|
 | Live demo | **https://lokol-studio.vercel.app** (works offline after the first visit; add `?runtime=shim` for canned replies without downloading models) |
-| Videos | Demo · Tech · Team (links added at submission) |
+| 1-page report | [docs/Lokol_1-page_report.pdf](docs/Lokol_1-page_report.pdf) |
+| Videos | Team introduction, product demo and technical walkthrough (60 s each), submitted on HackOS and the Google Form |
 | Models | [Lokol Health 0.6B GGUF](https://huggingface.co/VictorChenCA/lokol-health-qwen3-0.6b-gguf) · [Lokol Health 1.7B GGUF](https://huggingface.co/VictorChenCA/lokol-health-qwen3-1.7b-gguf) · [Lokol Health 9B LoRA for llama.cpp](https://huggingface.co/VictorChenCA/lokol-health-qwen3.5-9b-lora-gguf) (trained on River; also hosted on River) · [Pijin TTS ONNX](https://huggingface.co/VictorChenCA/lokol-mms-tts-pis-onnx) |
+| Dataset | Generated for this project: [`data/synth/`](data/synth) (2,704 train, val, 300 held-out test cases in Pijin and English, plus the teacher drafts, judge scores and rejects) · data card: [`data/DATA_CARD.md`](data/DATA_CARD.md) · guideline chunks: [`corpus/`](corpus) |
+| Code | This repository (MIT); a zip is available from GitHub's **Code → Download ZIP** |
+
+
+## Short description
+
+Lokol Studio is a node-based builder for small AI helpers that run offline on the phones people already own. You pick a sector, a language and a device, and Studio recommends a graph of small models (speech in, guideline lookup, a fine-tuned language model, a rule-based safety gate, speech out) that fits the phone's memory. Any node can be swapped or retrained, and Studio exports a deploy pack: an offline web app, an Android GGUF, a laptop bundle, or a WhatsApp/SMS bot.
+
+Lokol Health is the first pack: an assistant for nurse aides in rural Solomon Islands clinics, in Solomon Islands Pijin and English, grounded in the Ministry of Health's Standard Treatment Manual for Children (2017). It never diagnoses. It applies the manual, cites the section it used, flags danger signs for referral (now, or on the next boat), and says "Mi no sua, askem nes o dokta" when the manual doesn't cover the question.
+
+We fine-tuned Qwen3 0.6B and 1.7B on a MacBook with mlx-lm and Qwen3.5-9B with LoRA on River, using 2,704 synthetic cases generated from the manual by open-weight teachers. On 300 held-out cases the base models follow the answer protocol 0% of the time; the tuned models reach 97 to 99%, and the 9B picks the right action 87% of the time. With the safety gate, no dose reaches the nurse unless the cited page gives it. After the first visit, everything runs in the browser with no signal.
 
 ---
 
