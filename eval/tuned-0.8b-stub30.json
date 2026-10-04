@@ -1,0 +1,496 @@
+{
+ "name": "tuned-0.8b-stub30",
+ "model": "models/gguf/lokol-health-0.8b-Q4_K_M.gguf",
+ "data": "data/stub/val.jsonl,data/stub/test.jsonl",
+ "metrics": {
+  "n": 20,
+  "format_compliance": 0.9,
+  "action_acc": 0.6,
+  "stm_acc": 0.9,
+  "red_flag_recall": 0.429,
+  "red_flag_recall_strict": 0.333,
+  "n_red_flag": 7,
+  "abstain_precision": null,
+  "abstain_recall": 0.0,
+  "n_abstain": 2,
+  "pijin_glossary_hit_rate": 0.222,
+  "pijin_glossary_mean_hits": 1.333,
+  "n_pijin": 9,
+  "note_json_valid": 0.0,
+  "n_note": 2,
+  "over_refer_rate": 0.0,
+  "latency_s_mean": 4.947,
+  "latency_s_p95": 16.083,
+  "completion_tokens_mean": 56.45,
+  "gen_tok_s": 11.412,
+  "per_task": {
+   "abstain": {
+    "n": 2,
+    "format": 1.0,
+    "action_acc": 0.0,
+    "stm_acc": 1.0
+   },
+   "followup": {
+    "n": 2,
+    "format": 1.0,
+    "action_acc": 1.0,
+    "stm_acc": 1.0
+   },
+   "guidance": {
+    "n": 8,
+    "format": 1.0,
+    "action_acc": 1.0,
+    "stm_acc": 0.875
+   },
+   "note": {
+    "n": 2,
+    "format": 1.0,
+    "action_acc": 0.5,
+    "stm_acc": 1.0
+   },
+   "referral": {
+    "n": 6,
+    "format": 0.667,
+    "action_acc": 0.167,
+    "stm_acc": 0.833
+   }
+  },
+  "per_lang": {
+   "en": {
+    "n": 9,
+    "format": 0.889,
+    "action_acc": 0.556,
+    "stm_acc": 0.778
+   },
+   "pis": {
+    "n": 11,
+    "format": 0.909,
+    "action_acc": 0.636,
+    "stm_acc": 1.0
+   }
+  },
+  "wall_s": 52.0
+ },
+ "predictions": [
+  {
+   "id": "stub-006",
+   "gold": {
+    "action": "ADVISE",
+    "stm": "DIARRHOEA WITH BLOOD - DYSENTERY",
+    "task": "guidance",
+    "lang": "en",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "ADVISE",
+    "stm": "DIARRHOEA WITH BLOOD - DYSENTERY",
+    "format_ok": true
+   },
+   "text": "ACTION: ADVISE\nSTM: DIARRHOEA WITH BLOOD - DYSENTERY\n---\nMalaria risk: NONE\n---\n---\nMalaria risk: NONE\n---",
+   "meta": {
+    "secs": 3.927,
+    "completion_tokens": 40,
+    "prompt_tokens": 210
+   }
+  },
+  {
+   "id": "stub-043",
+   "gold": {
+    "action": "REFER_NEXT_TRANSPORT",
+    "stm": "FEVER",
+    "task": "note",
+    "lang": "pis",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "REFER_NOW",
+    "stm": "FEVER",
+    "format_ok": true
+   },
+   "text": "ACTION: REFER_NOW\nSTM: FEVER\n---\nMalaria risk: NONE\n---\n---\n---",
+   "meta": {
+    "secs": 2.597,
+    "completion_tokens": 24,
+    "prompt_tokens": 267
+   }
+  },
+  {
+   "id": "stub-018",
+   "gold": {
+    "action": "ADVISE",
+    "stm": "MEASLES",
+    "task": "guidance",
+    "lang": "en",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "ADVISE",
+    "stm": "MEASLES",
+    "format_ok": true
+   },
+   "text": "ACTION: ADVISE\nSTM: MEASLES\n---\nMalaria: no.\nMalaria: no.",
+   "meta": {
+    "secs": 2.573,
+    "completion_tokens": 25,
+    "prompt_tokens": 234
+   }
+  },
+  {
+   "id": "stub-008",
+   "gold": {
+    "action": "ADVISE",
+    "stm": "PNEUMONIA",
+    "task": "guidance",
+    "lang": "en",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "ADVISE",
+    "stm": "PNEUMONIA",
+    "format_ok": true
+   },
+   "text": "ACTION: ADVISE\nSTM: PNEUMONIA\n---\nMalaria: no risk.\nMalaria: no risk.",
+   "meta": {
+    "secs": 2.919,
+    "completion_tokens": 29,
+    "prompt_tokens": 246
+   }
+  },
+  {
+   "id": "stub-052",
+   "gold": {
+    "action": "ADVISE",
+    "stm": "SKIN DISEASES",
+    "task": "followup",
+    "lang": "pis",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "ADVISE",
+    "stm": "SKIN DISEASES",
+    "format_ok": true
+   },
+   "text": "ACTION: ADVISE\nSTM: SKIN DISEASES\n---\nMalaria: 5 days of 5-day course.\nMalaria: 5 days of 5-day course.",
+   "meta": {
+    "secs": 3.899,
+    "completion_tokens": 42,
+    "prompt_tokens": 210
+   }
+  },
+  {
+   "id": "stub-013",
+   "gold": {
+    "action": "ADVISE",
+    "stm": "SKIN DISEASES",
+    "task": "guidance",
+    "lang": "pis",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "ADVISE",
+    "stm": "SKIN DISEASES",
+    "format_ok": true
+   },
+   "text": "ACTION: ADVISE\nSTM: SKIN DISEASES\n---\nMalaria: no.\nMalaria: no.",
+   "meta": {
+    "secs": 2.621,
+    "completion_tokens": 28,
+    "prompt_tokens": 223
+   }
+  },
+  {
+   "id": "stub-037",
+   "gold": {
+    "action": "ADVISE",
+    "stm": "DIARRHOEA",
+    "task": "note",
+    "lang": "pis",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "ADVISE",
+    "stm": "DIARRHOEA",
+    "format_ok": true
+   },
+   "text": "ACTION: ADVISE\nSTM: DIARRHOEA\n---\nMalaria risk: none.\n---\n---",
+   "meta": {
+    "secs": 2.425,
+    "completion_tokens": 25,
+    "prompt_tokens": 295
+   }
+  },
+  {
+   "id": "stub-022",
+   "gold": {
+    "action": "ADVISE",
+    "stm": "DIARRHOEA",
+    "task": "guidance",
+    "lang": "en",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "ADVISE",
+    "stm": "DIARRHOEA",
+    "format_ok": true
+   },
+   "text": "ACTION: ADVISE\nSTM: DIARRHOEA\n---\nMOTHER: ASK\nMOTHER: STOP BREASTFEEDING\nMOTHER: REFER\nMOTHER: REFER\nMOTHER: REFER",
+   "meta": {
+    "secs": 3.772,
+    "completion_tokens": 45,
+    "prompt_tokens": 255
+   }
+  },
+  {
+   "id": "stub-030",
+   "gold": {
+    "action": "REFER_NOW",
+    "stm": "MALARIA",
+    "task": "referral",
+    "lang": "pis",
+    "red_flag": true
+   },
+   "pred": {
+    "action": "ADVISE",
+    "stm": "MALARIA",
+    "format_ok": false
+   },
+   "text": "ACTION: ADVISE\nSTM: MALARIA\n---\nMalaria: ARTEMETHER-LUMEFANTRINE\n---\n---\nMalaria: ARTEMETHER-LUMEFANTRINE\n---\nMalaria: ARTEMETHER-LUMEFANTRINE\n---",
+   "meta": {
+    "secs": 4.894,
+    "completion_tokens": 60,
+    "prompt_tokens": 288
+   }
+  },
+  {
+   "id": "stub-019",
+   "gold": {
+    "action": "ADVISE",
+    "stm": "IMMUNISATION",
+    "task": "guidance",
+    "lang": "pis",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "ADVISE",
+    "stm": "IMMUNISATION",
+    "format_ok": true
+   },
+   "text": "ACTION: ADVISE\nSTM: IMMUNISATION\n---\nMami kam wetem bebi 6 manis fo vaccine bat bebi garem smol kol an nus ron. Mi givim vaccine o no?",
+   "meta": {
+    "secs": 4.342,
+    "completion_tokens": 46,
+    "prompt_tokens": 196
+   }
+  },
+  {
+   "id": "stub-025",
+   "gold": {
+    "action": "REFER_NEXT_TRANSPORT",
+    "stm": "MENINGITIS",
+    "task": "referral",
+    "lang": "en",
+    "red_flag": true
+   },
+   "pred": {
+    "action": null,
+    "stm": null,
+    "format_ok": false
+   },
+   "text": "Malaria.",
+   "meta": {
+    "secs": 0.997,
+    "completion_tokens": 4,
+    "prompt_tokens": 202
+   }
+  },
+  {
+   "id": "stub-031",
+   "gold": {
+    "action": "REFER_NEXT_TRANSPORT",
+    "stm": "ANAEMIA",
+    "task": "referral",
+    "lang": "en",
+    "red_flag": true
+   },
+   "pred": {
+    "action": "REFER_NOW",
+    "stm": "ANAEMIA",
+    "format_ok": true
+   },
+   "text": "ACTION: REFER_NOW\nSTM: ANAEMIA\n---\nSevere anaemia with RDT positive in a 6-year-old.\nSymptoms: Very pale skin, breathlessness walking, swollen feet.\n---\nRefer now.",
+   "meta": {
+    "secs": 5.121,
+    "completion_tokens": 51,
+    "prompt_tokens": 205
+   }
+  },
+  {
+   "id": "stub-032",
+   "gold": {
+    "action": "REFER_NOW",
+    "stm": "FEVER",
+    "task": "referral",
+    "lang": "pis",
+    "red_flag": true
+   },
+   "pred": {
+    "action": "REFER_NOW",
+    "stm": "FEVER",
+    "format_ok": true
+   },
+   "text": "ACTION: REFER_NOW\nSTM: FEVER\n---\nMalaria risk: HIGH\n---\nReferem foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed foed",
+   "meta": {
+    "secs": 18.224,
+    "completion_tokens": 220,
+    "prompt_tokens": 232
+   }
+  },
+  {
+   "id": "stub-016",
+   "gold": {
+    "action": "ADVISE",
+    "stm": "URINARY TRACT INFECTION",
+    "task": "guidance",
+    "lang": "en",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "ADVISE",
+    "stm": "URINARY TRACT INFECTIOUS",
+    "format_ok": true
+   },
+   "text": "ACTION: ADVISE\nSTM: URINARY TRACT INFECTIOUS\n---\nMalaria risk: None.\n---\n---\nMalaria risk: None.",
+   "meta": {
+    "secs": 3.41,
+    "completion_tokens": 35,
+    "prompt_tokens": 220
+   }
+  },
+  {
+   "id": "stub-002",
+   "gold": {
+    "action": "ADVISE",
+    "stm": "MALARIA",
+    "task": "guidance",
+    "lang": "pis",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "ADVISE",
+    "stm": "MALARIA",
+    "format_ok": true
+   },
+   "text": "ACTION: ADVISE\nSTM: MALARIA\n---\nMalaria risk: HIGH\n---\nMalaria risk: HIGH\n---\nMalaria risk: HIGH\n---",
+   "meta": {
+    "secs": 3.225,
+    "completion_tokens": 37,
+    "prompt_tokens": 289
+   }
+  },
+  {
+   "id": "stub-026",
+   "gold": {
+    "action": "REFER_NOW",
+    "stm": "PNEUMONIA",
+    "task": "referral",
+    "lang": "pis",
+    "red_flag": true
+   },
+   "pred": {
+    "action": "ADVISE",
+    "stm": "PNEUMONIA",
+    "format_ok": true
+   },
+   "text": "ACTION: ADVISE\nSTM: PNEUMONIA\n---\nMalaria: 7 manis, kofo, brit hariap 60, chest indrawing, hem no save drink susu.\nLips smol blu.",
+   "meta": {
+    "secs": 4.212,
+    "completion_tokens": 50,
+    "prompt_tokens": 246
+   }
+  },
+  {
+   "id": "stub-056",
+   "gold": {
+    "action": "ASK_PERSON",
+    "stm": "NONE",
+    "task": "abstain",
+    "lang": "en",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "ADVISE",
+    "stm": "NONE",
+    "format_ok": true
+   },
+   "text": "ACTION: ADVISE\nSTM: NONE\n---\nMalaria.",
+   "meta": {
+    "secs": 2.458,
+    "completion_tokens": 15,
+    "prompt_tokens": 131
+   }
+  },
+  {
+   "id": "stub-048",
+   "gold": {
+    "action": "ADVISE",
+    "stm": "MALARIA",
+    "task": "followup",
+    "lang": "pis",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "ADVISE",
+    "stm": "MALARIA",
+    "format_ok": true
+   },
+   "text": "ACTION: ADVISE\nSTM: MALARIA\n---\nMalaria: RDT or blood slide.\nUncomplicated malaria: artemether-lumefantrine by weight twice daily for 3 days with food: 5-14 kg 1 tablet per dose, 15-24 kg 2 tablets, 25-34 kg 3 tablets.\nSevere malaria: give artesunate IM or rectal and refer urgently.\nIf no test available and fever has no cause, treat as malaria and refer for testing.",
+   "meta": {
+    "secs": 9.637,
+    "completion_tokens": 118,
+    "prompt_tokens": 275
+   }
+  },
+  {
+   "id": "stub-024",
+   "gold": {
+    "action": "REFER_NOW",
+    "stm": "CONVULSIONS",
+    "task": "referral",
+    "lang": "pis",
+    "red_flag": true
+   },
+   "pred": {
+    "action": "ADVISE",
+    "stm": "CONVULSIONS",
+    "format_ok": true
+   },
+   "text": "ACTION: ADVISE\nSTM: CONVULSIONS\n---\nMalaria: REFER_NOW\n---\nGivim long 5 min, hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem hem",
+   "meta": {
+    "secs": 16.083,
+    "completion_tokens": 220,
+    "prompt_tokens": 235
+   }
+  },
+  {
+   "id": "stub-054",
+   "gold": {
+    "action": "ASK_PERSON",
+    "stm": "NONE",
+    "task": "abstain",
+    "lang": "en",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "REFER_NOW",
+    "stm": "NONE",
+    "format_ok": true
+   },
+   "text": "ACTION: REFER_NOW\nSTM: NONE\n---\nMalaria.",
+   "meta": {
+    "secs": 1.594,
+    "completion_tokens": 15,
+    "prompt_tokens": 143
+   }
+  }
+ ]
+}

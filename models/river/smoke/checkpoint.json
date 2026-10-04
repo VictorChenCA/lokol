@@ -1,0 +1,40 @@
+{
+  "base": "Qwen/Qwen3.5-9B",
+  "name": "lokol-smoke",
+  "best": {
+    "step": 5,
+    "inference": "river://e05e6968-c380-48da-b673-d077b1a3a87d/sampler_weights/lokol-smoke-s005-inf",
+    "training": "river://e05e6968-c380-48da-b673-d077b1a3a87d/weights/lokol-smoke-s005-train",
+    "val": {
+      "n": 10,
+      "format": 0.4,
+      "action_acc": 0.8,
+      "stm_acc": 0.9,
+      "exact": 0.7,
+      "secs": 8.4
+    },
+    "loss": 1.2236952781677246
+  },
+  "checkpoints": [
+    {
+      "step": 5,
+      "inference": "river://e05e6968-c380-48da-b673-d077b1a3a87d/sampler_weights/lokol-smoke-s005-inf",
+      "training": "river://e05e6968-c380-48da-b673-d077b1a3a87d/weights/lokol-smoke-s005-train",
+      "val": {
+        "n": 10,
+        "format": 0.4,
+        "action_acc": 0.8,
+        "stm_acc": 0.9,
+        "exact": 0.7,
+        "secs": 8.4
+      },
+      "loss": 1.2236952781677246
+    }
+  ],
+  "data": "data/stub/train.jsonl",
+  "examples": 40,
+  "lr": 0.0002,
+  "rank": 16,
+  "batch": 8,
+  "steps": 5
+}

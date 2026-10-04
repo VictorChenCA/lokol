@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lokol.vercel.app/schema/graph.json",
+  "title": "Lokol Graph",
+  "type": "object",
+  "required": ["version", "name", "sector", "language", "target", "nodes", "edges"],
+  "properties": {
+    "version": { "const": 1 },
+    "name": { "type": "string" },
+    "sector": { "enum": ["health", "agriculture", "tourism"] },
+    "language": { "type": "array", "items": { "type": "string" } },
+    "target": {
+      "type": "object",
+      "required": ["device", "ram_gb", "storage_gb", "connectivity"],
+      "properties": {
+        "device": { "type": "string" },
+        "ram_gb": { "type": "number" },
+        "storage_gb": { "type": "number" },
+        "connectivity": { "enum": ["none", "intermittent", "online"] }
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "label", "params", "online", "position"],
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "enum": ["channel", "stt", "llm", "rag", "gate", "tts", "router", "note"] },
+          "label": { "type": "string" },
+          "model": {
+            "type": "object",
+            "required": ["id", "file", "url", "size_mb", "license", "runtime"],
+            "properties": {
+              "id": { "type": "string" },
+              "file": { "type": "string" },
+              "url": { "type": "string" },
+              "size_mb": { "type": "number" },
+              "license": { "type": "string" },
+              "runtime": { "enum": ["wllama", "transformersjs", "llama-server", "river", "python"] }
+            }
+          },
+          "params": { "type": "object" },
+          "online": { "type": "boolean" },
+          "position": {
+            "type": "object",
+            "required": ["x", "y"],
+            "properties": { "x": { "type": "number" }, "y": { "type": "number" } }
+          }
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["from", "to"],
+        "properties": { "from": { "type": "string" }, "to": { "type": "string" } }
+      }
+    }
+  }
+}

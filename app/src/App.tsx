@@ -1,0 +1,57 @@
+import { lazy, Suspense, type ComponentType } from "react";
+import { Routes, Route } from "react-router-dom";
+import { Shell } from "./components/Shell";
+import Home from "./pages/Home";
+import { Spinner } from "./components/ui";
+
+// Pages load on demand so Home paints fast on a 3G phone. Every chunk is precached by the PWA.
+const Studio = lazy(() => import("./pages/Studio"));
+const Recommend = lazy(() => import("./pages/Recommend"));
+const Demo = lazy(() => import("./pages/Demo"));
+const Deploy = lazy(() => import("./pages/Packs"));
+const Eval = lazy(() => import("./pages/Eval"));
+
+// Train page is owned by the TRAIN+EVAL lane; resolve it if present so this file builds either way.
+const trainPage = import.meta.glob<{ default: ComponentType }>("./pages/Train.tsx");
+const Train = lazy(async () => {
+  const load = trainPage["./pages/Train.tsx"];
+  if (load) return load();
+  return { default: TrainPending };
+});
+
+function TrainPending() {
+  return (
+    <div className="page py-16">
+      <h1 className="font-display text-d-md font-bold">Train</h1>
+      <p className="lede mt-3">Training runs and the dataset card load here.</p>
+    </div>
+  );
+}
+
+function PageLoading() {
+  return (
+    <div className="grid flex-1 place-items-center py-24 text-ink-3" role="status">
+      <span className="inline-flex items-center gap-2 text-[14px]">
+        <Spinner /> Loading
+      </span>
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <Routes>
+      <Route element={<Shell />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/studio" element={<Suspense fallback={<PageLoading />}><Studio /></Suspense>} />
+        <Route path="/recommend" element={<Suspense fallback={<PageLoading />}><Recommend /></Suspense>} />
+        <Route path="/train" element={<Suspense fallback={<PageLoading />}><Train /></Suspense>} />
+        <Route path="/eval" element={<Suspense fallback={<PageLoading />}><Eval /></Suspense>} />
+        <Route path="/deploy" element={<Suspense fallback={<PageLoading />}><Deploy /></Suspense>} />
+        <Route path="/packs" element={<Suspense fallback={<PageLoading />}><Deploy /></Suspense>} />
+        <Route path="/demo" element={<Suspense fallback={<PageLoading />}><Demo /></Suspense>} />
+        <Route path="*" element={<Home />} />
+      </Route>
+    </Routes>
+  );
+}

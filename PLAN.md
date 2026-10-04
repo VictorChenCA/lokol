@@ -23,6 +23,15 @@
 
 ---
 
+## 0.1 Decisions from Victor (Oct 3, ~21:00)
+
+- **Lokol Studio is the product**; Lokol Health is the applied instance shown in the demo video. Studio gets real UI/UX investment (design pass, six pages, mobile-first demo).
+- **Track: 04a Health**, with Studio demonstrably sector-agnostic (health, agriculture, tourism packs are config).
+- **Online channel: WhatsApp via Twilio Sandbox** (free on a trial account), adapter kept channel-agnostic so Messenger works too.
+- **Teacher**: open-weight via River (DeepSeek-V4.1-Flash primary, Kimi-K2.6 secondary) for training data; Claude Opus 5.5 (headless, subscription) as judge and for the gold eval set only. Dataset is designed so stock models fail (strict protocol, Pijin output, abstain policy) and tuned models pass.
+- **Credits**: River's $1,009 covers the whole night several times over (expected spend under $100). OpenAI credits are not needed by this plan; only useful as a second judge.
+- Build spec for parallel agents: `docs/SPEC.md`.
+
 ## 1. Hackathon facts you need
 
 - **Event**: Hack-Nation 7th Global AI Hackathon (MIT Sloan AI Club initiative), Oct 3–4 2026, 16 hubs, 3,000+ builders. Stanford hub at Nordic Innovation House, Palo Alto.

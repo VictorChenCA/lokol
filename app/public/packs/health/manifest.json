@@ -1,0 +1,296 @@
+{
+  "pack_id": "health",
+  "created_at": "2026-10-03T22:40:00-07:00",
+  "pwa_url": "https://lokol.vercel.app/demo",
+  "description": "Nurse-aide guidance grounded in the Solomon Islands Standard Treatment Manual for Children (2017). Pijin + English. Runs offline in the browser after first load.",
+  "corpus_url": "packs/health/corpus.json",
+  "system_prompt": "You are Lokol Health, an assistant for nurse aides and health workers in Solomon Islands. You follow the Solomon Islands Standard Treatment Manual for Children. You never diagnose; you help the nurse apply the manual and decide when to refer. Reply in the nurse's language (Solomon Islands Pijin or English). Use the exact output format.",
+  "graph": {
+    "version": 1,
+    "name": "Lokol Health (Solomon Islands, child care)",
+    "sector": "health",
+    "language": [
+      "pis",
+      "en"
+    ],
+    "target": {
+      "device": "Android phone, 3-4 GB RAM",
+      "ram_gb": 3,
+      "storage_gb": 2,
+      "connectivity": "none"
+    },
+    "nodes": [
+      {
+        "id": "channel",
+        "type": "channel",
+        "label": "PWA chat (text + mic)",
+        "params": {
+          "kind": "pwa",
+          "offline": true
+        },
+        "online": false,
+        "position": {
+          "x": 0,
+          "y": 160
+        }
+      },
+      {
+        "id": "stt",
+        "type": "stt",
+        "label": "Speech in (English)",
+        "model": {
+          "id": "moonshine-tiny-en",
+          "label": "Moonshine tiny (English)",
+          "role": "stt",
+          "file": "onnx/encoder_model.onnx + onnx/decoder_model_merged_quantized.onnx",
+          "url": "onnx-community/moonshine-tiny-ONNX",
+          "size_mb": 52,
+          "license": "MIT",
+          "runtime": "transformersjs",
+          "note": "English only. Pijin voice-in is laptop tier (omnilingual-ctc-300m-pis in the sidecar)."
+        },
+        "params": {
+          "languages": [
+            "en"
+          ],
+          "pis_note": "laptop tier only"
+        },
+        "online": false,
+        "position": {
+          "x": 260,
+          "y": 40
+        }
+      },
+      {
+        "id": "rag",
+        "type": "rag",
+        "label": "STM retrieval (BM25)",
+        "params": {
+          "corpus": "packs/health/corpus.json",
+          "top_k": 3,
+          "min_score": 2.0,
+          "pijin_synonyms": true,
+          "excerpt_tokens": 220
+        },
+        "online": false,
+        "position": {
+          "x": 260,
+          "y": 280
+        }
+      },
+      {
+        "id": "llm",
+        "type": "llm",
+        "label": "Lokol Health 0.6B",
+        "model": {
+          "id": "lokol-health-qwen3-0.6b",
+          "label": "Lokol Health 0.6B",
+          "tuned": true,
+          "base_model": "Qwen/Qwen3-0.6B",
+          "role": "llm",
+          "file": "lokol-health-qwen3-0.6b-Q4_K_M.gguf",
+          "url": "https://huggingface.co/VictorChenCA/lokol-health-qwen3-0.6b-gguf/resolve/main/lokol-health-qwen3-0.6b-Q4_K_M.gguf",
+          "size_mb": 397,
+          "license": "Apache-2.0",
+          "runtime": "wllama",
+          "note": "Qwen3-0.6B LoRA-tuned on synthetic STM Children 2017 data (phone tier A default)."
+        },
+        "params": {
+          "n_ctx": 2048,
+          "max_tokens": 220,
+          "temperature": 0,
+          "thinking": false,
+          "base": "Qwen3-0.6B",
+          "quant": "Q4_K_M"
+        },
+        "online": false,
+        "position": {
+          "x": 520,
+          "y": 160
+        }
+      },
+      {
+        "id": "gate",
+        "type": "gate",
+        "label": "Red-flag + abstain gate",
+        "params": {
+          "red_flags": 12,
+          "abstain_when_no_guideline": true,
+          "max_lines": 6
+        },
+        "online": false,
+        "position": {
+          "x": 780,
+          "y": 160
+        }
+      },
+      {
+        "id": "tts",
+        "type": "tts",
+        "label": "Speech out (Pijin)",
+        "model": {
+          "id": "mms-tts-pis",
+          "label": "MMS Pijin voice",
+          "role": "tts_pis",
+          "file": "onnx/model_quantized.onnx",
+          "url": "VictorChenCA/lokol-mms-tts-pis-onnx",
+          "size_mb": 38,
+          "license": "CC-BY-NC-4.0",
+          "runtime": "transformersjs",
+          "dtype": "q8",
+          "note": "ONNX int8 export of facebook/mms-tts-pis (app/src/runtime/tools/export_mms_tts_onnx.py). Non-commercial licence."
+        },
+        "params": {
+          "pis": "mms-tts-pis",
+          "en": "kokoro-82m"
+        },
+        "online": false,
+        "position": {
+          "x": 1040,
+          "y": 40
+        }
+      },
+      {
+        "id": "note",
+        "type": "note",
+        "label": "Visit note (local, PIN)",
+        "params": {
+          "storage": "indexeddb",
+          "encrypted": true,
+          "schema": "stm_visit_note_v1"
+        },
+        "online": false,
+        "position": {
+          "x": 1040,
+          "y": 280
+        }
+      }
+    ],
+    "edges": [
+      {
+        "from": "channel",
+        "to": "stt"
+      },
+      {
+        "from": "channel",
+        "to": "rag"
+      },
+      {
+        "from": "stt",
+        "to": "rag"
+      },
+      {
+        "from": "rag",
+        "to": "llm"
+      },
+      {
+        "from": "llm",
+        "to": "gate"
+      },
+      {
+        "from": "gate",
+        "to": "tts"
+      },
+      {
+        "from": "gate",
+        "to": "note"
+      },
+      {
+        "from": "tts",
+        "to": "channel"
+      }
+    ]
+  },
+  "models": [
+    {
+      "id": "lokol-health-qwen3-0.6b",
+      "label": "Lokol Health 0.6B",
+      "tuned": true,
+      "base_model": "Qwen/Qwen3-0.6B",
+      "role": "llm",
+      "file": "lokol-health-qwen3-0.6b-Q4_K_M.gguf",
+      "url": "https://huggingface.co/VictorChenCA/lokol-health-qwen3-0.6b-gguf/resolve/main/lokol-health-qwen3-0.6b-Q4_K_M.gguf",
+      "size_mb": 397,
+      "license": "Apache-2.0",
+      "runtime": "wllama",
+      "note": "Qwen3-0.6B LoRA-tuned on synthetic STM Children 2017 data (phone tier A default).",
+      "fallbacks": [
+        {
+          "id": "lokol-health-qwen3-0.6b",
+          "label": "Lokol Health 0.6B",
+          "tuned": true,
+          "base_model": "Qwen/Qwen3-0.6B",
+          "role": "llm",
+          "file": "lokol-health-qwen3-0.6b-Q4_K_M.gguf",
+          "url": "/local-models/lokol-health-qwen3-0.6b-Q4_K_M.gguf",
+          "size_mb": 397,
+          "license": "Apache-2.0",
+          "runtime": "wllama",
+          "note": "Local copy served by the Vite dev server from models/gguf (offline recording)."
+        },
+        {
+          "id": "qwen3-0.6b-base",
+          "label": "Qwen3 0.6B base (untuned)",
+          "tuned": false,
+          "base_model": "Qwen/Qwen3-0.6B",
+          "role": "llm",
+          "file": "Qwen3-0.6B-Q4_0.gguf",
+          "url": "https://huggingface.co/ggml-org/Qwen3-0.6B-GGUF/resolve/main/Qwen3-0.6B-Q4_0.gguf",
+          "size_mb": 429,
+          "license": "Apache-2.0",
+          "runtime": "wllama",
+          "note": "Untuned base model, used only when the tuned GGUF is not reachable. The status chip says so."
+        }
+      ]
+    },
+    {
+      "id": "moonshine-tiny-en",
+      "label": "Moonshine tiny (English)",
+      "role": "stt",
+      "file": "onnx/encoder_model.onnx + onnx/decoder_model_merged_quantized.onnx",
+      "url": "onnx-community/moonshine-tiny-ONNX",
+      "size_mb": 52,
+      "license": "MIT",
+      "runtime": "transformersjs",
+      "note": "English only. Pijin voice-in is laptop tier (omnilingual-ctc-300m-pis in the sidecar)."
+    },
+    {
+      "id": "mms-tts-pis",
+      "label": "MMS Pijin voice",
+      "role": "tts_pis",
+      "file": "onnx/model_quantized.onnx",
+      "url": "VictorChenCA/lokol-mms-tts-pis-onnx",
+      "size_mb": 38,
+      "license": "CC-BY-NC-4.0",
+      "runtime": "transformersjs",
+      "dtype": "q8",
+      "note": "ONNX int8 export of facebook/mms-tts-pis (app/src/runtime/tools/export_mms_tts_onnx.py). Non-commercial licence.",
+      "fallbacks": [
+        {
+          "id": "mms-tts-pis",
+          "label": "MMS Pijin voice",
+          "role": "tts_pis",
+          "file": "onnx/model_quantized.onnx",
+          "url": "/local-models/mms-tts-pis-onnx",
+          "size_mb": 38,
+          "license": "CC-BY-NC-4.0",
+          "runtime": "transformersjs",
+          "dtype": "q8",
+          "note": "Local copy served by the Vite dev server from app/src/runtime/dev/models."
+        }
+      ]
+    },
+    {
+      "id": "kokoro-82m-en",
+      "label": "Kokoro English voice",
+      "role": "tts_en",
+      "file": "onnx/model_quantized.onnx",
+      "url": "onnx-community/Kokoro-82M-v1.0-ONNX",
+      "size_mb": 92,
+      "license": "Apache-2.0",
+      "runtime": "transformersjs",
+      "dtype": "q8"
+    }
+  ],
+  "excerpt_tokens": 220
+}

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Lokol runtime harness</title>
+<style>
+  :root { color-scheme: light dark; font-family: ui-sans-serif, system-ui, sans-serif; }
+  body { margin: 0; padding: 16px; max-width: 1100px; margin-inline: auto; }
+  h1 { font-size: 18px; margin: 0 0 8px; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
+  button { padding: 8px 12px; border-radius: 8px; border: 1px solid #8884; background: #4a7c59; color: #fff; cursor: pointer; }
+  button.alt { background: #555; }
+  button:disabled { opacity: .5; cursor: default; }
+  textarea, input, select { font: inherit; padding: 6px 8px; border-radius: 6px; border: 1px solid #8886; }
+  textarea { width: 100%; min-height: 70px; }
+  pre { background: #1115; padding: 10px; border-radius: 8px; white-space: pre-wrap; word-break: break-word; font-size: 12px; max-height: 420px; overflow: auto; }
+  #result { background: #4a7c5922; }
+  progress { width: 260px; }
+  .pill { padding: 2px 8px; border-radius: 999px; background: #8883; font-size: 12px; }
+</style>
+</head>
+<body>
+<h1>Lokol runtime harness <span class="pill" id="iso">isolation: ?</span> <span class="pill" id="net">online</span></h1>
+<div class="row">
+  <button id="btn-load">1. Load pack (corpus + LLM)</button>
+  <progress id="prog" max="100" value="0"></progress><span id="prog-text"></span>
+</div>
+<div class="row">
+  <label>lang <select id="lang"><option value="pis">pis</option><option value="en">en</option></select></label>
+  <label>rdt <select id="rdt"><option>yes</option><option>no</option><option selected>unknown</option></select></label>
+  <label>act <select id="act"><option>yes</option><option>no</option><option selected>unknown</option></select></label>
+  <label>transport <select id="transport"><option>now</option><option selected>next_boat</option><option>none</option></select></label>
+  <label>mode <select id="mode"><option value="template">gguf template</option><option value="manual">manual qwen</option></select></label>
+</div>
+<textarea id="msg">Pikinini 3 yia, hot bodi 2 dei, hem no kaikai gud. RDT i positive. Wat nao mi duim?</textarea>
+<div class="row">
+  <button id="btn-retrieve" class="alt">2. Retrieve</button>
+  <button id="btn-ask">3. Ask (retrieve + generate + gate)</button>
+  <button id="btn-tts-pis" class="alt">4. TTS Pijin "Mi no sua, askem nes"</button>
+  <button id="btn-tts-en" class="alt">5. TTS English</button>
+  <button id="btn-stt" class="alt">6. Mic 5 s + Moonshine (en)</button>
+  <button id="btn-status" class="alt">status()</button>
+  <button id="btn-auto" class="alt">auto (1,2,3,4)</button>
+</div>
+<pre id="result">(results)</pre>
+<pre id="log"></pre>
+<script type="module" src="./main.ts"></script>
+</body>
+</html>

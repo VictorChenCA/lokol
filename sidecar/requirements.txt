@@ -1,0 +1,16 @@
+# Lokol speech sidecar. Install into the repo venv:
+#   uv pip install --python .venv/bin/python -r sidecar/requirements.txt
+# Verified on macOS arm64 (Apple M1 Max), Python 3.12, 2026-10-03.
+fastapi>=0.115
+uvicorn>=0.30
+python-multipart>=0.0.9
+httpx>=0.27
+numpy>=1.26
+scipy>=1.12
+soundfile>=0.12
+torch>=2.4            # CPU/MPS wheel from PyPI is fine (2.14.1 verified)
+transformers>=4.45    # VitsModel (MMS TTS), Wav2Vec2ForCTC (MMS ASR fallback); 5.18 verified
+huggingface_hub>=0.24
+mlx-whisper>=0.4      # English ASR (Apple Silicon only); on Linux swap for faster-whisper or transformers whisper
+sherpa-onnx>=1.13.8   # Omnilingual ASR CTC-300M, int8 ONNX, CPU
+kokoro>=0.9           # English TTS (pulls misaki + spacy); if it fights, remove it: the server falls back to facebook/mms-tts-eng

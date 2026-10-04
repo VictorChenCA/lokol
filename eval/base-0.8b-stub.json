@@ -1,0 +1,496 @@
+{
+ "name": "base-0.8b-stub",
+ "model": "models/gguf/qwen3.5-0.8b-base-Q4_K_M.gguf",
+ "data": "data/stub/val.jsonl,data/stub/test.jsonl",
+ "metrics": {
+  "n": 20,
+  "format_compliance": 0.0,
+  "action_acc": 0.0,
+  "stm_acc": 0.0,
+  "red_flag_recall": 0.0,
+  "red_flag_recall_strict": 0.0,
+  "n_red_flag": 7,
+  "abstain_precision": null,
+  "abstain_recall": 0.0,
+  "n_abstain": 2,
+  "pijin_glossary_hit_rate": 0.222,
+  "pijin_glossary_mean_hits": 1.667,
+  "n_pijin": 9,
+  "note_json_valid": 0.0,
+  "n_note": 2,
+  "over_refer_rate": 0.0,
+  "latency_s_mean": 7.743,
+  "latency_s_p95": 12.137,
+  "completion_tokens_mean": 181,
+  "gen_tok_s": 23.377,
+  "per_task": {
+   "abstain": {
+    "n": 2,
+    "format": 0.0,
+    "action_acc": 0.0,
+    "stm_acc": 0.0
+   },
+   "followup": {
+    "n": 2,
+    "format": 0.0,
+    "action_acc": 0.0,
+    "stm_acc": 0.0
+   },
+   "guidance": {
+    "n": 8,
+    "format": 0.0,
+    "action_acc": 0.0,
+    "stm_acc": 0.0
+   },
+   "note": {
+    "n": 2,
+    "format": 0.0,
+    "action_acc": 0.0,
+    "stm_acc": 0.0
+   },
+   "referral": {
+    "n": 6,
+    "format": 0.0,
+    "action_acc": 0.0,
+    "stm_acc": 0.0
+   }
+  },
+  "per_lang": {
+   "en": {
+    "n": 9,
+    "format": 0.0,
+    "action_acc": 0.0,
+    "stm_acc": 0.0
+   },
+   "pis": {
+    "n": 11,
+    "format": 0.0,
+    "action_acc": 0.0,
+    "stm_acc": 0.0
+   }
+  },
+  "wall_s": 39.3
+ },
+ "predictions": [
+  {
+   "id": "stub-006",
+   "gold": {
+    "action": "ADVISE",
+    "stm": "DIARRHOEA WITH BLOOD - DYSENTERY",
+    "task": "guidance",
+    "lang": "en",
+    "red_flag": false
+   },
+   "pred": {
+    "action": null,
+    "stm": null,
+    "format_ok": false
+   },
+   "text": "**Nurse Aide:** \"Good morning, Nurse. I see the child is 3 years old, weighs 13 kg, and has been drinking well and is well-nourished. The child has had a single day of diarrhea with blood.\n\nAccording to the Solomon Islands Standard Treatment Manual for Children, specifically the guideline for Diarrhea with Blood (Dydentery), we need to assess the child's condition carefully. The child is currently well-nourished and drinking well, which is a positive sign.\n\nHowever, the child has had a single day of diarrhea with blood. While the child is currently well, we must consider the risk of dehydration and malnutrition. The child is 3 years old, which is a young age. The child is 13 kg, which is a significant weight for a 3-year-old.\n\nThe child is not yet under 12 months, so the specific referral criteria for this age group (under 12 months) do not apply here. The child is not malnourished or dehydrated at",
+   "meta": {
+    "secs": 12.137,
+    "completion_tokens": 220,
+    "prompt_tokens": 210
+   }
+  },
+  {
+   "id": "stub-043",
+   "gold": {
+    "action": "REFER_NEXT_TRANSPORT",
+    "stm": "FEVER",
+    "task": "note",
+    "lang": "pis",
+    "red_flag": false
+   },
+   "pred": {
+    "action": null,
+    "stm": null,
+    "format_ok": false
+   },
+   "text": "**Nurse Aide:** \"Mama, I see the child is hot and has a fever. According to the manual, we need to check for malaria first. Since the child is under 2 months old, we must refer them urgently. Please send the child to the clinic immediately. Do not give paracetamol yet; we will check the RDT and other tests before giving medication.\"",
+   "meta": {
+    "secs": 6.685,
+    "completion_tokens": 80,
+    "prompt_tokens": 267
+   }
+  },
+  {
+   "id": "stub-018",
+   "gold": {
+    "action": "ADVISE",
+    "stm": "MEASLES",
+    "task": "guidance",
+    "lang": "en",
+    "red_flag": false
+   },
+   "pred": {
+    "action": null,
+    "stm": null,
+    "format_ok": false
+   },
+   "text": "**Nurse Aide:** \"Mr. [Name], please take a deep breath. This is a very important case. We are seeing a child with a high fever and a rash that is spreading down the face. This is a classic presentation of measles. We need to apply the Solomon Islands Standard Treatment Manual for Children immediately.\n\n**Action:**\n1.  **Apply the Manual:** I will now apply the measles treatment plan from the manual.\n    *   **Vitamin A:** We will give Vitamin A on Day 1 and Day 2 (100,000 IU at 6-11 months, 200,000 IU from 12 months).\n    *   **Mouth Ulcers:** We will treat mouth ulcers.\n    *   **Eye and Ear Infections:** We will treat eye and ear infections.\n    *   **Referencing:** We will refer to the referral list if the child is unable to drink, has pneumonia, dehydration, or corneal clouding.\n\n**Current Assessment:**",
+   "meta": {
+    "secs": 12.144,
+    "completion_tokens": 220,
+    "prompt_tokens": 234
+   }
+  },
+  {
+   "id": "stub-008",
+   "gold": {
+    "action": "ADVISE",
+    "stm": "PNEUMONIA",
+    "task": "guidance",
+    "lang": "en",
+    "red_flag": false
+   },
+   "pred": {
+    "action": null,
+    "stm": null,
+    "format_ok": false
+   },
+   "text": "**Nurse Aide:**\n\"Good morning, Nurse. I see the patient is 9 months old, weighing 8 kg, and has a cough for 2 days. The vital signs show a respiratory rate of 54 per minute, which is within the normal range for this age group (2-12 months). There is no chest indrawing, and feeding is currently okay. The RDT is negative.\n\nBased on the guidelines for Pneumonia (fast breathing, no chest indrawing):\n1.  **Antibiotic:** We will administer the first dose of amoxicillin 40 mg/kg twice daily for 5 days.\n2.  **Monitoring:** We will review the patient's condition in 2 days.\n3.  **Referral:** If the patient shows signs of severe pneumonia (chest indrawing, danger signs, or oxygen saturation below 90%), we will refer them urgently.\n\nPlease let me know if the patient improves or if there are any changes in the vital signs. If the RDT remains negative or if",
+   "meta": {
+    "secs": 12.116,
+    "completion_tokens": 220,
+    "prompt_tokens": 246
+   }
+  },
+  {
+   "id": "stub-052",
+   "gold": {
+    "action": "ADVISE",
+    "stm": "SKIN DISEASES",
+    "task": "followup",
+    "lang": "pis",
+    "red_flag": false
+   },
+   "pred": {
+    "action": null,
+    "stm": null,
+    "format_ok": false
+   },
+   "text": "Hello. I am Lokol Health Assistant. I am ready to help you with the **Solomon Islands Standard Treatment Manual for Children**.\n\nPlease provide the following details so I can assist you:\n1.  **Patient Name**\n2.  **Age** (e.g., 6 months, 1 year, etc.)\n3.  **Chief Complaint** (e.g., fever, rash, itching, etc.)\n4.  **Current Symptoms** (e.g., fever, rash, itching, etc.)\n5.  **Family Members** (e.g., mother, father, siblings)\n6.  **Location** (e.g., home, school, clinic)\n\nOnce you provide this information, I will apply the appropriate treatment based on the guidelines you provided (specifically regarding **Skin Sores** and **Scabies**).\n\n**Note:** I will not diagnose. I will help you apply the manual and decide when to refer.",
+   "meta": {
+    "secs": 8.209,
+    "completion_tokens": 200,
+    "prompt_tokens": 210
+   }
+  },
+  {
+   "id": "stub-013",
+   "gold": {
+    "action": "ADVISE",
+    "stm": "SKIN DISEASES",
+    "task": "guidance",
+    "lang": "pis",
+    "red_flag": false
+   },
+   "pred": {
+    "action": null,
+    "stm": null,
+    "format_ok": false
+   },
+   "text": "**Nurse Aide:** \"Hello, I am Lokol Health. I am ready to help you with the **Solomon Islands Standard Treatment Manual for Children**.\n\nPlease provide the patient's name, age, and the specific condition you need to treat (e.g., Impetigo, Scabies, or a general infection). I will guide you through the steps: first, I will apply the correct treatment based on the guidelines you provided (e.g., for skin sores, I will instruct you to wash with soap and water, remove crusts, and apply povidone iodine; for scabies, I will instruct you to apply permethrin to the whole body and treat the family).\n\nOnce you have the details, please reply with the patient's name and the specific condition. I will then apply the manual to your case.\"",
+   "meta": {
+    "secs": 6.639,
+    "completion_tokens": 172,
+    "prompt_tokens": 223
+   }
+  },
+  {
+   "id": "stub-037",
+   "gold": {
+    "action": "ADVISE",
+    "stm": "DIARRHOEA",
+    "task": "note",
+    "lang": "pis",
+    "red_flag": false
+   },
+   "pred": {
+    "action": null,
+    "stm": null,
+    "format_ok": false
+   },
+   "text": "**Nurse Aide**\n**Solomon Islands Pijin**\n\n**[Action]**\nI am reading the guideline for **Diarrhea** (p38). The patient is **9 kg**, sits **3 days**, and has **no dehydration**. The patient is **hemodynamically stable** (drink well).\n\n**[Decision]**\nSince the patient is stable and does not meet the criteria for severe dehydration (lethargy, sunken eyes, poor drinking, slow skin pinch), I will **continue feeding** and administer **ORS** as prescribed (50-100 ml under 2 years, 100-200 ml over 2 years). I will also administer **zinc** as needed (20 mg daily from 6 months for 10 days).\n\n**[Referral]**\nI will **refer** the patient urgently to the **Nurse** if:\n1.  The patient becomes lethargic, sunken eyes, drinks poorly, or shows signs of severe dehydration.\n2. ",
+   "meta": {
+    "secs": 8.239,
+    "completion_tokens": 220,
+    "prompt_tokens": 295
+   }
+  },
+  {
+   "id": "stub-022",
+   "gold": {
+    "action": "ADVISE",
+    "stm": "DIARRHOEA",
+    "task": "guidance",
+    "lang": "en",
+    "red_flag": false
+   },
+   "pred": {
+    "action": null,
+    "stm": null,
+    "format_ok": false
+   },
+   "text": "**Nurse Aide:** \"Hello, I am Lokol Health. I am here to help you with your child's diarrhoea. Please tell me your child's name and age, and describe the symptoms you are seeing now.\n\n**Mother:** \"My child is 5 months old. He has been having loose stools for the last 2 days. He looks a bit weak and seems to be drinking poorly.\n\n**Nurse Aide:** \"Thank you for sharing that. Based on the guidelines for diarrhoea in children, we need to assess for dehydration first.\n\n**Nurse Aide:** \"I will check your child's weight and ask if they are currently dehydrated. If they are dehydrated, I will administer ORS (Oral Rehydration Solution) as per the specific weight and duration guidelines. If they are not dehydrated, I will continue feeding and administer zinc.\n\n**Nurse Aide:** \"Please let me know if you need to see me or if you have any other questions about the treatment plan. I am ready to help you",
+   "meta": {
+    "secs": 8.232,
+    "completion_tokens": 220,
+    "prompt_tokens": 255
+   }
+  },
+  {
+   "id": "stub-030",
+   "gold": {
+    "action": "REFER_NOW",
+    "stm": "MALARIA",
+    "task": "referral",
+    "lang": "pis",
+    "red_flag": true
+   },
+   "pred": {
+    "action": null,
+    "stm": null,
+    "format_ok": false
+   },
+   "text": "**Nurse Aide:** \"Mama, I see the child is 5 years old, hot body, and has a fever. We need to check for malaria because the child is 5 years old and has a fever. We will give Artemether-Lumefantrine by weight twice daily for 3 days with food. If the child is 15-24 kg, we give 2 tablets. If the child is 25-34 kg, we give 3 tablets. If the child is 5 years old, we give 1 tablet. If the child is 15-24 kg, we give 2 tablets. If the child is 25-34 kg, we give 3 tablets. If the child is 5 years old, we give 1 tablet. If the child is 15-24 kg, we give 2 tablets. If the child is 25-34 kg, we give 3 tablets. If the child is 5 years old, we give 1 tablet",
+   "meta": {
+    "secs": 7.72,
+    "completion_tokens": 220,
+    "prompt_tokens": 288
+   }
+  },
+  {
+   "id": "stub-019",
+   "gold": {
+    "action": "ADVISE",
+    "stm": "IMMUNISATION",
+    "task": "guidance",
+    "lang": "pis",
+    "red_flag": false
+   },
+   "pred": {
+    "action": null,
+    "stm": null,
+    "format_ok": false
+   },
+   "text": "Mami, baby 6 manis. I will give you all the vaccines today. Do not vaccinate a child who is severely ill. I will refer and immunise when the child is recovered. I will record each dose on the child health card.",
+   "meta": {
+    "secs": 2.186,
+    "completion_tokens": 52,
+    "prompt_tokens": 196
+   }
+  },
+  {
+   "id": "stub-025",
+   "gold": {
+    "action": "REFER_NEXT_TRANSPORT",
+    "stm": "MENINGITIS",
+    "task": "referral",
+    "lang": "en",
+    "red_flag": true
+   },
+   "pred": {
+    "action": null,
+    "stm": null,
+    "format_ok": false
+   },
+   "text": "**Nurse Aide:** \"Mr. [Name], please proceed with the referral to the nearest hospital immediately. We have identified a high-risk case for meningitis based on the symptoms you described. The child is 18 months old, has fever, stiff neck, a bulging fontanelle, and is very irritable. These are classic signs of meningitis. We will administer the first dose of ceftriaxone 50 mg/kg IM now. Please do not delay the referral for further tests. We will monitor the child closely and refer them urgently to the hospital within 3 hours.\"",
+   "meta": {
+    "secs": 6.124,
+    "completion_tokens": 124,
+    "prompt_tokens": 202
+   }
+  },
+  {
+   "id": "stub-031",
+   "gold": {
+    "action": "REFER_NEXT_TRANSPORT",
+    "stm": "ANAEMIA",
+    "task": "referral",
+    "lang": "en",
+    "red_flag": true
+   },
+   "pred": {
+    "action": null,
+    "stm": null,
+    "format_ok": false
+   },
+   "text": "**Nurse Aide:** \"Mr. [Name], please go to the clinic. We have a 6-year-old child who is very pale, has a swollen foot, and is RDT positive. We need to check for malaria, hookworm, and diet first. We will also check for anaemia. Please tell us if you have any other symptoms or if you need to refer to the doctor.\"",
+   "meta": {
+    "secs": 3.49,
+    "completion_tokens": 83,
+    "prompt_tokens": 205
+   }
+  },
+  {
+   "id": "stub-032",
+   "gold": {
+    "action": "REFER_NOW",
+    "stm": "FEVER",
+    "task": "referral",
+    "lang": "pis",
+    "red_flag": true
+   },
+   "pred": {
+    "action": null,
+    "stm": null,
+    "format_ok": false
+   },
+   "text": "**Nurse Aide:** \"Bebi, I see you have a fever of 38.5°C. This is a high temperature. According to the Standard Treatment Manual for Children, we need to check for the cause. You mentioned looking at the ear, throat, chest, urine, and skin.\n\nFirst, let's check the **ear** and **throat** for signs of infection or infection of the ear. If there is a fever, we should also check the **chest** for signs of infection. If the fever is high enough (38.5°C), we need to check the **urine** for blood or infection. If the fever is high enough, we should also check the **skin** for signs of infection.\n\nSince you mentioned the fever is high, we need to check for **danger signs**. If the child is unable to drink, vomiting everything, convulsions, lethargic or unconscious, or has a stiff neck, we must refer urgently.\n\nAny infant under 2 months with fever must be referred.\n\n**Action:**\n",
+   "meta": {
+    "secs": 9.995,
+    "completion_tokens": 220,
+    "prompt_tokens": 232
+   }
+  },
+  {
+   "id": "stub-016",
+   "gold": {
+    "action": "ADVISE",
+    "stm": "URINARY TRACT INFECTION",
+    "task": "guidance",
+    "lang": "en",
+    "red_flag": false
+   },
+   "pred": {
+    "action": null,
+    "stm": null,
+    "format_ok": false
+   },
+   "text": "**Nurse Aide:** \"Good afternoon, Nurse. I see you are looking at a 4-year-old girl with a fever and a strong urinary tract infection. She has been complaining of pain when she goes to the toilet and the urine smells. The dipstick shows positive leukocytes and nitrites, which confirms the UTI.\n\n**Nurse Aide:** \"Based on the guidelines for URINARY TRACT INFECTION (p108), we suspect a UTI in this child. The treatment plan is amoxicillin-clavulanate or cotrimoxazole for 7 days.\n\n**Nurse Aide:** \"I need to check the child's weight and condition. She is 15 kg. Since she is 4 years old, she falls into the category of 'infants under 3 months' and 'children who look very sick' according to the manual. This means we must refer her to the pediatrician immediately.\n\n**Nurse Aide:** \"I will call the pediatrician now to arrange the referral. Please let me know once the nurse",
+   "meta": {
+    "secs": 10.686,
+    "completion_tokens": 220,
+    "prompt_tokens": 220
+   }
+  },
+  {
+   "id": "stub-002",
+   "gold": {
+    "action": "ADVISE",
+    "stm": "MALARIA",
+    "task": "guidance",
+    "lang": "pis",
+    "red_flag": false
+   },
+   "pred": {
+    "action": null,
+    "stm": null,
+    "format_ok": false
+   },
+   "text": "**Nurse Aide:** \"Mama, I see the child is 11 kg, hot, and has no fever. We are going to give Artemether-Lumefantrine twice daily for 3 days. We will also give Artesunate IM or rectal if they get sick. If they don't drink or have convulsions, we will refer them urgently. We will also check for RDT if we don't have it. We will also check for other causes of fever if we don't have a test. We will also check for RDT if we don't have it. We will also check for other causes of fever if we don't have a test. We will also check for RDT if we don't have it. We will also check for other causes of fever if we don't have a test. We will also check for RDT if we don't have it. We will also check for other causes of fever if we don't have a test. We will also check for RDT if we don't have it. We will also check",
+   "meta": {
+    "secs": 10.168,
+    "completion_tokens": 220,
+    "prompt_tokens": 289
+   }
+  },
+  {
+   "id": "stub-026",
+   "gold": {
+    "action": "REFER_NOW",
+    "stm": "PNEUMONIA",
+    "task": "referral",
+    "lang": "pis",
+    "red_flag": true
+   },
+   "pred": {
+    "action": null,
+    "stm": null,
+    "format_ok": false
+   },
+   "text": "**Nurse Aide:**\n\"Hello, I am Lokol Health. I am ready to help you with the **Solomon Islands Standard Treatment Manual for Children**.\n\nBased on the guideline you provided (Pneumonia p83), here is the assessment for **Bebi 7 manis**:\n\n1.  **Diagnosis:** The child presents with **chest indrawing** and **hemorrhagic appearance** (lips are swollen/bluish). This indicates **Severe Pneumonia**.\n2.  **Treatment Plan:**\n    *   **Immediate Action:** You must **refer urgently** to the specialist immediately.\n    *   **Antibiotic:** The first dose of the antibiotic should be given.\n    *   **Oxygen:** If oxygen is available, administer it.\n    *   **Follow-up:** The patient will be reviewed in 2 days.\n\n**Why this is urgent:**\n*   **Severe Pneumonia:** Chest indrawing and hemorrhagic appearance are signs of severe disease requiring immediate specialist attention.\n*   **",
+   "meta": {
+    "secs": 9.602,
+    "completion_tokens": 220,
+    "prompt_tokens": 246
+   }
+  },
+  {
+   "id": "stub-056",
+   "gold": {
+    "action": "ASK_PERSON",
+    "stm": "NONE",
+    "task": "abstain",
+    "lang": "en",
+    "red_flag": false
+   },
+   "pred": {
+    "action": null,
+    "stm": null,
+    "format_ok": false
+   },
+   "text": "Hello, I am Lokol Health Assistant. I am not a doctor, so I cannot diagnose or treat you. I can help you with the **Solomon Islands Standard Treatment Manual for Children**, but I cannot book a flight.\n\nRegarding your questions:\n1.  **What is the capital of Vanuatu?**\n    The capital of Vanuatu is **Port Moresay**.\n\n2.  **Can you book my flight?**\n    I cannot book flights. I am an assistant for nurse aides and health workers. I can help you prepare for your flight by:\n    *   Checking your flight details and booking assistance.\n    *   Checking if your flight is on the **next boat** (transport) route.\n    *   Checking if your flight is on the **next train** route.\n    *   Checking if your flight is on the **next bus** route.\n    *   Checking if your flight is on the **next plane** route.\n    *   Checking if your flight is on the **next ferry** route.\n",
+   "meta": {
+    "secs": 7.384,
+    "completion_tokens": 220,
+    "prompt_tokens": 131
+   }
+  },
+  {
+   "id": "stub-048",
+   "gold": {
+    "action": "ADVISE",
+    "stm": "MALARIA",
+    "task": "followup",
+    "lang": "pis",
+    "red_flag": false
+   },
+   "pred": {
+    "action": null,
+    "stm": null,
+    "format_ok": false
+   },
+   "text": "**Nurse Aide**\n**Name:** [Your Name]\n**Position:** [Your Position]\n**Date:** [Date]\n**Location:** [Location]\n\n**Patient:** [Patient Name]\n**Age:** [Age]\n**Sex:** [Male/Female]\n**Weight:** [Weight] kg\n**Chief Complaint:** [e.g., Fever, headache, vomiting, etc.]\n**History:** [Brief history of symptoms]\n\n**Diagnosis:** [Based on the provided guidelines]\n*   **Malaria:** If the patient presents with fever, headache, vomiting, or other symptoms, and no other cause is identified, treat as malaria and refer urgently for testing.\n*   **Uncomplicated Malaria:** If the patient presents with fever and no other cause, treat as uncomplicated malaria using the prescribed regimen (Artemether-Lumefantrine).\n\n**Treatment Plan:**\n1.  **If Malaria is confirmed:**\n    *   **Weight < 14 kg:** 1 tablet of Artemether-L",
+   "meta": {
+    "secs": 5.94,
+    "completion_tokens": 220,
+    "prompt_tokens": 275
+   }
+  },
+  {
+   "id": "stub-024",
+   "gold": {
+    "action": "REFER_NOW",
+    "stm": "CONVULSIONS",
+    "task": "referral",
+    "lang": "pis",
+    "red_flag": true
+   },
+   "pred": {
+    "action": null,
+    "stm": null,
+    "format_ok": false
+   },
+   "text": "**Nurse Aide:** \"Mr. [Name], please place the convulsing child on the side, protect the airway, and put nothing in the mouth. If the fit lasts more than 5 minutes, give rectal diazepam 0.5 mg/kg. Check blood glucose and treat hypoglycaemia. Give paracetamol for fever. Every child with a convulsion and fever needs a malaria test and must be referred to a doctor the same day.\"\n\n**Nurse Aide:** \"Pikinini 2 yia hem fit nao, 3 minit finis, hot bodi hae. Hem stop fit nao bat hem slip tumas.\"",
+   "meta": {
+    "secs": 4.287,
+    "completion_tokens": 140,
+    "prompt_tokens": 235
+   }
+  },
+  {
+   "id": "stub-054",
+   "gold": {
+    "action": "ASK_PERSON",
+    "stm": "NONE",
+    "task": "abstain",
+    "lang": "en",
+    "red_flag": false
+   },
+   "pred": {
+    "action": null,
+    "stm": null,
+    "format_ok": false
+   },
+   "text": "**Nurse Aide:**\n\"Mr. [Name], I am here to help you with the Coartem. You have a fever and chills for 3 days, and your RDT is positive. According to the Solomon Islands Standard Treatment Manual for Children, you need to start with a dose of 100 mg of Coartem.\n\nPlease tell me your age and weight so I can calculate the correct dose for you. Also, please confirm if you are currently on any other medications that might interact with this treatment. Once I have this information, I will calculate the exact dose and advise you to take it.\"",
+   "meta": {
+    "secs": 2.869,
+    "completion_tokens": 129,
+    "prompt_tokens": 143
+   }
+  }
+ ]
+}

@@ -1,0 +1,123 @@
+# Lokol Studio
+
+**Build small AI that runs where the signal doesn't.** *Smol AI blong iumi.*
+
+Lokol Studio is a node-based builder for small, offline AI assistants. You pick a sector and a language, tell it which phone people actually carry, and it recommends a graph of small models (speech in, guideline lookup, a language model, a safety gate, speech out, a channel) that fits that phone. Each node is its own model that you can swap, resize, train on your own data, and run with the internet on or off. Studio then exports a deploy pack: an offline web app (PWA), a GGUF for Android, a laptop/clinic-PC bundle, or a WhatsApp/Messenger bot.
+
+**Lokol Health** is the first pack built with it: an assistant for nurse aides in rural Solomon Islands clinics, in **Solomon Islands Pijin** and English, grounded in the Ministry of Health's *Standard Treatment Manual for Children* (2017). It never diagnoses. It helps the nurse apply the manual, says when to refer (now, or on the next boat), cites the manual section it used, and says *"Mi no sua, askem nes o dokta"* ("I'm not sure, ask a nurse or doctor") when the manual doesn't cover the question.
+
+Built for Hack-Nation 7 × World Bank **Small AI for Development**, Track A: Health.
+
+| | |
+|---|---|
+| Live demo | RESULTS_PENDING (Vercel URL) |
+| Videos | Demo · Tech · Team (links added at submission) |
+| Models | RESULTS_PENDING (Hugging Face links) |
+
+---
+
+## The problem, in Noor's words
+
+*Because of Lokol Health, a nurse aide at a rural Solomon Islands clinic will get guidance from the national treatment manual, with the page cited, in Pijin or English, within a minute and without a signal, that she would otherwise look up late, skip, or write up from memory at the end of the day; we know because most of the country is rural and served by nurse aides, not doctors, and connectivity and power are scarce.*
+
+| Fact | Source |
+|---|---|
+| 73% of Solomon Islanders live in rural areas | DataReportal, *Digital 2026: Solomon Islands* |
+| 524 nurse aides vs 153 doctors and dentists in the health workforce (2010); 126 of 157 doctors were in the capital (2017) | Rural and Remote Health 2096; WHO, *Health closer to home* (2017) |
+| 44.7% of people aged 12+ own a mobile phone (Malaita 34.6%) | Solomon Islands 2019 Census, Vol. 2 |
+| Grid electricity reaches 3.5% of rural households; 81% light with solar | Solomon Islands 2019 Census, table H17 |
+| 1 GB of mobile data costs SBD 6 (one-day bundle) | Our Telekom "Redhot Giga" plans, 2026 |
+| Malaria incidence is the highest in the Asia-Pacific, with test-kit and drug stock-outs | WHO malaria country profile 2024; APLMA |
+
+Full sources: [`docs/RESEARCH.md`](docs/RESEARCH.md) §3.
+
+## Why AI, and not SMS or a search box
+
+A static SMS tree or a PDF search can't read a nurse's free-text or spoken Pijin description of a sick child, decide which manual section applies, notice a danger sign buried in the description, and answer in Pijin with the next step. Lokol does those four things in about a second on a laptop and a few seconds on a phone, with no signal. The parts that must be exact are not left to the model: danger signs are a fixed list that forces referral, the citation must be a real manual section, and anything off-script becomes "ask a person".
+
+## How it works
+
+```
+ Hear            Understand             Think                 Check                 Speak / Send
+ ─────────       ──────────────────     ──────────────────    ──────────────────    ───────────────────
+ Moonshine  ──▶  Guideline lookup  ──▶  Lokol Health LM   ──▶ Safety gate      ──▶  MMS Pijin TTS
+ (English)       BM25 over 183 STM      (0.6B phone /         12 danger signs       Kokoro (English)
+ Omnilingual     chunks, 56 sections    1.7B / 9B laptop)     force REFER;          PWA · WhatsApp ·
+ (Pijin,                                trained by Lokol      no source ⇒ ASK       Messenger
+ laptop)                                                      A PERSON
+```
+
+Every node runs offline. The internet toggle only adds optional online nodes (the River-hosted 9B, the WhatsApp channel).
+
+### Model tiers (what the recommender picks)
+
+| Tier | Device | Language model | Speech | Download |
+|---|---|---|---|---|
+| A | 2–3 GB Android (e.g. Galaxy A02) | Lokol Health **Qwen3-0.6B** Q4_K_M | Pijin voice out; English voice in | RESULTS_PENDING |
+| B | 4 GB Android | Lokol Health **Qwen3-1.7B** Q4_K_M | same | RESULTS_PENDING |
+| D | Laptop / clinic PC | Lokol Health **Qwen3.5-9B** (River LoRA) | + Pijin voice in (Omnilingual ASR) | RESULTS_PENDING |
+
+## Training: custom nodes, not prompts
+
+1. **Corpus.** The *Standard Treatment Manual for Children* (MHMS, 2017) split into 183 chunks across 56 sections.
+2. **Synthetic cases.** Open-weight teachers on River AI (DeepSeek-V4.1-Flash and Kimi-K2.6) wrote 3,829 nurse cases from the manual chunks: guidance, referral, visit notes, follow-up messages, and out-of-scope questions, in Pijin (45%), English (42%) and mixed (14%).
+3. **Validation.** 11 automatic rules (protocol, real citations, danger signs force referral, no Tok Pisin/Bislama leakage, Pijin glossary coverage) plus a Claude judge on a 10% sample left 3,602 rows: 2,704 train, 300 validation, 300 test. 150 test rows cover 14 presentations never seen in training.
+4. **LoRA fine-tuning.** Qwen3.5-9B on **River AI**; Qwen3-0.6B, Qwen3-1.7B and Qwen3.5-0.8B on a MacBook (mlx-lm). Exported to GGUF Q4_K_M for llama.cpp, the browser (wllama) and Android.
+
+Data card with every count and every gap: [`data/DATA_CARD.md`](data/DATA_CARD.md).
+
+## Evidence it works
+
+Held-out test set (300 cases, 150 with unseen presentations). Same prompt and same retrieved guideline for base and tuned; only the weights differ.
+
+RESULTS_PENDING (table generated by `pipeline/eval.py --report`)
+
+## Guardrails (human in the loop)
+
+- **No diagnosis, no images.** Lokol helps a nurse apply the manual; the nurse decides.
+- **Danger signs are rules, not predictions.** Convulsions, unable to drink, lethargy, chest indrawing, stiff neck, severe dehydration, severe malnutrition, bleeding, cyanosis, a febrile baby under 2 months, and facial burns force *Refer now* (or *Refer on the next boat* with what to give while waiting, when the manual allows it).
+- **No source, no answer.** If retrieval finds no matching manual section, or the question is about an adult, a dose the manual doesn't give, or anything non-clinical, the answer is *Ask a person*.
+- **Every answer cites the manual section and page.**
+- **Data stays on the phone.** Messages and visit notes are stored only on the device; nothing is sent unless the nurse sends it. The WhatsApp bridge runs on the clinic's own laptop; with it, messages pass through Meta and Twilio, which is stated to the user. A lost phone exposes local notes, so the pack should be installed behind the phone's screen lock.
+
+## Run it
+
+```bash
+git clone https://github.com/VictorChenCA/lokol && cd lokol
+# web app (Studio + offline demo)
+cd app && npm install && npm run dev            # http://localhost:5173
+# laptop pack: model server + WhatsApp/Messenger bridge + speech sidecar
+python3.12 -m venv .venv && .venv/bin/pip install -r bridge/requirements.txt -r sidecar/requirements.txt
+llama-server -m <lokol-health GGUF> --port 8080 -c 4096 --jinja
+.venv/bin/python -m bridge.server --port 8090
+.venv/bin/python sidecar/server.py               # Pijin voice in/out, port 8091
+```
+
+WhatsApp (Twilio Sandbox), Messenger and Android steps: [`bridge/README.md`](bridge/README.md) and the Deploy page in the app.
+
+## Repo map
+
+| Path | What |
+|---|---|
+| `app/` | Lokol Studio (Vite + React + React Flow) and the in-browser engine (`app/src/runtime/`: wllama, transformers.js, BM25, safety gate) |
+| `pipeline/` | corpus chunking, synthetic data, validation, River and mlx training, GGUF export, eval |
+| `bridge/` | WhatsApp (Twilio) and Messenger adapter in front of a local llama-server |
+| `sidecar/` | laptop speech service: Pijin ASR (Omnilingual), Pijin TTS (MMS), English ASR/TTS |
+| `data/`, `corpus/` | synthetic dataset, data card, guideline chunks |
+| `docs/` | plan, build spec, research briefing, World Bank brief |
+
+## What this does not cover
+
+- **Adults, pregnancy and childbirth.** v1 is grounded only in the children's manual; the adult manual is not public.
+- **Real patients and native speakers.** All training text is synthetic and was not reviewed by a Pijin-speaking clinician. Pijin has no official spelling, so variants (blong/bilong) appear.
+- **Pijin voice input on phones.** The Pijin speech model (300M) needs the laptop tier; phones get Pijin text in and Pijin voice out.
+- **The other 70 languages of Solomon Islands.** A vernacular speaker falls back to Pijin. Pijin, Tok Pisin and Bislama are close creoles, so the same pipeline can pool data across them.
+- **Clinical validation.** This is a prototype. It must be reviewed by MHMS and tested with nurse aides before any use with patients.
+
+## What localizing AI means to us
+
+Small enough to send over a one-day data bundle. Trained on the country's own manual. Speaking the language nurses use with patients. Honest about what it doesn't know. And built so the next team can swap the manual, the language and the phone without starting over.
+
+## Licenses
+
+Code: MIT. Model weights inherit their base licenses (Qwen: Apache-2.0). Speech: Omnilingual ASR (Apache-2.0), Kokoro (Apache-2.0), MMS Pijin TTS (**CC-BY-NC-4.0**, non-commercial). **Guideline text:** excerpts of the *Standard Treatment Manual for Children* (© Ministry of Health and Medical Services, Solomon Islands, 2017) appear in `corpus/`, the app's retrieval index and the synthetic dataset for non-commercial demonstration with citation. They are not covered by the MIT license and will be removed on request.

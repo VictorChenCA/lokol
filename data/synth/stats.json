@@ -1,0 +1,207 @@
+{
+ "raw": 3829,
+ "valid": 3602,
+ "rejected": {
+  "red_flag_not_referred": 90,
+  "note_json": 42,
+  "referral_action": 27,
+  "next_transport_flag": 21,
+  "too_long": 13,
+  "tok_pisin_leak": 12,
+  "pijin_glossary": 7,
+  "abstain_action": 6,
+  "en_has_pijin": 3,
+  "duplicate": 2,
+  "guideline_missing_not_ask": 2,
+  "note_action_mismatch": 1,
+  "stm_title": 1
+ },
+ "splits": {
+  "train": 2722,
+  "val": 300,
+  "test": 300
+ },
+ "counts": {
+  "train": {
+   "task": {
+    "note": 536,
+    "guidance": 1134,
+    "referral": 459,
+    "followup": 270,
+    "abstain": 323
+   },
+   "lang": {
+    "en": 1139,
+    "mix": 370,
+    "pis": 1213
+   },
+   "action": {
+    "ADVISE": 735,
+    "REFER_NOW": 921,
+    "REFER_NEXT_TRANSPORT": 451,
+    "ASK_PERSON": 615
+   },
+   "guideline_mode": {
+    "match": 1810,
+    "none": 427,
+    "wrong": 485
+   },
+   "teacher": {
+    "DeepSeek-V4.1-Flash": 1406,
+    "Kimi-K2.6-NVFP4": 1316
+   },
+   "red_flag_rows": 759
+  },
+  "val": {
+   "task": {
+    "abstain": 37,
+    "referral": 53,
+    "guidance": 124,
+    "followup": 26,
+    "note": 60
+   },
+   "lang": {
+    "en": 123,
+    "mix": 48,
+    "pis": 129
+   },
+   "action": {
+    "ASK_PERSON": 69,
+    "REFER_NOW": 104,
+    "REFER_NEXT_TRANSPORT": 51,
+    "ADVISE": 76
+   },
+   "guideline_mode": {
+    "none": 47,
+    "match": 203,
+    "wrong": 50
+   },
+   "teacher": {
+    "Kimi-K2.6-NVFP4": 158,
+    "DeepSeek-V4.1-Flash": 142
+   },
+   "red_flag_rows": 87
+  },
+  "test": {
+   "task": {
+    "note": 60,
+    "referral": 61,
+    "guidance": 121,
+    "followup": 32,
+    "abstain": 26
+   },
+   "lang": {
+    "pis": 122,
+    "en": 126,
+    "mix": 52
+   },
+   "action": {
+    "REFER_NOW": 102,
+    "ASK_PERSON": 72,
+    "ADVISE": 72,
+    "REFER_NEXT_TRANSPORT": 54
+   },
+   "guideline_mode": {
+    "match": 212,
+    "none": 53,
+    "wrong": 35
+   },
+   "teacher": {
+    "Kimi-K2.6-NVFP4": 152,
+    "DeepSeek-V4.1-Flash": 148
+   },
+   "red_flag_rows": 57
+  }
+ },
+ "all_valid": {
+  "task": {
+   "followup": 375,
+   "guidance": 1483,
+   "abstain": 411,
+   "referral": 635,
+   "note": 698
+  },
+  "lang": {
+   "en": 1524,
+   "pis": 1571,
+   "mix": 507
+  },
+  "action": {
+   "REFER_NEXT_TRANSPORT": 604,
+   "REFER_NOW": 1229,
+   "ADVISE": 953,
+   "ASK_PERSON": 816
+  },
+  "guideline_mode": {
+   "match": 2420,
+   "none": 574,
+   "wrong": 608
+  },
+  "teacher": {
+   "DeepSeek-V4.1-Flash": 1811,
+   "Kimi-K2.6-NVFP4": 1791
+  },
+  "red_flag_rows": 927
+ },
+ "sections_covered": 39,
+ "presentations_held_out": [
+  "anaemia_pallor",
+  "burns_scald",
+  "conjunctivitis",
+  "glomerulonephritis",
+  "lymph",
+  "mastoiditis",
+  "newborn_jaundice",
+  "osteomyelitis",
+  "persistent_diarrhoea",
+  "poisoning",
+  "rheumatic",
+  "skin_bakua",
+  "surgical",
+  "worms"
+ ],
+ "usage": {
+  "calls": 769,
+  "prompt_tokens": 2948934,
+  "completion_tokens": 946506
+ },
+ "judge": {
+  "n_sampled": 300,
+  "n_scored": 295,
+  "faithfulness_mean": 1.99,
+  "faithfulness_hist": {
+   "1": 78,
+   "2": 134,
+   "3": 80,
+   "0": 3
+  },
+  "action_ok_rate": 0.888,
+  "pijin_mean": 2.31,
+  "faithfulness_by_teacher": {
+   "DeepSeek-V4.1-Flash": 2.07,
+   "Kimi-K2.6-NVFP4": 1.92
+  },
+  "faithfulness_by_lang": {
+   "en": 1.97,
+   "pis": 2.04,
+   "mix": 1.85
+  },
+  "issues_sample": [
+   "No guideline; gives paracetamol dose and oral fluids to a sleepy child instead of abstaining",
+   "IV line, 20 ml/kg saline bolus and paracetamol not in excerpt",
+   "Says IV fluids needed, but excerpt says only burns over 10% need referral; hand burn is small; no cold-water first aid; unsupported paracetamol",
+   "Reply says must go to hospital but ACTION is ADVISE; oedema is an admit sign, so REFER_NOW; salt restriction unsupported",
+   "No guideline or RDT; tells to start oral ACT to a floppy child vomiting everything, with no dose; unsupported",
+   "Abstains correctly but adds unsupported general advice",
+   "Diagnosis of tinea imbricata and griseofulvin not in excerpt, though it correctly defers the dose",
+   "ACT dose of 3 tablets for 19 kg not in excerpt and wrong (15-24 kg band is 2 tablets); confused calculation",
+   "English reply opens with stray Pijin 'Mi no sua'; the return-if signs are not from a guideline but are safe",
+   "Offers ampicillin (moderate-disease drug) as an alternative for severe disease and omits azithromycin from the severe regimen",
+   "Transport is next_boat, so action should be REFER_NEXT_TRANSPORT; the excerpt covers only home management and gives no severe dehydration care",
+   "Syphilis excerpt does not fit an eye complaint; reply invents advice and signs, and REFER_NOW overcalls with no danger signs",
+   "Translates 'tds' as twice a day ('tufala taem') and adds an unsupported 2-hourly feeding interval; Pijin misuses 'iumi' and invents 'atesmin'",
+   "Very pale infant with weak suckling should be REFER_NEXT_TRANSPORT, but the action is ADVISE and the referral is only in the JSON; starts iron before assessment",
+   "No guideline loaded, yet it gives a paracetamol dose and burn care without citing one"
+  ]
+ }
+}

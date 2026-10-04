@@ -1,0 +1,9 @@
+# TRAIN lane: weights never enter git (SPEC §0). The root .gitignore covers models/gguf/*.gguf and adapter safetensors;
+# this file closes the gaps found by the verifier: the 795 MB base GGUF under base/ and the 1.4 GB fused HF copies.
+base/
+fused/
+*.gguf
+*.safetensors
+*.bin
+*.pt
+logs/*.log

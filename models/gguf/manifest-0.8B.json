@@ -1,0 +1,17 @@
+{
+  "repo": "VictorChenCA/lokol-health-0.8b-gguf",
+  "base_model": "Qwen/Qwen3.5-0.8B",
+  "size": "0.8B",
+  "license": "apache-2.0",
+  "runtime": "wllama|llama-server",
+  "models": [
+    {
+      "id": "lokol-health-0.8b-Q4_K_M",
+      "file": "lokol-health-0.8b-Q4_K_M.gguf",
+      "url": "https://huggingface.co/VictorChenCA/lokol-health-0.8b-gguf/resolve/main/lokol-health-0.8b-Q4_K_M.gguf",
+      "sha256": "8b6ab9fd67fb98b3b3753f6859e20f9bfc304c5384693129d244324889c4f167",
+      "size_mb": 529.3,
+      "license": "apache-2.0"
+    }
+  ]
+}

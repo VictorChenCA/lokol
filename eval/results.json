@@ -1,0 +1,165 @@
+{
+  "generated": "2026-10-03T22:10:30",
+  "models": [
+    {
+      "name": "base-0.8b-stub",
+      "model": "models/gguf/qwen3.5-0.8b-base-Q4_K_M.gguf",
+      "data": "data/stub/val.jsonl,data/stub/test.jsonl",
+      "metrics": {
+        "n": 20,
+        "format_compliance": 0.0,
+        "action_acc": 0.0,
+        "stm_acc": 0.0,
+        "red_flag_recall": 0.0,
+        "red_flag_recall_strict": 0.0,
+        "n_red_flag": 7,
+        "abstain_precision": null,
+        "abstain_recall": 0.0,
+        "n_abstain": 2,
+        "pijin_glossary_hit_rate": 0.222,
+        "pijin_glossary_mean_hits": 1.667,
+        "n_pijin": 9,
+        "note_json_valid": 0.0,
+        "n_note": 2,
+        "over_refer_rate": 0.0,
+        "latency_s_mean": 7.743,
+        "latency_s_p95": 12.137,
+        "completion_tokens_mean": 181,
+        "gen_tok_s": 23.377,
+        "per_task": {
+          "abstain": {
+            "n": 2,
+            "format": 0.0,
+            "action_acc": 0.0,
+            "stm_acc": 0.0
+          },
+          "followup": {
+            "n": 2,
+            "format": 0.0,
+            "action_acc": 0.0,
+            "stm_acc": 0.0
+          },
+          "guidance": {
+            "n": 8,
+            "format": 0.0,
+            "action_acc": 0.0,
+            "stm_acc": 0.0
+          },
+          "note": {
+            "n": 2,
+            "format": 0.0,
+            "action_acc": 0.0,
+            "stm_acc": 0.0
+          },
+          "referral": {
+            "n": 6,
+            "format": 0.0,
+            "action_acc": 0.0,
+            "stm_acc": 0.0
+          }
+        },
+        "per_lang": {
+          "en": {
+            "n": 9,
+            "format": 0.0,
+            "action_acc": 0.0,
+            "stm_acc": 0.0
+          },
+          "pis": {
+            "n": 11,
+            "format": 0.0,
+            "action_acc": 0.0,
+            "stm_acc": 0.0
+          }
+        },
+        "wall_s": 39.3
+      },
+      "judge": null
+    },
+    {
+      "name": "tuned-0.8b-stub30",
+      "model": "models/gguf/lokol-health-0.8b-Q4_K_M.gguf",
+      "data": "data/stub/val.jsonl,data/stub/test.jsonl",
+      "metrics": {
+        "n": 20,
+        "format_compliance": 0.9,
+        "action_acc": 0.6,
+        "stm_acc": 0.9,
+        "red_flag_recall": 0.429,
+        "red_flag_recall_strict": 0.333,
+        "n_red_flag": 7,
+        "abstain_precision": null,
+        "abstain_recall": 0.0,
+        "n_abstain": 2,
+        "pijin_glossary_hit_rate": 0.222,
+        "pijin_glossary_mean_hits": 1.333,
+        "n_pijin": 9,
+        "note_json_valid": 0.0,
+        "n_note": 2,
+        "over_refer_rate": 0.0,
+        "latency_s_mean": 4.947,
+        "latency_s_p95": 16.083,
+        "completion_tokens_mean": 56.45,
+        "gen_tok_s": 11.412,
+        "per_task": {
+          "abstain": {
+            "n": 2,
+            "format": 1.0,
+            "action_acc": 0.0,
+            "stm_acc": 1.0
+          },
+          "followup": {
+            "n": 2,
+            "format": 1.0,
+            "action_acc": 1.0,
+            "stm_acc": 1.0
+          },
+          "guidance": {
+            "n": 8,
+            "format": 1.0,
+            "action_acc": 1.0,
+            "stm_acc": 0.875
+          },
+          "note": {
+            "n": 2,
+            "format": 1.0,
+            "action_acc": 0.5,
+            "stm_acc": 1.0
+          },
+          "referral": {
+            "n": 6,
+            "format": 0.667,
+            "action_acc": 0.167,
+            "stm_acc": 0.833
+          }
+        },
+        "per_lang": {
+          "en": {
+            "n": 9,
+            "format": 0.889,
+            "action_acc": 0.556,
+            "stm_acc": 0.778
+          },
+          "pis": {
+            "n": 11,
+            "format": 0.909,
+            "action_acc": 0.636,
+            "stm_acc": 1.0
+          }
+        },
+        "wall_s": 52.0
+      },
+      "judge": null
+    }
+  ],
+  "bench": {
+    "base-0.8B": {
+      "pp256": 493.23,
+      "tg64": 45.94
+    },
+    "0.8B": {
+      "pp256": 1840.83,
+      "tg64": 21.65
+    }
+  }
+}

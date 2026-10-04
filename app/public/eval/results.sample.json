@@ -1,0 +1,18 @@
+{
+  "sample": true,
+  "generated_at": "2026-10-03T22:00:00-07:00",
+  "test_set": { "n": 300, "path": "data/synth/test.jsonl" },
+  "notes": [
+    "SAMPLE: placeholder numbers with the real structure. pipeline/eval.py overwrites app/public/eval/results.json with measured values.",
+    "Judge faithfulness is a 0–3 score from headless Claude on 60 items with the STM passage in hand.",
+    "tokens/s and RAM from llama-bench on an M1 Max; phone numbers measured in-browser separately."
+  ],
+  "rows": [
+    { "model": "Qwen3.5-0.8B", "size": "0.8B", "variant": "base", "runtime": "llama.cpp Q4_K_M", "metrics": { "format_compliance": 0.31, "action_accuracy": 0.42, "stm_accuracy": 0.28, "red_flag_recall": 0.55, "abstain_precision": 0.30, "abstain_recall": 0.21, "pijin_glossary_hit_rate": 0.18, "judge_faithfulness_0_3": 1.1, "tokens_per_s": 95, "ram_mb": 780 } },
+    { "model": "Lokol-Health-0.8B", "size": "0.8B", "variant": "tuned", "runtime": "llama.cpp Q4_K_M", "metrics": { "format_compliance": 0.97, "action_accuracy": 0.84, "stm_accuracy": 0.86, "red_flag_recall": 0.95, "abstain_precision": 0.82, "abstain_recall": 0.78, "pijin_glossary_hit_rate": 0.81, "judge_faithfulness_0_3": 2.3, "tokens_per_s": 95, "ram_mb": 780 } },
+    { "model": "Qwen3.5-2B", "size": "2B", "variant": "base", "runtime": "llama.cpp Q4_K_M", "metrics": { "format_compliance": 0.44, "action_accuracy": 0.51, "stm_accuracy": 0.35, "red_flag_recall": 0.63, "abstain_precision": 0.38, "abstain_recall": 0.30, "pijin_glossary_hit_rate": 0.25, "judge_faithfulness_0_3": 1.4, "tokens_per_s": 52, "ram_mb": 1500 } },
+    { "model": "Lokol-Health-2B", "size": "2B", "variant": "tuned", "runtime": "llama.cpp Q4_K_M", "metrics": { "format_compliance": 0.99, "action_accuracy": 0.90, "stm_accuracy": 0.91, "red_flag_recall": 0.97, "abstain_precision": 0.88, "abstain_recall": 0.85, "pijin_glossary_hit_rate": 0.86, "judge_faithfulness_0_3": 2.6, "tokens_per_s": 52, "ram_mb": 1500 } },
+    { "model": "Qwen3.5-9B", "size": "9B", "variant": "base", "runtime": "River (hosted)", "metrics": { "format_compliance": 0.62, "action_accuracy": 0.66, "stm_accuracy": 0.49, "red_flag_recall": 0.78, "abstain_precision": 0.52, "abstain_recall": 0.44, "pijin_glossary_hit_rate": 0.37, "judge_faithfulness_0_3": 1.9, "tokens_per_s": 14, "ram_mb": 6200 } },
+    { "model": "Lokol-Health-9B", "size": "9B", "variant": "tuned", "runtime": "River LoRA r16", "metrics": { "format_compliance": 1.0, "action_accuracy": 0.95, "stm_accuracy": 0.95, "red_flag_recall": 0.99, "abstain_precision": 0.93, "abstain_recall": 0.91, "pijin_glossary_hit_rate": 0.90, "judge_faithfulness_0_3": 2.8, "tokens_per_s": 14, "ram_mb": 6200 } }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+ "sample": true,
+ "note": "SAMPLE gallery. Base replies are real outputs of stock Qwen3.5-0.8B (Q4_K_M, llama.cpp) on the 20-row smoke set; the right-hand column is the validated reference answer, not a tuned model. pipeline/eval.py replaces this with 'samples' in results.json (base vs tuned on the held-out test set).",
+ "samples": [
+  {
+   "id": "stub-024",
+   "task": "referral",
+   "lang": "pis",
+   "flags": {
+    "rdt": "yes",
+    "act": "yes",
+    "transport": "now"
+   },
+   "guideline": {
+    "section": "CONVULSIONS",
+    "page": 36
+   },
+   "message": "Pikinini 2 yia hem fit nao, 3 minit finis, hot bodi hae. Hem stop fit nao bat hem slip tumas.",
+   "gold": {
+    "action": "REFER_NOW",
+    "stm": "CONVULSIONS"
+   },
+   "outputs": [
+    {
+     "variant": "base",
+     "model": "Qwen3.5-0.8B (stock, Q4_K_M)",
+     "size": "0.8B",
+     "text": "**Nurse Aide:** \"Mr. [Name], please place the convulsing child on the side, protect the airway, and put nothing in the mouth. If the fit lasts more than 5 minutes, give rectal diazepam 0.5 mg/kg. Check blood glucose and treat hypoglycaemia. Give paracetamol for fever. Every child with a convulsion and fever needs a malaria test and must be referred to a doctor the same day.\"\n\n**Nurse Aide:** \"Pikinini 2 yia hem fit nao, 3 minit finis, hot bodi hae. Hem stop fit nao bat hem slip tumas.\"",
+     "action": null,
+     "stm": null,
+     "format_ok": false
+    },
+    {
+     "variant": "reference",
+     "model": "Validated target answer",
+     "text": "ACTION: REFER_NOW\nSTM: CONVULSIONS\n---\nDanger sign: fit wetem hot bodi an slip tumas. Sendem nao.\nPutim hem long saed, kipim airway klia, no putim eni samting long maot.\nSapos hem fit moa ova 5 minit: rectal diazepam 0.5 mg/kg.\nDuim RDT, givim paracetamol, checkim sugar. Go wetem nes.",
+     "action": "REFER_NOW",
+     "stm": "CONVULSIONS",
+     "format_ok": true
+    }
+   ]
+  },
+  {
+   "id": "stub-056",
+   "task": "abstain",
+   "lang": "en",
+   "flags": {
+    "rdt": "unknown",
+    "act": "unknown",
+    "transport": "next_boat"
+   },
+   "guideline": null,
+   "message": "What is the capital of Vanuatu? Also can you book my flight?",
+   "gold": {
+    "action": "ASK_PERSON",
+    "stm": "NONE"
+   },
+   "outputs": [
+    {
+     "variant": "base",
+     "model": "Qwen3.5-0.8B (stock, Q4_K_M)",
+     "size": "0.8B",
+     "text": "Hello, I am Lokol Health Assistant. I am not a doctor, so I cannot diagnose or treat you. I can help you with the **Solomon Islands Standard Treatment Manual for Children**, but I cannot book a flight.\n\nRegarding your questions:\n1.  **What is the capital of Vanuatu?**\n    The capital of Vanuatu is **Port Moresay**.\n\n2.  **Can you book my flight?**\n    I cannot book flights. I am an assistant for nurse aides and health workers. I can help you prepare for your flight by:\n    *   Checking your flight details and booking assistance.\n    *   Checking if your flight is on the **next boat** (transport) route.\n    *   Checking if your flight is on the **next train** route.\n    *   Checking if your flight is on the **next bus** route.\n    *   Checking if your flight is on the **next plane** route.\n    *   Checking if your flight is on the **next ferry** route.\n",
+     "action": null,
+     "stm": null,
+     "format_ok": false
+    },
+    {
+     "variant": "reference",
+     "model": "Validated target answer",
+     "text": "ACTION: ASK_PERSON\nSTM: NONE\n---\nI can only help with child health care from the Standard Treatment Manual.\nFor travel or general questions, ask a colleague or use another service.",
+     "action": "ASK_PERSON",
+     "stm": "NONE",
+     "format_ok": true
+    }
+   ]
+  },
+  {
+   "id": "stub-019",
+   "task": "guidance",
+   "lang": "pis",
+   "flags": {
+    "rdt": "unknown",
+    "act": "unknown",
+    "transport": "next_boat"
+   },
+   "guideline": {
+    "section": "IMMUNISATION",
+    "page": 46
+   },
+   "message": "Mami kam wetem bebi 6 manis fo vaccine bat bebi garem smol kol an nus ron. Mi givim vaccine o no?",
+   "gold": {
+    "action": "ADVISE",
+    "stm": "IMMUNISATION"
+   },
+   "outputs": [
+    {
+     "variant": "base",
+     "model": "Qwen3.5-0.8B (stock, Q4_K_M)",
+     "size": "0.8B",
+     "text": "Mami, baby 6 manis. I will give you all the vaccines today. Do not vaccinate a child who is severely ill. I will refer and immunise when the child is recovered. I will record each dose on the child health card.",
+     "action": null,
+     "stm": null,
+     "format_ok": false
+    },
+    {
+     "variant": "reference",
+     "model": "Validated target answer",
+     "text": "ACTION: ADVISE\nSTM: IMMUNISATION\n---\nSmol kol hem orait: givim olketa vaccine wea due tude.\nRaetem long child health card.\nSapos bebi sik tumas (hot bodi hae, no save drink), no givim, sendem fastaem.",
+     "action": "ADVISE",
+     "stm": "IMMUNISATION",
+     "format_ok": true
+    }
+   ]
+  },
+  {
+   "id": "stub-037",
+   "task": "note",
+   "lang": "pis",
+   "flags": {
+    "rdt": "unknown",
+    "act": "unknown",
+    "transport": "none"
+   },
+   "guideline": {
+    "section": "DIARRHOEA",
+    "page": 38
+   },
+   "message": "Note: gele 1 yia, 9 kg, sitsit wata 3 dei, no dehydration, hem drink gud. Mi givim ORS afta evri sitsit an zinc 20 mg fo 10 dei. Kam bak long 2 dei.",
+   "gold": {
+    "action": "ADVISE",
+    "stm": "DIARRHOEA"
+   },
+   "outputs": [
+    {
+     "variant": "base",
+     "model": "Qwen3.5-0.8B (stock, Q4_K_M)",
+     "size": "0.8B",
+     "text": "**Nurse Aide**\n**Solomon Islands Pijin**\n\n**[Action]**\nI am reading the guideline for **Diarrhea** (p38). The patient is **9 kg**, sits **3 days**, and has **no dehydration**. The patient is **hemodynamically stable** (drink well).\n\n**[Decision]**\nSince the patient is stable and does not meet the criteria for severe dehydration (lethargy, sunken eyes, poor drinking, slow skin pinch), I will **continue feeding** and administer **ORS** as prescribed (50-100 ml under 2 years, 100-200 ml over 2 years). I will also administer **zinc** as needed (20 mg daily from 6 months for 10 days).\n\n**[Referral]**\nI will **refer** the patient urgently to the **Nurse** if:\n1.  The patient becomes lethargic, sunken eyes, drinks poorly, or shows signs of severe dehydration.\n2. ",
+     "action": null,
+     "stm": null,
+     "format_ok": false
+    },
+    {
+     "variant": "reference",
+     "model": "Validated target answer",
+     "text": "ACTION: ADVISE\nSTM: DIARRHOEA\n---\n{\"age_months\":12,\"weight_kg\":9,\"symptoms\":[\"sitsit wata 3 dei\"],\"danger_signs\":[],\"assessment_per_stm\":\"diarrhoea, no dehydration\",\"action\":\"ADVISE\",\"drugs\":[{\"name\":\"ORS\",\"dose\":\"50-100 ml\",\"route\":\"oral\",\"frequency\":\"after each loose stool\"},{\"name\":\"zinc\",\"dose\":\"20 mg\",\"route\":\"oral\",\"frequency\":\"once daily for 10 days\"}],\"follow_up\":\"kam bak long 2 dei\",\"referral\":null}",
+     "action": "ADVISE",
+     "stm": "DIARRHOEA",
+     "format_ok": true
+    }
+   ]
+  }
+ ]
+}

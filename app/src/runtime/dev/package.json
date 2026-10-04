@@ -1,0 +1,20 @@
+{
+  "name": "lokol-runtime-dev",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --config vite.config.ts",
+    "build": "vite build --config vite.config.ts",
+    "test": "tsx ../tests/run.ts"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "4.3.0",
+    "@wllama/wllama": "3.8.1",
+    "kokoro-js": "1.2.1"
+  },
+  "devDependencies": {
+    "typescript": "7.0.2",
+    "tsx": "latest",
+    "vite": "8.3.2"
+  }
+}

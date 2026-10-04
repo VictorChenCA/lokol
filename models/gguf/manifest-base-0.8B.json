@@ -1,0 +1,17 @@
+{
+  "repo": "VictorChenCA/lokol-base-0.8b-gguf",
+  "base_model": "Qwen/Qwen3.5-0.8B",
+  "size": "base-0.8B",
+  "license": "apache-2.0",
+  "runtime": "wllama|llama-server",
+  "models": [
+    {
+      "id": "lokol-health-base-0.8b-Q4_K_M",
+      "file": "qwen3.5-0.8b-base-Q4_K_M.gguf",
+      "url": "https://huggingface.co/VictorChenCA/lokol-base-0.8b-gguf/resolve/main/qwen3.5-0.8b-base-Q4_K_M.gguf",
+      "sha256": "8212016e0ecbd457f071ac8a168dbee4b79112dc50b512a016e0fdb04815d9c2",
+      "size_mb": 541.9,
+      "license": "apache-2.0"
+    }
+  ]
+}

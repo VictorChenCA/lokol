@@ -9,3 +9,9 @@ dist/
 data/raw/*.pdf
 data/raw/*.txt
 docs/research_raw.json
+
+# identical copies of data/mlx/0.8B (all sizes share one dataset)
+data/mlx/2B/
+data/mlx/4B/
+data/mlx/9B/
+*.bak

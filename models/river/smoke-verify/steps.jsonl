@@ -1,0 +1,5 @@
+{"step": 1, "loss": 2.5183205604553223, "elapsed_s": 30.8}
+{"step": 2, "loss": 1.6844446659088135, "elapsed_s": 43.7}
+{"step": 3, "loss": 2.132635720529301, "elapsed_s": 56.4}
+{"step": 4, "loss": 1.5156316757202148, "elapsed_s": 69.1}
+{"step": 5, "loss": 1.2236952781677246, "elapsed_s": 84.3, "checkpoint": "river://a7333cca-b30e-4cdc-a9de-56c41c50af28/sampler_weights/lokol-smoke-verify-s005-inf", "val": {"n": 10, "format": 0.4, "action_acc": 0.8, "stm_acc": 0.9, "exact": 0.7, "secs": 11.2}}

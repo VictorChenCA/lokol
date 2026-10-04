@@ -1,0 +1,52 @@
+{
+  "sample": false,
+  "generated_at": "2026-10-03T22:10:30-0700",
+  "test_set": {
+    "n": 20,
+    "path": "data/stub/val.jsonl,data/stub/test.jsonl"
+  },
+  "rows": [
+    {
+      "model": "Qwen3.5-0.8B (stub)",
+      "size": "0.8B",
+      "variant": "base",
+      "runtime": "llama.cpp Q4_K_M",
+      "metrics": {
+        "format_compliance": 0,
+        "action_accuracy": 0,
+        "stm_accuracy": 0,
+        "red_flag_recall": 0,
+        "abstain_precision": 0,
+        "abstain_recall": 0,
+        "pijin_glossary_hit_rate": 0.222,
+        "judge_faithfulness_0_3": 0,
+        "tokens_per_s": 46,
+        "ram_mb": 542
+      }
+    },
+    {
+      "model": "Lokol-Health-0.8B (stub30)",
+      "size": "0.8B",
+      "variant": "tuned",
+      "runtime": "llama.cpp Q4_K_M",
+      "metrics": {
+        "format_compliance": 0.9,
+        "action_accuracy": 0.6,
+        "stm_accuracy": 0.9,
+        "red_flag_recall": 0.429,
+        "abstain_precision": 0,
+        "abstain_recall": 0,
+        "pijin_glossary_hit_rate": 0.222,
+        "judge_faithfulness_0_3": 0,
+        "tokens_per_s": 22,
+        "ram_mb": 529
+      }
+    }
+  ],
+  "notes": [
+    "base-0.8b-stub: smoke run on data/stub/val.jsonl,data/stub/test.jsonl (20 rows), not the held-out test set.",
+    "tuned-0.8b-stub30: smoke run on data/stub/val.jsonl,data/stub/test.jsonl (20 rows), not the held-out test set.",
+    "Protocol metrics are exact-match on the SPEC \u00a72 format; judge is headless Claude (sonnet) faithfulness 0\u20133 (0 when not run).",
+    "tokens_per_s is llama-bench tg64 on an M1 Max (or the eval's generation rate); ram_mb is the Q4_K_M weight file size."
+  ]
+}

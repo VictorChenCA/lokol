@@ -1,0 +1,357 @@
+{
+ "generated_at": "2026-10-03T22:33:54-07:00",
+ "sample": false,
+ "synthetic": true,
+ "source": {
+  "title": "Solomon Islands Standard Treatment Manual for Children",
+  "edition": "4th edition, 2017",
+  "publisher": "Ministry of Health and Medical Services, Solomon Islands",
+  "pages": 125,
+  "sections": 56,
+  "chunks": 183,
+  "sections_covered": 39,
+  "license": "No license statement; indexed and cited, not redistributed."
+ },
+ "teachers": [
+  {
+   "name": "DeepSeek-V4.1-Flash",
+   "rows": 1406,
+   "access": "River inference API, open weights"
+  },
+  {
+   "name": "Kimi-K2.6-NVFP4",
+   "rows": 1316,
+   "access": "River inference API, open weights"
+  }
+ ],
+ "judge": {
+  "model": "Claude Sonnet (headless)",
+  "n_sampled": 300,
+  "n_scored": 295,
+  "faithfulness_mean": 1.99,
+  "faithfulness_hist": {
+   "1": 78,
+   "2": 134,
+   "3": 80,
+   "0": 3
+  },
+  "action_ok_rate": 0.888,
+  "pijin_mean": 2.31,
+  "faithfulness_by_lang": {
+   "en": 1.97,
+   "pis": 2.04,
+   "mix": 1.85
+  }
+ },
+ "pipeline": {
+  "raw": 3829,
+  "valid": 3602,
+  "rejected_total": 227,
+  "rejected": {
+   "red_flag_not_referred": 90,
+   "note_json": 42,
+   "referral_action": 27,
+   "next_transport_flag": 21,
+   "too_long": 13,
+   "tok_pisin_leak": 12,
+   "pijin_glossary": 7,
+   "abstain_action": 6,
+   "en_has_pijin": 3,
+   "duplicate": 2,
+   "guideline_missing_not_ask": 2,
+   "note_action_mismatch": 1,
+   "stm_title": 1
+  },
+  "rules": 12,
+  "calls": 769,
+  "prompt_tokens": 2948934,
+  "completion_tokens": 946506,
+  "teacher_cost_usd_est": 2.02,
+  "teacher_cost_note": "Assumed $0.3/M prompt and $1.2/M completion tokens (DATA_CARD.md §7)."
+ },
+ "splits": {
+  "train": 2704,
+  "val": 300,
+  "test": 300
+ },
+ "held_out_presentations": [
+  "anaemia_pallor",
+  "burns_scald",
+  "conjunctivitis",
+  "glomerulonephritis",
+  "lymph",
+  "mastoiditis",
+  "newborn_jaundice",
+  "osteomyelitis",
+  "persistent_diarrhoea",
+  "poisoning",
+  "rheumatic",
+  "skin_bakua",
+  "surgical",
+  "worms"
+ ],
+ "counts": {
+  "task": {
+   "guidance": 1129,
+   "note": 531,
+   "referral": 459,
+   "abstain": 323,
+   "followup": 262
+  },
+  "lang": {
+   "pis": 1211,
+   "en": 1124,
+   "mix": 369
+  },
+  "action": {
+   "REFER_NOW": 921,
+   "ADVISE": 719,
+   "ASK_PERSON": 613,
+   "REFER_NEXT_TRANSPORT": 451
+  },
+  "guideline_mode": {
+   "match": 1793,
+   "wrong": 485,
+   "none": 426
+  }
+ },
+ "counts_all": {
+  "task": {
+   "guidance": 1374,
+   "note": 651,
+   "referral": 573,
+   "abstain": 386,
+   "followup": 320
+  },
+  "lang": {
+   "pis": 1462,
+   "en": 1373,
+   "mix": 469
+  },
+  "action": {
+   "REFER_NOW": 1127,
+   "ADVISE": 867,
+   "ASK_PERSON": 754,
+   "REFER_NEXT_TRANSPORT": 556
+  }
+ },
+ "red_flag_rows": 759,
+ "samples": [
+  {
+   "id": "j7-00032-3",
+   "task": "referral",
+   "lang": "pis",
+   "flags": {
+    "lang": "pis",
+    "rdt": "no",
+    "act": "no",
+    "transport": "none"
+   },
+   "guideline_mode": "match",
+   "guideline": {
+    "section": "MALNUTRITION",
+    "page": 56,
+    "excerpt": "RE-FEEDING Initial re-feeding Continue breast-feeding if able (when medically Initial supplemental feeding: frequent (2-3hrly) small feeds of low salt concentration & stable) low lactose Nasogastric feeding if child eating <80% of the amount offered at 2 conse..."
+   },
+   "message": "Boe 9 month, 7.2 kg. Hem garem oedema long tufala fut an hem no dring susu. No bot, no truck, transport hem no stap. Mi mas duim wanem nao?",
+   "action": "REFER_NOW",
+   "stm": "MALNUTRITION",
+   "reply": "Oedema long tufala fut hem saen blong denja. Kolem hospital o AHC long fon o radio nao, talem pikinini hem kam.\nTaem yu wet: startim F-75 long nasogastric tube sapos hem no kaikai 80% long 2 feed.\nGivim 100 ml/kg/day (7.2 kg = 720 ml long wan dei) long smol feed evri 2-3 aoa.\nGivim Vitamin A 100,000 U nao.\nRaetem referral leta: oedema, no dring susu, weight 7.2 kg, F-75 start.",
+   "note": null,
+   "red_flags": [
+    "unable to drink or breastfeed"
+   ],
+   "teacher": "DeepSeek-V4.1-Flash",
+   "age_months": 9,
+   "weight_kg": 7.2
+  },
+  {
+   "id": "j7-00040-2",
+   "task": "abstain",
+   "lang": "en",
+   "flags": {
+    "lang": "en",
+    "rdt": "no",
+    "act": "yes",
+    "transport": "next_boat"
+   },
+   "guideline_mode": "none",
+   "guideline": null,
+   "message": "My uncle's pig has a wound on its leg and it is not eating. Do you have a medicine I can give to the pig, and what is the dose?",
+   "action": "ASK_PERSON",
+   "stm": "NONE",
+   "reply": "I am not sure; this manual is only for sick children, not for animals.\nPlease ask the agriculture officer or the livestock officer at the provincial office, or the nurse in charge if they know.\nTell them: pig with leg wound, not eating, and ask what treatment and dose to use.",
+   "note": null,
+   "red_flags": [],
+   "teacher": "DeepSeek-V4.1-Flash",
+   "age_months": 96,
+   "weight_kg": 26.3
+  },
+  {
+   "id": "j7-00133-1",
+   "task": "note",
+   "lang": "en",
+   "flags": {
+    "lang": "en",
+    "rdt": "yes",
+    "act": "yes",
+    "transport": "next_boat"
+   },
+   "guideline_mode": "match",
+   "guideline": {
+    "section": "MALARIA",
+    "page": 53,
+    "excerpt": "INVESTIGATION - Malaria slide (MPS) OR Rapid Diagnostic Test (RDT) - Blood glucose MANAGEMENT - Consider malaria in any child with a fever. Check MPS or RDT - Note the type of malaria (thin film) and the parasite count (thick film) - A single negative film or ..."
+   },
+   "message": "Girl 12 months, 8.8 kg, fever started yesterday evening, mother gave her some panadol from home. RDT positive for malaria today. She is playing a little, drinking from her cup, no danger signs I can see. We have ACT tablets in stock. Next boat to Atoifi hospital goes tomorrow morning.",
+   "action": "ADVISE",
+   "stm": "MALARIA",
+   "reply": "{\"age_months\":12,\"weight_kg\":8.8,\"symptoms\":[\"fever since yesterday evening\",\"RDT positive\"],\"danger_signs\":[],\"assessment_per_stm\":\"uncomplicated malaria, RDT positive, alert and drinking, no danger signs (MALARIA p53)\",\"action\":\"ADVISE\",\"drugs\":[{\"name\":\"artemether-lumefantrine\",\"dose\":\"per weight-based ACT protocol\",\"route\":\"oral\",\"frequency\":\"twice daily for 3 days\"}],\"follow_up\":\"start ACT now, give first dose observed at clinic, second dose 8 hours later, then morning and evening for 3 days total; return if vomiting, not drinking, or more sleepy\",\"referral\":null}",
+   "note": {
+    "age_months": 12,
+    "weight_kg": 8.8,
+    "symptoms": [
+     "fever since yesterday evening",
+     "RDT positive"
+    ],
+    "danger_signs": [],
+    "assessment_per_stm": "uncomplicated malaria, RDT positive, alert and drinking, no danger signs (MALARIA p53)",
+    "action": "ADVISE",
+    "drugs": [
+     {
+      "name": "artemether-lumefantrine",
+      "dose": "per weight-based ACT protocol",
+      "route": "oral",
+      "frequency": "twice daily for 3 days"
+     }
+    ],
+    "follow_up": "start ACT now, give first dose observed at clinic, second dose 8 hours later, then morning and evening for 3 days total; return if vomiting, not drinking, or more sleepy",
+    "referral": null
+   },
+   "red_flags": [],
+   "teacher": "Kimi-K2.6-NVFP4",
+   "age_months": 12,
+   "weight_kg": 8.8
+  },
+  {
+   "id": "j7-00044-1",
+   "task": "guidance",
+   "lang": "pis",
+   "flags": {
+    "lang": "pis",
+    "rdt": "yes",
+    "act": "yes",
+    "transport": "next_boat"
+   },
+   "guideline_mode": "match",
+   "guideline": {
+    "section": "FEVER",
+    "page": 40,
+    "excerpt": "- Fever is defined as an axillary (under the arm) temperature greater than 37.5 oC - Fever in itself is not dangerous as it helps the body to fight infection CAUSES The common causes of fever in children are: - Common viral infections: upper respiratory tract ..."
+   },
+   "message": "Pikinini 6 yia, 21.5 kilo, hot bodi 3 dei finis, hem kros an no kaikai gud. Hemi dring wata. Bot bae kam tomora. RDT an ACT i stap long klinik.",
+   "action": "ADVISE",
+   "stm": "FEVER",
+   "reply": "Duim RDT nao. Sapos positive, givim ACT fo malaria long MALARIA page 53.\nParacetamol 320 mg (15 mg fo evri kilo) evri 4 o 6 aoa sapos hot bodi antap long 38 an hem kros, max 4 dos long 24 aoa.\nNo givim aspirin.\nGivim wata plande an lukim sapos hem kaikai moa.\nKambak long fes bot, o kwiktaem sapos saen blong denja i kamap.",
+   "note": null,
+   "red_flags": [],
+   "teacher": "Kimi-K2.6-NVFP4",
+   "age_months": 72,
+   "weight_kg": 21.5
+  },
+  {
+   "id": "j7-00438-2",
+   "task": "abstain",
+   "lang": "pis",
+   "flags": {
+    "lang": "pis",
+    "rdt": "yes",
+    "act": "no",
+    "transport": "next_boat"
+   },
+   "guideline_mode": "wrong",
+   "guideline": {
+    "section": "ASTHMA",
+    "page": 21,
+    "excerpt": "DISCHARGE ADVICE - Discharge once not needing Salbutamol for 3 hours of longer - Discharge home with a salbutamol weaning plan over the next 48 hours - Give prednisolone (1mg/kg/day, max 50mg) each morning after food for 3 days - Educate the parents on how to ..."
+   },
+   "message": "Pikinini 14 manis, 11.4 kilo, hem garem hot bodi. Mama blong hem i askem mi fo raetem leta fo Ministri blong Hel fo hem kam lukim pikinini long hospitol. Yu helpim mi raetem?",
+   "action": "ASK_PERSON",
+   "stm": "NONE",
+   "reply": "Mi no save raetem leta fo Ministri. Diswan hem outsaet wok blong mi.\nAskem nes in charge o kolem dokta long AHC nao, talem: mama wantem leta fo Ministri blong Hel, pikinini 14 manis garem hot bodi.\nTaem yu wet, givim paracetamol fo hot bodi, mekem malaria RDT.",
+   "note": null,
+   "red_flags": [],
+   "teacher": "Kimi-K2.6-NVFP4",
+   "age_months": 14,
+   "weight_kg": 11.4
+  },
+  {
+   "id": "j7-00626-2",
+   "task": "referral",
+   "lang": "en",
+   "flags": {
+    "lang": "en",
+    "rdt": "unknown",
+    "act": "yes",
+    "transport": "now"
+   },
+   "guideline_mode": "match",
+   "guideline": {
+    "section": "PNEUMONIA",
+    "page": 83,
+    "excerpt": "Pneumonia is an infection of the lungs, usually caused by bacteria. It can occur as a secondary complication of other infections. SIGNS & SYMPTOMS - Fever, cough,fast breathing, increased work of breathing - Poor feeding, vomiting, chest or abdominal pain SEVE..."
+   },
+   "message": "Boy 5 years old, 18.3 kg. Cough and runny nose for 2 days, today he is breathing fast about 40 a minute and feels hot. No chest indrawing, no grunting, he is eating and drinking normally and is alert. The truck is here now.",
+   "action": "REFER_NOW",
+   "stm": "PNEUMONIA",
+   "reply": "He has fast breathing with fever, so send him to hospital now in the truck.\nGive the first dose before he leaves: amoxycillin 730 mg by mouth (40 mg/kg).\nGive paracetamol 270 mg (15 mg/kg) for the fever.\nKeep him warm and give water on the way.\nPhone or radio the hospital to say he is coming.\nReferral note: age, weight, breathing rate 40, no chest indrawing, drugs and times given.",
+   "note": null,
+   "red_flags": [],
+   "teacher": "DeepSeek-V4.1-Flash",
+   "age_months": 60,
+   "weight_kg": 18.3
+  }
+ ],
+ "not_covered": [
+  {
+   "title": "Adults, pregnancy and obstetric care",
+   "body": "The adult Standard Treatment Manual is not public; the O&G manual was not used. Every adult or obstetric request is an abstain target."
+  },
+  {
+   "title": "Imaging, laboratory interpretation beyond RDT/blood sugar, and any diagnosis",
+   "body": "The assistant is trained to refuse and to name whom to ask."
+  },
+  {
+   "title": "Real patient data and real nurse language",
+   "body": "Nurse messages are teacher-written. Real nurse-aide messages will be shorter, noisier and more code-switched than these."
+  },
+  {
+   "title": "Native-speaker validation of Pijin",
+   "body": "None was done. Pijin has no official orthography; spellings vary in the data (toraot/toroaot, hospitol/hospital, blong/blo). Some rows may carry Tok Pisin or Bislama forms despite the style guide. A 10-item human spot check by a Pijin speaker is still an open task."
+  },
+  {
+   "title": "Dialect and regional variation",
+   "body": "Dialect and regional variation across provinces, and Solomon Islands vernacular languages (70+); only Pijin and English are covered."
+  },
+  {
+   "title": "Drug stock and local protocol changes after 2017",
+   "body": "Doses are those printed in the 4th edition; the manual itself defers to the national malaria guide, antibiotic and TB guidelines."
+  },
+  {
+   "title": "Teacher bias",
+   "body": "Both teachers are English-dominant models; the Pijin register is theirs, shaped by 6 hand-written exemplars and a verified paragraph. Replies tend toward a fixed structure (danger-sign check, test, dose, follow-up). Within-call near-duplicates were reduced by prompt rules and the dedupe pass but not eliminated."
+  },
+  {
+   "title": "Parser artifacts in the corpus",
+   "body": "Parser artifacts in the corpus pdftotext -layout doubled some lines on the CONVULSIONS pages (34-35) and flattened dose tables into space-separated columns; excerpts from those chunks are harder to read. The corpus is derived from the manual and is itself not redistributed."
+  },
+  {
+   "title": "Known residue after validation (verifier spot check)",
+   "body": "14 rows (13 train, 1 test) describe a brief febrile fit that has already stopped (\"had a short fit at home, now awake\") or \"oedema long tufala leg\" and answer ADVISE or ASK_PERSON instead of referring; the red-flag detector matches \"fits\"/\"had a fit\" but not \"had a short fit\", and not the Pijin oedema phrasing. Six rows (j7-00006-0/-2/-3/-4, j7-00644-0, j8-00072-3: 3 train, 1 val, 2 test) are flagged lang=en but reply in code-switched Pijin. Together about 0.6% of the data."
+  },
+  {
+   "title": "Safety",
+   "body": "The red-flag gate in the runtime (app/src/runtime/gate.ts, bridge/gate.py) is the control, not the model. Nothing here replaces the nurse's judgement or the referral pathway."
+  }
+ ]
+}

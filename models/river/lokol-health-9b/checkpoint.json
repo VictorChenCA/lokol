@@ -1,0 +1,68 @@
+{
+  "base": "Qwen/Qwen3.5-9B",
+  "name": "lokol-health-9b",
+  "best": {
+    "step": 90,
+    "inference": "river://a1fa006b-60ca-4457-b809-5fcbd9d63264/sampler_weights/lokol-health-9b-s090-inf",
+    "training": "river://a1fa006b-60ca-4457-b809-5fcbd9d63264/weights/lokol-health-9b-s090-train",
+    "val": {
+      "n": 40,
+      "format": 0.975,
+      "action_acc": 0.95,
+      "stm_acc": 0.9,
+      "exact": 0.85,
+      "secs": 10.2
+    },
+    "loss": 0.6034816863227895
+  },
+  "checkpoints": [
+    {
+      "step": 30,
+      "inference": "river://a1fa006b-60ca-4457-b809-5fcbd9d63264/sampler_weights/lokol-health-9b-s030-inf",
+      "training": "river://a1fa006b-60ca-4457-b809-5fcbd9d63264/weights/lokol-health-9b-s030-train",
+      "val": {
+        "n": 40,
+        "format": 0.95,
+        "action_acc": 0.85,
+        "stm_acc": 0.825,
+        "exact": 0.7,
+        "secs": 11.6
+      },
+      "loss": 0.8729404807090759
+    },
+    {
+      "step": 60,
+      "inference": "river://a1fa006b-60ca-4457-b809-5fcbd9d63264/sampler_weights/lokol-health-9b-s060-inf",
+      "training": "river://a1fa006b-60ca-4457-b809-5fcbd9d63264/weights/lokol-health-9b-s060-train",
+      "val": {
+        "n": 40,
+        "format": 0.875,
+        "action_acc": 0.85,
+        "stm_acc": 0.875,
+        "exact": 0.75,
+        "secs": 10.6
+      },
+      "loss": 0.8924683928489685
+    },
+    {
+      "step": 90,
+      "inference": "river://a1fa006b-60ca-4457-b809-5fcbd9d63264/sampler_weights/lokol-health-9b-s090-inf",
+      "training": "river://a1fa006b-60ca-4457-b809-5fcbd9d63264/weights/lokol-health-9b-s090-train",
+      "val": {
+        "n": 40,
+        "format": 0.975,
+        "action_acc": 0.95,
+        "stm_acc": 0.9,
+        "exact": 0.85,
+        "secs": 10.2
+      },
+      "loss": 0.6034816863227895
+    }
+  ],
+  "data": "data/synth/train.jsonl",
+  "examples": 2704,
+  "lr": 0.0002,
+  "rank": 16,
+  "batch": 32,
+  "steps": 180
+}
