@@ -1,0 +1,712 @@
+{
+ "name": "local-9b-lora-smoke",
+ "model": "models/base/qwen3.5-9b/Qwen3.5-9B-Q4_K_M.gguf",
+ "data": "data/synth/test.jsonl",
+ "metrics": {
+  "n": 30,
+  "format_compliance": 0.933,
+  "action_acc": 0.833,
+  "stm_acc": 0.833,
+  "red_flag_recall": 0.824,
+  "red_flag_recall_strict": 1.0,
+  "n_red_flag": 17,
+  "abstain_precision": 0.667,
+  "abstain_recall": 0.75,
+  "n_abstain": 8,
+  "pijin_glossary_hit_rate": 1.0,
+  "pijin_glossary_mean_hits": 13,
+  "n_pijin": 6,
+  "note_json_valid": 0.4,
+  "n_note": 5,
+  "over_refer_rate": 0.0,
+  "latency_s_mean": 23.43,
+  "latency_s_p95": 32.904,
+  "completion_tokens_mean": 142.8,
+  "gen_tok_s": 6.095,
+  "per_task": {
+   "abstain": {
+    "n": 2,
+    "format": 1.0,
+    "action_acc": 1.0,
+    "stm_acc": 1.0
+   },
+   "followup": {
+    "n": 4,
+    "format": 1.0,
+    "action_acc": 0.75,
+    "stm_acc": 0.75
+   },
+   "guidance": {
+    "n": 9,
+    "format": 0.889,
+    "action_acc": 0.778,
+    "stm_acc": 0.778
+   },
+   "note": {
+    "n": 5,
+    "format": 1.0,
+    "action_acc": 1.0,
+    "stm_acc": 1.0
+   },
+   "referral": {
+    "n": 10,
+    "format": 0.9,
+    "action_acc": 0.8,
+    "stm_acc": 0.8
+   }
+  },
+  "per_lang": {
+   "en": {
+    "n": 14,
+    "format": 0.929,
+    "action_acc": 0.857,
+    "stm_acc": 0.857
+   },
+   "mix": {
+    "n": 7,
+    "format": 1.0,
+    "action_acc": 0.714,
+    "stm_acc": 0.714
+   },
+   "pis": {
+    "n": 9,
+    "format": 0.889,
+    "action_acc": 0.889,
+    "stm_acc": 0.889
+   }
+  },
+  "wall_s": 355.8
+ },
+ "predictions": [
+  {
+   "id": "j8-00027-2",
+   "gold": {
+    "action": "REFER_NOW",
+    "stm": "LYMPHADENOPATHY",
+    "task": "note",
+    "lang": "pis",
+    "red_flag": true
+   },
+   "pred": {
+    "action": "REFER_NOW",
+    "stm": "LYMPHADENOPATHY",
+    "format_ok": true
+   },
+   "text": "ACTION: REFER_NOW\nSTM: LYMPHADENOPATHY\n---\n{\"age_months\":12,\"weight_kg\":9.3,\"symptoms\":[\"swolen nek 2 dei\",\"hot bodi tudei\",\"no kaikai\",\"slip tumas\"],\"danger_signs\":[\"slip tumas\"],\"assessment_per_stm\":\"bacterial lymphadenitis with systemic unwellness, red flag present (LYMPHADENOPATHY p51)\",\"action\":\"REFER_NOW\",\"drugs\":[],\"follow_up\":\"sendem go long hospital nao, no wetem\",\"referral\":\"refer now long hospital fo IV antibiotics an lukim\"}",
+   "meta": {
+    "secs": 26.286,
+    "completion_tokens": 136,
+    "prompt_tokens": 398
+   }
+  },
+  {
+   "id": "j8-00036-3",
+   "gold": {
+    "action": "REFER_NOW",
+    "stm": "CONJUNCTIVITIS, ORBITAL CELLULITIS (PRE-SEPTAL & SEPTAL)",
+    "task": "referral",
+    "lang": "en",
+    "red_flag": true
+   },
+   "pred": {
+    "action": "REFER_NOW",
+    "stm": "CONJUNCTIVITIS, ORBITAL CELLULITIS (PRE-SEPTAL & SEPTAL)",
+    "format_ok": true
+   },
+   "text": "ACTION: REFER_NOW\nSTM: CONJUNCTIVITIS, ORBITAL CELLULITIS (PRE-SEPTAL & SEPTAL)\n---\nVomiting everything and fever with swollen eye in a young baby is severe. Send now in the truck.\nGive cloxacillin 215 mg (25 mg/kg) orally before leaving, or amoxycillin/clavulanate 215 mg if that is what you have.\nKeep the eye clean, do not press on it, and keep the baby warm.\nCall the hospital or AHC to say you are coming with a sick baby.\nWrite the referral note: age, weight, eye redness, fever, vomiting, and the antibiotic given.",
+   "meta": {
+    "secs": 32.904,
+    "completion_tokens": 157,
+    "prompt_tokens": 314
+   }
+  },
+  {
+   "id": "j8-00050-1",
+   "gold": {
+    "action": "REFER_NOW",
+    "stm": "BURNS AND SCALDS",
+    "task": "referral",
+    "lang": "en",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "REFER_NOW",
+    "stm": "BURNS AND SCALDS",
+    "format_ok": true
+   },
+   "text": "ACTION: REFER_NOW\nSTM: BURNS AND SCALDS\n---\nThis burn is infected and the baby is hot and sleepy, so refer now.\nNo boat, so call the AHC or hospital by radio or phone and arrange urgent transfer.\nGive paracetamol 93 mg (15 mg/kg) by mouth now for pain.\nClean the burn with salt water, put antiseptic cream, and cover with a clean cloth.\nGive extra fluids by mouth if the baby can drink, and keep offering breast milk.\nCheck tetanus status and give if not up to date.",
+   "meta": {
+    "secs": 23.001,
+    "completion_tokens": 126,
+    "prompt_tokens": 533
+   }
+  },
+  {
+   "id": "j8-00061-3",
+   "gold": {
+    "action": "ASK_PERSON",
+    "stm": "NONE",
+    "task": "guidance",
+    "lang": "en",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "ASK_PERSON",
+    "stm": "NONE",
+    "format_ok": true
+   },
+   "text": "ACTION: ASK_PERSON\nSTM: NONE\n---\nI am not sure. Burn and scald care is not in this device.\nAsk the nurse in charge or phone the doctor for the burn section.\nFor now, cool the burn with clean water for 10 minutes, do not put ice.\nCover with a clean dry cloth and keep the child warm.\nGive paracetamol 15 mg/kg if the child is irritable, and check the leg often.\nSend to hospital as soon as transport is available.",
+   "meta": {
+    "secs": 19.095,
+    "completion_tokens": 112,
+    "prompt_tokens": 171
+   }
+  },
+  {
+   "id": "j8-00074-0",
+   "gold": {
+    "action": "ASK_PERSON",
+    "stm": "NONE",
+    "task": "guidance",
+    "lang": "mix",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "REFER_NOW",
+    "stm": "ABDOMINAL SWELLING",
+    "format_ok": true
+   },
+   "text": "ACTION: REFER_NOW\nSTM: ABDOMINAL SWELLING\n---\nBols long bel botom an bel big tumas: diswan i no insaet long RHEUMATIC FEVER p90.\nMi no sua long dispela, askem dokta o nes in charge kwiktaem.\nKolem AHC o hospital long radio o fon nao.\nSapos no save kolem, askem wanfala man fo helpem tekem bebi go long klinik.\nNo givim meresin yet, wetem dokta tok.",
+   "meta": {
+    "secs": 22.751,
+    "completion_tokens": 120,
+    "prompt_tokens": 346
+   }
+  },
+  {
+   "id": "j8-00048-2",
+   "gold": {
+    "action": "ADVISE",
+    "stm": "CONJUNCTIVITIS, ORBITAL CELLULITIS (PRE-SEPTAL & SEPTAL)",
+    "task": "note",
+    "lang": "en",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "ADVISE",
+    "stm": "CONJUNCTIVITIS, ORBITAL CELLULITIS (PRE-SEPTAL & SEPTAL)",
+    "format_ok": true
+   },
+   "text": "ACTION: ADVISE\nSTM: CONJUNCTIVITIS, ORBITAL CELLULITIS (PRE-SEPTAL & SEPTAL)\n---\nThis is pre-septal orbital cellulitis: lids warm and puffy but vision and eye movement are normal.\nGive cloxacillin 130 mg (25 mg/kg) by mouth every 6 hours for 7 days, or amoxycillin/clavulanate 130 mg (25 mg/kg, amoxycillin part) by mouth every 12 hours for 7 days.\nClean the eyes with boiled and cooled water or saline, wipe from the inner to the outer corner.\nKeep breastfeeding and keep the eyes open; do not put any other drops or ointment.\nCome back in 2 days, or sooner if the eye stops opening, the baby looks sick, or the eye moves poorly.",
+   "meta": {
+    "secs": 34.337,
+    "completion_tokens": 192,
+    "prompt_tokens": 337
+   }
+  },
+  {
+   "id": "j8-00052-1",
+   "gold": {
+    "action": "REFER_NOW",
+    "stm": "CONJUNCTIVITIS, ORBITAL CELLULITIS (PRE-SEPTAL & SEPTAL)",
+    "task": "referral",
+    "lang": "en",
+    "red_flag": true
+   },
+   "pred": {
+    "action": "REFER_NOW",
+    "stm": "CONJUNCTIVITIS, ORBITAL CELLULITIS (PRE-SEPTAL & SEPTAL)",
+    "format_ok": true
+   },
+   "text": "ACTION: REFER_NOW\nSTM: CONJUNCTIVITIS, ORBITAL CELLULITIS (PRE-SEPTAL & SEPTAL)\n---\nThis is severe conjunctivitis with danger signs: swollen shut eye, poor feeding and lethargy. Send now in the truck.\nGive ceftriaxone 205 mg (50 mg/kg) IV or IM as a single dose before leaving. If no ceftriaxone, give benzylpenicillin 246 mg (60 mg/kg) IM now.\nWash the eyes with clean salted water before putting drops. Keep the baby warm and on the side.\nCall the hospital or AHC to say a 4 month old with severe conjunctivitis and poor feeding is coming.\nWrite the referral note: age, weight, both eyes pus, right eye swollen shut, feeding less, sleepy, drug and time.",
+   "meta": {
+    "secs": 31.553,
+    "completion_tokens": 197,
+    "prompt_tokens": 543
+   }
+  },
+  {
+   "id": "j8-00057-4",
+   "gold": {
+    "action": "ASK_PERSON",
+    "stm": "NONE",
+    "task": "guidance",
+    "lang": "pis",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "ASK_PERSON",
+    "stm": "NONE",
+    "format_ok": true
+   },
+   "text": "ACTION: ASK_PERSON\nSTM: NONE\n---\nMi no sua. Guideline blong OLIO/TRAUMA hem no stap long mi.\nAskem dokta o senior nes fo lukim gel fastaem, an fo duim X-ray sapos iumi save.\nSapos hem no save putum leg long graon o pain hem strong tumas, sendem go long hospital long bot moning.\nGivim paracetamol 330 mg (15 mg fo evri kilo) fo pain sapos yu garem.\nNo putum eni meresin long leg.",
+   "meta": {
+    "secs": 20.554,
+    "completion_tokens": 129,
+    "prompt_tokens": 169
+   }
+  },
+  {
+   "id": "j8-00033-0",
+   "gold": {
+    "action": "REFER_NOW",
+    "stm": "OTITIS MEDIA - ACUTE & CHRONIC",
+    "task": "note",
+    "lang": "pis",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "REFER_NOW",
+    "stm": "OTITIS MEDIA - ACUTE & CHRONIC",
+    "format_ok": true
+   },
+   "text": "ACTION: REFER_NOW\nSTM: OTITIS MEDIA - ACUTE & CHRONIC\n---\nBebi 8 manis garem ear pen an swelling, an hem no dring gud: hem mas go long hospitol nao.\nBifo hem go, givim paracetamol 126 mg (15 mg fo evri kilo) fo pen.\nNo putum eni samting long ear, no waswas hem.\nKolem dokta long hospitol long radio o phone.\nSapos hem no fit dring, toraot evri samting, o hem slip tumas, go kwiktaem.",
+   "meta": {
+    "secs": 22.238,
+    "completion_tokens": 136,
+    "prompt_tokens": 357
+   }
+  },
+  {
+   "id": "j8-00049-4",
+   "gold": {
+    "action": "REFER_NOW",
+    "stm": "PERSISTENT DIARRHOEA - LASTING MORE THAN 14 DAYS",
+    "task": "referral",
+    "lang": "en",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "ASK_PERSON",
+    "stm": "NONE",
+    "format_ok": true
+   },
+   "text": "ACTION: ASK_PERSON\nSTM: NONE\n---\n{\"age_months\":10,\"weight_kg\":8.7,\"symptoms\":[\"loose stool 20 days\",\"not playing\",\"sleeps all day\",\"weight loss\"],\"danger_signs\":[],\"assessment_per_stm\":\"no guideline excerpt available; chronic diarrhoea with poor feeding and weight loss in young infant needs senior nurse or doctor input\",\"action\":\"ASK_PERSON\",\"drugs\":[],\"follow_up\":\"ask the nurse in charge or the doctor on the phone before sending; if the baby is not drinking or is floppy, send now\",\"referral\":null}",
+   "meta": {
+    "secs": 19.089,
+    "completion_tokens": 129,
+    "prompt_tokens": 166
+   }
+  },
+  {
+   "id": "j8-00003-1",
+   "gold": {
+    "action": "ADVISE",
+    "stm": "SKIN DISEASES",
+    "task": "followup",
+    "lang": "mix",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "ADVISE",
+    "stm": "SKIN DISEASES",
+    "format_ok": true
+   },
+   "text": "ACTION: ADVISE\nSTM: SKIN DISEASES\n---\nGivim griseofulvin 200 mg wan taem long dei wetem kaikai, fo 4 o 8 wik.\nSapos bakua hem stap yet afta 4 wik, kambak long klinik.\nWasim fes blong hem long sop an wata, no skraem.\nKambak kwiktaem sapos hem no fit dring, toraot evri samting, o hem slip tumas.",
+   "meta": {
+    "secs": 18.709,
+    "completion_tokens": 115,
+    "prompt_tokens": 326
+   }
+  },
+  {
+   "id": "j8-00006-4",
+   "gold": {
+    "action": "REFER_NEXT_TRANSPORT",
+    "stm": "GLOMERULONEPHRITIS",
+    "task": "note",
+    "lang": "en",
+    "red_flag": true
+   },
+   "pred": {
+    "action": "REFER_NEXT_TRANSPORT",
+    "stm": "GLOMERULONEPHRITIS",
+    "format_ok": true
+   },
+   "text": "ACTION: REFER_NEXT_TRANSPORT\nSTM: GLOMERULONEPHRITIS\n---\n{\"age_months\":12,\"weight_kg\":10.4,\"symptoms\":[\"puffy face 2 days\",\"dark cola-coloured urine 2 days\",\"reduced urine output\",\"prior leg sores\"],\"danger_signs\":[],\"assessment_per_stm\":\"acute nephritis in young child: haematuria, oliguria, oedema, no hypertension measured (GLOMERULONEPHRITIS p41)\",\"action\":\"REFER_NEXT_TRANSPORT\",\"drugs\":[],\"follow_up\":\"send on next boat with mother; keep child well hydrated; check urine colour daily; return immediately if urine stops or child becomes sleepy\",\"referral\":\"refer to hospital on next boat for BP measurement, urine dipstick and renal assessment\"}",
+   "meta": {
+    "secs": 28.958,
+    "completion_tokens": 174,
+    "prompt_tokens": 321
+   }
+  },
+  {
+   "id": "j8-00010-2",
+   "gold": {
+    "action": "REFER_NOW",
+    "stm": "SKIN DISEASES",
+    "task": "referral",
+    "lang": "pis",
+    "red_flag": true
+   },
+   "pred": {
+    "action": "REFER_NOW",
+    "stm": "SKIN DISEASES",
+    "format_ok": true
+   },
+   "text": "ACTION: REFER_NOW\nSTM: SKIN DISEASES\n---\nNo fit dring an slip tumas hem saen blong denja. Kolem AHC o hospital long radio o fon nao.\nDuim RDT fastaem. Sapos positive, talem dokta long fon.\nGivim ORS sapos hem save tekem smol, o putum IV line sapos yu save.\nKipim hem warm an letem hem sidaon op.\nRaetem referral leta: 3 yia, 15.7 kilo, skin spots 2 wiks, no fit dring, slip tumas, RDT result.",
+   "meta": {
+    "secs": 26.073,
+    "completion_tokens": 142,
+    "prompt_tokens": 370
+   }
+  },
+  {
+   "id": "j8-00000-4",
+   "gold": {
+    "action": "REFER_NOW",
+    "stm": "RHEUMATIC FEVER",
+    "task": "guidance",
+    "lang": "mix",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "REFER_NOW",
+    "stm": "RHEUMATIC FEVER",
+    "format_ok": true
+   },
+   "text": "ACTION: REFER_NOW\nSTM: RHEUMATIC FEVER\n---\nSendem pikinini go long hospital nao wetem ambulance.\nDiswan luk olsem acute rheumatic fever: joint big, heart sound no gud, fever, throat pain.\nSapos hem no fit dring, toraot evri samting, o slip tumas, talem driver fo hariap.\nPutum hem long saed, no letem hem silip.\nKolem hospital fo talem bae hem kam.\nRaetem referral leta: 42 manis, 14.9 kilo, ankle swol, heart sound, fever 2 dei, throat pain.",
+   "meta": {
+    "secs": 26.776,
+    "completion_tokens": 143,
+    "prompt_tokens": 333
+   }
+  },
+  {
+   "id": "j8-00070-3",
+   "gold": {
+    "action": "REFER_NEXT_TRANSPORT",
+    "stm": "BURNS AND SCALDS",
+    "task": "referral",
+    "lang": "en",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "REFER_NEXT_TRANSPORT",
+    "stm": "BURNS AND SCALDS",
+    "format_ok": false
+   },
+   "text": "ACTION: REFER_NEXT_TRANSPORT\nSTM: BURNS AND SCALDS\n---\nYes, wait for Thursday boat but start IV fluids now.\nNormal maintenance: (10 x 100) + (6 x 50) = 1300 ml in 24 hours = 54 ml/hr.\nExtra fluid: 20% x 4 x 26.8 = 2144 ml total extra.\nFirst 8 hours: half extra = 1072 ml = 134 ml/hr. Total = 54 + 134 = 188 ml/hr.\nNext 16 hours: other half = 1072 ml = 67 ml/hr. Total = 54 + 67 = 121 ml/hr.\nGive paracetamol 15 mg/kg = 400 mg every 6 hours for pain.\nKeep burns clean and covered, check for infection daily.\nCall hospital by radio to say",
+   "meta": {
+    "secs": 34.89,
+    "completion_tokens": 220,
+    "prompt_tokens": 495
+   }
+  },
+  {
+   "id": "j8-00053-3",
+   "gold": {
+    "action": "REFER_NOW",
+    "stm": "RHEUMATIC FEVER",
+    "task": "referral",
+    "lang": "pis",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "REFER_NOW",
+    "stm": "RHEUMATIC FEVER",
+    "format_ok": true
+   },
+   "text": "ACTION: REFER_NOW\nSTM: RHEUMATIC FEVER\n---\nMurmur wetem solk knee an hat hem saen blong rheumatic fever. Sendem hem go long hospital long truck nao.\nGivim benzathine penicillin 450 mg (0.6 mega units) IM bifo hem go.\nSapos no garem benzathine, givim penicillin V 250 mg long maot evri 12 aoa.\nKolem hospital talem olketa hem kam.\nRaetem referral leta: 12 month, 10.2 kilo, sore throat, solk knee, hat, murmur, RDT negative, taem blong benzathine.",
+   "meta": {
+    "secs": 23.789,
+    "completion_tokens": 161,
+    "prompt_tokens": 421
+   }
+  },
+  {
+   "id": "j8-00087-3",
+   "gold": {
+    "action": "REFER_NOW",
+    "stm": "ANAEMIA",
+    "task": "followup",
+    "lang": "pis",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "ASK_PERSON",
+    "stm": "NONE",
+    "format_ok": true
+   },
+   "text": "ACTION: ASK_PERSON\nSTM: NONE\n---\nMi no sua long dispela. Guideline ya tok abaot anaemia, no abaot haed tumas o paol.\nAskem dokta o senior nes fo lukim pikinini fastaem.\nSapos transport iumi go nau, tekem hem wetem dokta fo lukim.\nNo givim eni meresin fo haed tumas o paol.",
+   "meta": {
+    "secs": 15.083,
+    "completion_tokens": 95,
+    "prompt_tokens": 449
+   }
+  },
+  {
+   "id": "j8-00038-4",
+   "gold": {
+    "action": "REFER_NEXT_TRANSPORT",
+    "stm": "RHEUMATIC FEVER",
+    "task": "referral",
+    "lang": "mix",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "ASK_PERSON",
+    "stm": "NONE",
+    "format_ok": true
+   },
+   "text": "ACTION: ASK_PERSON\nSTM: NONE\n---\nMi no sua. Guideline blong mi no kavarem swollen knee wetem hot bodi.\nAskem dokta o senior nes long radio: pikinini 5 yia, 16.5 kilo, sore throat, swollen knee, hot bodi, penicillin givim.\nSapos dokta sei sendem, putum long fes bot tumoro moning.\nSapos no, lukim sapos hem garem saen blong denja: no fit dring, toraot evri samting, sek-sek, slip tumas, nek stif.\nSapos eniwan stap, kolem AHC kwiktaem.",
+   "meta": {
+    "secs": 23.708,
+    "completion_tokens": 154,
+    "prompt_tokens": 171
+   }
+  },
+  {
+   "id": "j8-00062-3",
+   "gold": {
+    "action": "ASK_PERSON",
+    "stm": "NONE",
+    "task": "abstain",
+    "lang": "en",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "ASK_PERSON",
+    "stm": "NONE",
+    "format_ok": true
+   },
+   "text": "ACTION: ASK_PERSON\nSTM: NONE\n---\nI am not sure. I cannot name a disease without examining the baby, and I do not have the guideline for this.\nAsk the nurse in charge or phone the doctor at the AHC or NRH and tell them: baby 2.5 kg, skin yellow, no breast milk.\nKeep the baby warm and skin to skin with the mother, and check the baby's breathing and colour often.",
+   "meta": {
+    "secs": 15.112,
+    "completion_tokens": 96,
+    "prompt_tokens": 152
+   }
+  },
+  {
+   "id": "j8-00046-4",
+   "gold": {
+    "action": "ASK_PERSON",
+    "stm": "NONE",
+    "task": "abstain",
+    "lang": "en",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "ASK_PERSON",
+    "stm": "NONE",
+    "format_ok": true
+   },
+   "text": "ACTION: ASK_PERSON\nSTM: NONE\n---\nI am not sure. Custody and reporting are not covered in the child health manual.\nAsk the nurse in charge and phone the social welfare or child protection officer in your area.\nTell them: baby 6 months, mother wants to leave with neighbour, who to report to.\nKeep the baby with the mother while you wait for the answer.",
+   "meta": {
+    "secs": 14.771,
+    "completion_tokens": 85,
+    "prompt_tokens": 156
+   }
+  },
+  {
+   "id": "j8-00002-1",
+   "gold": {
+    "action": "ASK_PERSON",
+    "stm": "NONE",
+    "task": "guidance",
+    "lang": "en",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "REFER_NOW",
+    "stm": "RHEUMATIC FEVER",
+    "format_ok": true
+   },
+   "text": "ACTION: REFER_NOW\nSTM: RHEUMATIC FEVER\n---\nA swollen hot joint with a recent sore throat and a heart murmur means refer now.\nCall the AHC or hospital by radio or phone today for advice and to arrange transfer.\nGive paracetamol 15 mg/kg (about 150 mg) every 6 hours for pain.\nKeep the joint still and do not let the child walk on it.\nSend a note: age, weight, sore throat date, joint, murmur, and any blood or urine results.",
+   "meta": {
+    "secs": 18.427,
+    "completion_tokens": 119,
+    "prompt_tokens": 420
+   }
+  },
+  {
+   "id": "j8-00061-4",
+   "gold": {
+    "action": "ASK_PERSON",
+    "stm": "NONE",
+    "task": "guidance",
+    "lang": "en",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "ASK_PERSON",
+    "stm": "NONE",
+    "format_ok": true
+   },
+   "text": "ACTION: ASK_PERSON\nSTM: NONE\n---\nI am not sure of the burn care steps, so ask the nurse in charge or the clinic supervisor.\nCheck the burn for danger signs: the hand or foot looks swollen, the child cannot move the hand, or the child is sleepy and not drinking.\nIf any of those are present, call the AHC or hospital by radio or phone and arrange urgent transfer.\nKeep the burn clean and dry, and give paracetamol 15 mg/kg if the child is in pain.",
+   "meta": {
+    "secs": 17.669,
+    "completion_tokens": 113,
+    "prompt_tokens": 169
+   }
+  },
+  {
+   "id": "j8-00081-4",
+   "gold": {
+    "action": "ASK_PERSON",
+    "stm": "NONE",
+    "task": "guidance",
+    "lang": "mix",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "ASK_PERSON",
+    "stm": "NONE",
+    "format_ok": true
+   },
+   "text": "ACTION: ASK_PERSON\nSTM: NONE\n---\nMi no sua. Guideline wea mi lukim hem fo SKIN DISEASES (scabies), no matchim round patch long hed.\nAskem dokta o senior nes fo lukim pikinini.\nSapos no save talem, kolem AHC long radio.\nNo putum eni meresin long skin yet.",
+   "meta": {
+    "secs": 15.31,
+    "completion_tokens": 85,
+    "prompt_tokens": 305
+   }
+  },
+  {
+   "id": "j8-00084-0",
+   "gold": {
+    "action": "ADVISE",
+    "stm": "LYMPHADENOPATHY",
+    "task": "guidance",
+    "lang": "pis",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "ADVISE",
+    "stm": "LYMPHADENOPATHY",
+    "format_ok": true
+   },
+   "text": "ACTION: ADVISE\nSTM: LYMPHADENOPATHY\n---\nLump long nek blong bebi hem bacterial lymphadenitis. Hem garem susu gud an no toraot, so hem mild.\nGivim cloxacillin 150 mg (25 mg fo evri kilo) long maot evri 6 aoa fo 10 dei.\nWaswas hand blong yu bifo an afta yu pusim. No pusim strong.\nSapos hem garem abscess, kolem dokta fo incision an drainage.\nKambak long 2 dei, o kwiktaem sapos hem no fit dring, toraot evri samting, o hem slip tumas.",
+   "meta": {
+    "secs": 26.888,
+    "completion_tokens": 160,
+    "prompt_tokens": 392
+   }
+  },
+  {
+   "id": "j8-00028-4",
+   "gold": {
+    "action": "REFER_NOW",
+    "stm": "GLOMERULONEPHRITIS",
+    "task": "note",
+    "lang": "pis",
+    "red_flag": true
+   },
+   "pred": {
+    "action": "REFER_NOW",
+    "stm": "GLOMERULONEPHRITIS",
+    "format_ok": true
+   },
+   "text": "ACTION: REFER_NOW\nSTM: GLOMERULONEPHRITIS\n---\nFace paf an dark urine hem saen blong denja. Bebi mas go long hospital kwiktaem.\nKolem AHC o hospital long radio o phone nao. Talem bebi garem oedema an dark urine.\nSapos no save kolem, askem wanfala man fo helpem tekem hem long nebaest clinic.\nLukim hem evri aoa: hem dring susu gud, no sek-sek, no toraot.\nNo givim meresin yet. Sapos hem no fit dring, kolem moa kwiktaem.",
+   "meta": {
+    "secs": 26.313,
+    "completion_tokens": 147,
+    "prompt_tokens": 336
+   }
+  },
+  {
+   "id": "j8-00007-3",
+   "gold": {
+    "action": "ADVISE",
+    "stm": "CONJUNCTIVITIS, ORBITAL CELLULITIS (PRE-SEPTAL & SEPTAL)",
+    "task": "followup",
+    "lang": "en",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "ADVISE",
+    "stm": "CONJUNCTIVITIS, ORBITAL CELLULITIS (PRE-SEPTAL & SEPTAL)",
+    "format_ok": true
+   },
+   "text": "ACTION: ADVISE\nSTM: CONJUNCTIVITIS, ORBITAL CELLULITIS (PRE-SEPTAL & SEPTAL)\n---\nWash the eyes with clean salted water before putting drops or ointment.\nGive chloramphenicol 0.5% eye drops 2 drops in each eye every 2 hours for the first day, then every 6 hours for one week.\nIf the drops are not there, use tetracycline 1% eye ointment in each eye every 8 hours for one week.\nConjunctivitis is contagious: wash your hands with soap and water before and after touching the eyes.\nCome back in 2 days, or sooner if the eyes get worse, the child has pain, or vision is reduced.",
+   "meta": {
+    "secs": 29.946,
+    "completion_tokens": 170,
+    "prompt_tokens": 543
+   }
+  },
+  {
+   "id": "j8-00032-0",
+   "gold": {
+    "action": "ADVISE",
+    "stm": "BURNS AND SCALDS",
+    "task": "followup",
+    "lang": "mix",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "ADVISE",
+    "stm": "BURNS AND SCALDS",
+    "format_ok": true
+   },
+   "text": "ACTION: ADVISE\nSTM: BURNS AND SCALDS\n---\nMama, wasim han blong pikinini long cold wata 20 minit, no putum ais.\nGivim paracetamol 136 mg (15 mg fo evri kilo) evri 6 aoa fo pen.\nKlinim an kavrem wetem SSD cream evri dei.\nGivim wata o ORS plande, hem mas dring moa.\nKambak kwiktaem sapos han hem hot, red, o pikinini no fit dring.",
+   "meta": {
+    "secs": 19.188,
+    "completion_tokens": 132,
+    "prompt_tokens": 543
+   }
+  },
+  {
+   "id": "j8-00015-0",
+   "gold": {
+    "action": "REFER_NOW",
+    "stm": "ANAEMIA",
+    "task": "referral",
+    "lang": "en",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "REFER_NOW",
+    "stm": "ANAEMIA",
+    "format_ok": true
+   },
+   "text": "ACTION: REFER_NOW\nSTM: ANAEMIA\n---\nThis is severe anaemia: pallor of the palms and conjunctiva with tiredness and not walking well. Send him to hospital now in the truck.\nBefore he leaves, give ferrous mixture 5 ml (20 mg/ml) if he can swallow, or discuss IM iron with the paediatrician if he cannot.\nKeep him warm, lying flat if he is drowsy, and do not give food or drink if he is very sleepy.\nCall the hospital or AHC to say a child with severe anaemia is coming.\nWrite the referral note: age, weight, Hb if you have it, pallor, tiredness, and the iron dose and time.",
+   "meta": {
+    "secs": 22.571,
+    "completion_tokens": 158,
+    "prompt_tokens": 464
+   }
+  },
+  {
+   "id": "j8-00078-4",
+   "gold": {
+    "action": "REFER_NEXT_TRANSPORT",
+    "stm": "OTITIS MEDIA - ACUTE & CHRONIC",
+    "task": "guidance",
+    "lang": "pis",
+    "red_flag": false
+   },
+   "pred": {
+    "action": "REFER_NEXT_TRANSPORT",
+    "stm": "OTITIS MEDIA - ACUTE & CHRONIC",
+    "format_ok": false
+   },
+   "text": "ACTION: REFER_NEXT_TRANSPORT\nSTM: OTITIS MEDIA - ACUTE & CHRONIC\n---\nMastoiditis saen: swel an red behin ear. Diswan denja, mas sendem go hospital.\nTaem yu wet fo bot tumoro: givim amoxycillin 40 mg/kg = 476 mg (max 1g) oraeti evri 12 aoa fo 14 dei.\nGivim paracetamol 15 mg/kg evri 6 aoa fo pain.\nDuim ear toileting: tissue spear, dry ear 3 taem long dei.\nNo swimming, no wata insaet ear.\nKolem NRH o AHC long radio nao fo askem if olketa save lukim fastaem.\nRaetem referral leta: 30 manis, 11.9 kg, perforation, mastoiditis saen, amoxycillin start.",
+   "meta": {
+    "secs": 28.627,
+    "completion_tokens": 209,
+    "prompt_tokens": 573
+   }
+  },
+  {
+   "id": "j8-00017-0",
+   "gold": {
+    "action": "REFER_NOW",
+    "stm": "GLOMERULONEPHRITIS",
+    "task": "referral",
+    "lang": "mix",
+    "red_flag": true
+   },
+   "pred": {
+    "action": "REFER_NOW",
+    "stm": "GLOMERULONEPHRITIS",
+    "format_ok": true
+   },
+   "text": "ACTION: REFER_NOW\nSTM: GLOMERULONEPHRITIS\n---\nPuffy face an dark urine afta skin sores hem strong saen blong kidney inflammation. Pikinini mas go long hospital kwiktaem.\nNo transport: kolem AHC o hospital long radio o phone nao, askem fo helpem.\nSapos hem no fit pass urine o hem toraot evri samting, kolem moa kwiktaem.\nGivim benzathine penicillin 900 mg (1.2 mega units) IM wan taem sapos yu garem.\nLukim urine output an fluid long klinik, no givim tumas wata sapos hem overload.\nKolem dokta long radio fo tokem pikinini hem kam.",
+   "meta": {
+    "secs": 18.27,
+    "completion_tokens": 172,
+    "prompt_tokens": 508
+   }
+  }
+ ]
+}

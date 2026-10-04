@@ -12,7 +12,7 @@ Built for Hack-Nation 7 × World Bank **Small AI for Development**, Track A: Hea
 |---|---|
 | Live demo | **https://lokol-studio.vercel.app** (works offline after the first visit; add `?runtime=shim` for canned replies without downloading models) |
 | Videos | Demo · Tech · Team (links added at submission) |
-| Models | [Lokol Health 0.6B GGUF](https://huggingface.co/VictorChenCA/lokol-health-qwen3-0.6b-gguf) · [Lokol Health 1.7B GGUF](https://huggingface.co/VictorChenCA/lokol-health-qwen3-1.7b-gguf) · [Pijin TTS ONNX](https://huggingface.co/VictorChenCA/lokol-mms-tts-pis-onnx) · 9B: River LoRA checkpoint (hosted) |
+| Models | [Lokol Health 0.6B GGUF](https://huggingface.co/VictorChenCA/lokol-health-qwen3-0.6b-gguf) · [Lokol Health 1.7B GGUF](https://huggingface.co/VictorChenCA/lokol-health-qwen3-1.7b-gguf) · [Lokol Health 9B LoRA for llama.cpp](https://huggingface.co/VictorChenCA/lokol-health-qwen3.5-9b-lora-gguf) (trained on River; also hosted on River) · [Pijin TTS ONNX](https://huggingface.co/VictorChenCA/lokol-mms-tts-pis-onnx) |
 
 ---
 
@@ -55,7 +55,7 @@ Every node runs offline. The internet toggle only adds optional online nodes (th
 |---|---|---|---|---|
 | A | 2–3 GB Android (e.g. Galaxy A02, A12) | Lokol Health **Qwen3-0.6B** Q4_K_M | Pijin voice out; English voice in | 0.4 GB model, about 0.5 GB with voice |
 | B | 4–8 GB Android | Lokol Health **Qwen3-1.7B** Q4_K_M | same | about 1.1 GB model |
-| D | Laptop / clinic PC, or online via WhatsApp | Lokol Health **Qwen3.5-9B** (River LoRA; hosted on River when online) | + Pijin voice in (Omnilingual ASR) | hosted, or about 5.5 GB locally |
+| D | Laptop / clinic PC, or online | Lokol Health **Qwen3.5-9B**: the River-trained LoRA runs offline in llama.cpp on a Q4 base (`--lora`), or hosted on River when online | + Pijin voice in (Omnilingual ASR) | 5.7 GB base + 80 MB adapter |
 
 ## Training: custom nodes, not prompts
 
