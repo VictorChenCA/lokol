@@ -2,26 +2,21 @@ import { NavLink, Outlet, Link, useLocation, useNavigate, useSearchParams } from
 import { Component, useEffect, useState, type ErrorInfo, type ReactNode } from "react";
 import { SignalBars, Toaster } from "./ui";
 import { ProfileMenu, isSignedOut, setSignedOut } from "./Profile";
+import { ModelCardModal } from "./ModelCard";
 
 /** Studio app navigation. The field app (/demo) and the public site ("/") have their own bars. */
 const NAV: { to: string; label: string; title: string; end?: boolean }[] = [
   { to: "/app", label: "Overview", title: "Overview", end: true },
   { to: "/recommend", label: "Recommend", title: "Recommend" },
-  { to: "/studio", label: "Studio", title: "Studio" },
-  { to: "/new", label: "New pack", title: "New pack" },
-  { to: "/train", label: "Train", title: "Train" },
-  { to: "/eval", label: "Evaluate", title: "Evaluate" },
-  { to: "/deploy", label: "Deploy", title: "Deploy" }
+  { to: "/packs", label: "Packs", title: "Packs" },
+  { to: "/studio", label: "Studio", title: "Studio" }
 ];
 
 export const GITHUB_URL = "https://github.com/VictorChenCA/lokol";
 
-/** The judge's path through the product; each paper page ends with a link to the next stop. */
-const STORY: Record<string, { to: string; step: number; title: string; blurb: string }> = {
-  "/train": { to: "/eval", step: 4, title: "Check the evidence", blurb: "Base and tuned models on the same held-out cases: danger signs, refusals, citations." },
-  "/eval": { to: "/deploy", step: 5, title: "Deploy the pack", blurb: "A QR for the offline phone app, a GGUF for PocketPal, a clinic laptop, or WhatsApp." },
-  "/deploy": { to: "/demo", step: 6, title: "Try the field app", blurb: "Type, tap or speak a case in English or Pijin and hear it answer with no signal." },
-  "/packs": { to: "/demo", step: 6, title: "Try the field app", blurb: "Type, tap or speak a case in English or Pijin and hear it answer with no signal." }
+/** Pages that end with a link to the next stop. Train and Evaluate now live in the model card, so only Deploy has one. */
+const STORY: Record<string, { to: string; title: string; blurb: string }> = {
+  "/deploy": { to: "/demo", title: "Try the field app", blurb: "Type, tap or speak a case and hear it answer with no signal." }
 };
 
 function NextStop({ pathname }: { pathname: string }) {
@@ -31,7 +26,7 @@ function NextStop({ pathname }: { pathname: string }) {
     <nav aria-label="Next step" className="border-t border-line/80 bg-paper-2/60">
       <div className="page flex flex-wrap items-center justify-between gap-4 py-8">
         <div className="min-w-0">
-          <p className="text-[13px] text-ink-3">Next, step {next.step} of 6</p>
+          <p className="text-[13px] text-ink-3">Next</p>
           <p className="mt-1 font-display text-[24px] font-bold leading-tight text-ink">
             {next.title}
           </p>
@@ -143,10 +138,11 @@ const TITLES: Record<string, string> = {
   "/recommend": "Recommend | Lokol Studio",
   "/studio": "Studio | Lokol Studio",
   "/new": "New pack | Lokol Studio",
-  "/train": "Train | Lokol Studio",
-  "/eval": "Evaluate | Lokol Studio",
+  "/train": "Training runs | Lokol Studio",
+  "/eval": "Evaluation | Lokol Studio",
   "/deploy": "Deploy | Lokol Studio",
-  "/packs": "Deploy | Lokol Studio",
+  "/packs": "Packs | Lokol Studio",
+  "/packs/new": "New pack | Lokol Studio",
   "/demo": "Lokol Health"
 };
 
@@ -235,7 +231,6 @@ export function MarketingShell() {
 /* ------------------------------------------------------------------ Studio app */
 
 function isActivePath(to: string, pathname: string, end?: boolean) {
-  if (to === "/deploy" && pathname === "/packs") return true;
   return end ? pathname === to : pathname === to || pathname.startsWith(to + "/");
 }
 
@@ -313,6 +308,14 @@ export function AppShell() {
               </svg>
               Field app
             </Link>
+            <Link
+              to="/deploy"
+              aria-current={pathname === "/deploy" ? "page" : undefined}
+              className={`!px-3 !py-1.5 text-[13.5px] ${dark ? "btn-glow btn-sm" : "btn-ink"}`}
+              title="Pick a pack, finalize settings, and launch it on a phone, laptop or WhatsApp"
+            >
+              Deploy
+            </Link>
             <ProfileMenu dark={dark} />
             <button
               type="button"
@@ -331,7 +334,7 @@ export function AppShell() {
         {menu && (
           <nav id="mobile-nav" aria-label="Studio (mobile)" className={`animate-fade-in border-t px-3 pb-3 pt-2 lg:hidden ${dark ? "border-canvas-line" : "border-line/70"}`}>
             <ul className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
-              {[...NAV, { to: "/demo", label: "Field app", title: "Field app", end: true }].map((n) => {
+              {[...NAV, { to: "/deploy", label: "Deploy", title: "Deploy", end: true }, { to: "/demo", label: "Field app", title: "Field app", end: true }].map((n) => {
                 const active = isActivePath(n.to, pathname, n.end);
                 return (
                   <li key={n.to}>
@@ -363,6 +366,7 @@ export function AppShell() {
         </PageBoundary>
       </main>
       <NextStop pathname={pathname} />
+      <ModelCardModal />
       <Toaster />
     </div>
   );

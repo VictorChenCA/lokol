@@ -111,7 +111,7 @@ export function FeaturedRun({ run }: { run: TrainRun }) {
         <div className="p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
             <StatusPill status={run.status} />
-            <span className="badge bg-ink text-white">Tier {run.tier}: {TIER_NAME[run.tier ?? "D"]}</span>
+            <span className="badge bg-ink text-white">{TIER_NAME[run.tier ?? "D"]}</span>
             <span className="text-[12.5px] text-ink-3">updated {ago(run.updated_at)}</span>
           </div>
           <h3 id={`run-${run.id}`} className="mt-3 font-display text-d-sm font-bold">
@@ -173,7 +173,7 @@ export function RunCard({ run }: { run: TrainRun }) {
     <article className="card-flat flex flex-col p-5" aria-labelledby={`run-${run.id}`}>
       <div className="flex flex-wrap items-center gap-2">
         <StatusPill status={run.status} />
-        {run.tier && <span className="badge border border-line-2 bg-sand text-ink-2">Tier {run.tier}: {TIER_NAME[run.tier]}</span>}
+        {run.tier && <span className="badge border border-line-2 bg-sand text-ink-2">{TIER_NAME[run.tier]}</span>}
       </div>
       <h3 id={`run-${run.id}`} className="mt-3 font-display text-[20px] font-bold leading-tight">
         {run.name}

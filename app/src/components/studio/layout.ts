@@ -3,18 +3,20 @@ import { getModel } from "../../models";
 
 /** Left-to-right stages of every Lokol pipeline. Numbered because they are a real sequence. */
 export interface Stage {
-  key: "hear" | "understand" | "think" | "check" | "speak";
+  key: "hear" | "lookup" | "think" | "respond";
   en: string;
-  pis: string;
+  /** What runs in this stage, for the lane tooltip. */
+  blurb: string;
 }
 
+/** Four stages. The safety check sits inside Think, right under the language model. */
 export const STAGES: Stage[] = [
-  { key: "hear", en: "Hear", pis: "Harem" },
-  { key: "understand", en: "Understand", pis: "Lukim buk" },
-  { key: "think", en: "Think", pis: "Tingting" },
-  { key: "check", en: "Check and record", pis: "Sekem an raetem" },
-  { key: "speak", en: "Speak and send", pis: "Toktok an sendem" }
+  { key: "hear", en: "Hear", blurb: "Message in: typed, or speech turned into text" },
+  { key: "lookup", en: "Look up", blurb: "Search the guideline for the matching section" },
+  { key: "think", en: "Think", blurb: "Language model drafts the reply; the safety check can override it" },
+  { key: "respond", en: "Respond", blurb: "Reply out: text, speech, WhatsApp or SMS" }
 ];
+export const LAST_STAGE = STAGES.length - 1;
 
 export const CARD_W = 272;
 export const COL_W = 344; // column pitch: card + gutter for edges
@@ -28,19 +30,18 @@ export function direction(n: GraphNode): "in" | "out" | "both" {
 export function stageIndex(n: GraphNode): number {
   switch (n.type) {
     case "channel":
-      return direction(n) === "out" ? 4 : 0;
+      return direction(n) === "out" ? 3 : 0;
     case "stt":
       return 0;
     case "rag":
       return 1;
     case "llm":
-      return 2;
     case "gate":
     case "router":
+      return 2;
     case "note":
-      return 3;
     case "tts":
-      return 4;
+      return 3;
     default:
       return 2;
   }
@@ -59,14 +60,16 @@ function rowPlan(nodes: GraphNode[], stage: number): Map<string, number> {
     if (stts[0]) rows.set(stts[0].id, chans.length ? -1 : r++);
     chans.forEach((n) => rows.set(n.id, r++));
     stts.slice(1).forEach((n) => rows.set(n.id, r++));
-  } else if (stage === 4) {
+  } else if (stage === LAST_STAGE) {
     const outs = nodes.filter((n) => n.type === "channel");
     const tts = nodes.filter((n) => n.type === "tts").sort(byLang);
     if (tts[0]) rows.set(tts[0].id, outs.length ? -1 : r++);
     outs.forEach((n) => rows.set(n.id, r++));
     tts.slice(1).forEach((n) => rows.set(n.id, r++));
+    nodes.filter((n) => n.type === "note").forEach((n) => rows.set(n.id, r++));
   } else {
-    const rank = (n: GraphNode) => (n.type === "router" ? 1 : n.type === "note" ? 2 : 0);
+    // Think: the language model on the spine, the safety check right under it, then any router.
+    const rank = (n: GraphNode) => (n.type === "llm" ? 0 : n.type === "gate" ? 1 : n.type === "router" ? 2 : 3);
     const order = [...nodes].sort((a, b) => rank(a) - rank(b));
     order.forEach((n, i) => rows.set(n.id, i));
   }

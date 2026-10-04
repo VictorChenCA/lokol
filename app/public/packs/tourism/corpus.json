@@ -1,0 +1,459 @@
+{
+ "version": 1,
+ "source": "Sample guidance written for the Lokol demo (not an official extension manual)",
+ "generated_at": "2026-10-04T04:10:00-07:00",
+ "sections": [
+  {
+   "title": "Answering guest enquiries",
+   "page_start": 1,
+   "page_end": 1,
+   "chunks": 1
+  },
+  {
+   "title": "Pricing a tour",
+   "page_start": 2,
+   "page_end": 2,
+   "chunks": 1
+  },
+  {
+   "title": "Taking bookings",
+   "page_start": 3,
+   "page_end": 3,
+   "chunks": 1
+  },
+  {
+   "title": "Cancellations and refunds",
+   "page_start": 4,
+   "page_end": 4,
+   "chunks": 1
+  },
+  {
+   "title": "Safety briefing",
+   "page_start": 5,
+   "page_end": 5,
+   "chunks": 1
+  },
+  {
+   "title": "Food hygiene",
+   "page_start": 6,
+   "page_end": 6,
+   "chunks": 1
+  },
+  {
+   "title": "Reviews and follow-up",
+   "page_start": 7,
+   "page_end": 7,
+   "chunks": 1
+  },
+  {
+   "title": "Cultural etiquette",
+   "page_start": 8,
+   "page_end": 8,
+   "chunks": 1
+  },
+  {
+   "title": "Transport",
+   "page_start": 9,
+   "page_end": 9,
+   "chunks": 1
+  },
+  {
+   "title": "Payments",
+   "page_start": 10,
+   "page_end": 10,
+   "chunks": 1
+  },
+  {
+   "title": "WhatsApp etiquette",
+   "page_start": 11,
+   "page_end": 11,
+   "chunks": 1
+  },
+  {
+   "title": "Accessibility",
+   "page_start": 12,
+   "page_end": 12,
+   "chunks": 1
+  },
+  {
+   "title": "Weather calls",
+   "page_start": 13,
+   "page_end": 13,
+   "chunks": 1
+  },
+  {
+   "title": "Working with the community",
+   "page_start": 14,
+   "page_end": 14,
+   "chunks": 1
+  },
+  {
+   "title": "Check-in and welcome",
+   "page_start": 15,
+   "page_end": 15,
+   "chunks": 1
+  },
+  {
+   "title": "Rooms and cleaning",
+   "page_start": 16,
+   "page_end": 16,
+   "chunks": 1
+  },
+  {
+   "title": "Drinking water",
+   "page_start": 17,
+   "page_end": 17,
+   "chunks": 1
+  },
+  {
+   "title": "Snorkelling and swimming",
+   "page_start": 18,
+   "page_end": 18,
+   "chunks": 1
+  },
+  {
+   "title": "Boat trips",
+   "page_start": 19,
+   "page_end": 19,
+   "chunks": 1
+  },
+  {
+   "title": "Village visits",
+   "page_start": 20,
+   "page_end": 20,
+   "chunks": 1
+  },
+  {
+   "title": "Guided walks",
+   "page_start": 21,
+   "page_end": 21,
+   "chunks": 1
+  },
+  {
+   "title": "First aid at the guesthouse",
+   "page_start": 22,
+   "page_end": 22,
+   "chunks": 1
+  },
+  {
+   "title": "Meals and local food",
+   "page_start": 23,
+   "page_end": 23,
+   "chunks": 1
+  },
+  {
+   "title": "Pricing rooms and meals",
+   "page_start": 24,
+   "page_end": 24,
+   "chunks": 1
+  },
+  {
+   "title": "Group bookings",
+   "page_start": 25,
+   "page_end": 25,
+   "chunks": 1
+  },
+  {
+   "title": "Lost property and complaints",
+   "page_start": 26,
+   "page_end": 26,
+   "chunks": 1
+  },
+  {
+   "title": "Waste and the reef",
+   "page_start": 27,
+   "page_end": 27,
+   "chunks": 1
+  },
+  {
+   "title": "Power, lights and charging",
+   "page_start": 28,
+   "page_end": 28,
+   "chunks": 1
+  },
+  {
+   "title": "Working with tour boats and agents",
+   "page_start": 29,
+   "page_end": 29,
+   "chunks": 1
+  },
+  {
+   "title": "Seasons and planning",
+   "page_start": 30,
+   "page_end": 30,
+   "chunks": 1
+  }
+ ],
+ "chunks": [
+  {
+   "id": "tour-001-answering-guest-enquiries-01",
+   "section": "Answering guest enquiries",
+   "subsection": "",
+   "page": 1,
+   "page_end": 1,
+   "text": "Reply to every enquiry within a few hours, even if only to say you will confirm later. Greet the guest by name, answer their question first, then give the price, what is included, the meeting place and time. Keep messages short. Ask how many people are coming and if anyone has special needs. End with a clear next step, like 'Reply YES to book'.",
+   "tokens": 86
+  },
+  {
+   "id": "tour-002-pricing-a-tour-01",
+   "section": "Pricing a tour",
+   "subsection": "",
+   "page": 2,
+   "page_end": 2,
+   "text": "Add up your real costs: boat fuel, guide pay, food, fees to land or reef owners, and your time. Add a margin for repairs and quiet months. Check what similar tours charge. Give one clear price per person and say what is included. Offer a family or group price rather than random discounts. Review prices every season.",
+   "tokens": 77
+  },
+  {
+   "id": "tour-003-taking-bookings-01",
+   "section": "Taking bookings",
+   "subsection": "",
+   "page": 3,
+   "page_end": 3,
+   "text": "Write every booking in one place: name, phone or WhatsApp, date, number of people, tour, price, deposit paid and special needs. Confirm the booking in writing the day you take it, and remind the guest the day before. Do not overbook your boat or vehicle.",
+   "tokens": 61
+  },
+  {
+   "id": "tour-004-cancellations-and-refunds-01",
+   "section": "Cancellations and refunds",
+   "subsection": "",
+   "page": 4,
+   "page_end": 4,
+   "text": "Set a clear policy and share it before payment, for example: full refund if cancelled 48 hours before, half refund after that, and a full refund if you cancel for weather. Cancel if the sea or weather is unsafe and offer a new date. Be polite and quick with refunds.",
+   "tokens": 68
+  },
+  {
+   "id": "tour-005-safety-briefing-01",
+   "section": "Safety briefing",
+   "subsection": "",
+   "page": 5,
+   "page_end": 5,
+   "text": "Before every trip, count your guests and show where life jackets are, how to put them on, and what to do if someone falls in. Explain reef and swimming rules, sun and water, and who is in charge. Carry a first aid kit, drinking water and a charged phone in a dry bag, and tell someone on shore your route and return time.",
+   "tokens": 85
+  },
+  {
+   "id": "tour-006-food-hygiene-01",
+   "section": "Food hygiene",
+   "subsection": "",
+   "page": 6,
+   "page_end": 6,
+   "text": "Wash hands with soap before cooking and serving. Keep raw fish and meat away from cooked food. Cook fish and chicken all the way through. Keep food covered and cool; do not leave cooked food in the sun for more than two hours. Use safe drinking water. Ask guests about allergies before you cook.",
+   "tokens": 73
+  },
+  {
+   "id": "tour-007-reviews-and-follow-up-01",
+   "section": "Reviews and follow-up",
+   "subsection": "",
+   "page": 7,
+   "page_end": 7,
+   "text": "After the trip, thank guests by message and ask them to leave a review. Reply to every review politely. If a guest had a problem, apologise, say what you will change, and do it.",
+   "tokens": 46
+  },
+  {
+   "id": "tour-008-cultural-etiquette-01",
+   "section": "Cultural etiquette",
+   "subsection": "",
+   "page": 8,
+   "page_end": 8,
+   "text": "Tell guests local customs before they arrive: dress modestly in villages, ask before photographing people, respect tabu areas, and follow the guide in church and at ceremonies. Make sure landowners and chiefs agree to visits and are paid fairly.",
+   "tokens": 53
+  },
+  {
+   "id": "tour-009-transport-01",
+   "section": "Transport",
+   "subsection": "",
+   "page": 9,
+   "page_end": 9,
+   "text": "Confirm pick-up times and places in writing. Use roadworthy vehicles and safe boats with enough fuel and life jackets. Do not overload. Have a backup plan if the vehicle or boat breaks down.",
+   "tokens": 45
+  },
+  {
+   "id": "tour-010-payments-01",
+   "section": "Payments",
+   "subsection": "",
+   "page": 10,
+   "page_end": 10,
+   "text": "Say how guests can pay: cash, bank transfer or mobile money. Ask for a deposit to hold a booking. Give a receipt for every payment. Keep business money separate from household money.",
+   "tokens": 43
+  },
+  {
+   "id": "tour-011-whatsapp-etiquette-01",
+   "section": "WhatsApp etiquette",
+   "subsection": "",
+   "page": 11,
+   "page_end": 11,
+   "text": "Use a business profile with your name, location and hours. Reply politely and quickly. Do not send many messages in a row or late at night. Never share one guest's number with another. Save templates for prices and directions.",
+   "tokens": 53
+  },
+  {
+   "id": "tour-012-accessibility-01",
+   "section": "Accessibility",
+   "subsection": "",
+   "page": 12,
+   "page_end": 12,
+   "text": "Ask every guest if they need help with walking, hearing or seeing. Describe the trip honestly: steps, uneven paths, boat transfers. Offer a slower pace or a shorter route where you can.",
+   "tokens": 43
+  },
+  {
+   "id": "tour-013-weather-calls-01",
+   "section": "Weather calls",
+   "subsection": "",
+   "page": 13,
+   "page_end": 13,
+   "text": "Check the marine forecast the night before and the morning of the trip. If wind or swell is too high, cancel early and message guests with a new date.",
+   "tokens": 39
+  },
+  {
+   "id": "tour-014-working-with-the-community-01",
+   "section": "Working with the community",
+   "subsection": "",
+   "page": 14,
+   "page_end": 14,
+   "text": "Agree with the community which places guests can visit and how fees are shared. Hire local guides and buy local food. Keep the community informed about guest numbers.",
+   "tokens": 38
+  },
+  {
+   "id": "tour-015-check-in-and-welcome-01",
+   "section": "Check-in and welcome",
+   "subsection": "",
+   "page": 15,
+   "page_end": 15,
+   "text": "Greet guests by name, offer water or a fresh coconut, and show them the room, the bathroom and where to find drinking water. Explain meal times, the safety briefing, and how to reach the host at night. Ask about allergies and special needs at check-in, and write them down for the kitchen.",
+   "tokens": 70
+  },
+  {
+   "id": "tour-016-rooms-and-cleaning-01",
+   "section": "Rooms and cleaning",
+   "subsection": "",
+   "page": 16,
+   "page_end": 16,
+   "text": "Clean rooms every day while guests are out, and fully between stays: sweep, wipe surfaces, change sheets and towels, and empty bins. Check mosquito nets for holes and repair them. Air mattresses in the sun when the weather allows. Keep a simple checklist on the wall so every helper cleans the same way.",
+   "tokens": 72
+  },
+  {
+   "id": "tour-017-drinking-water-01",
+   "section": "Drinking water",
+   "subsection": "",
+   "page": 17,
+   "page_end": 17,
+   "text": "Tell guests which water is safe to drink. Boiled or filtered rainwater should be kept in clean, covered containers. Never refill guest bottles from an unknown source. Clean water tanks and drums regularly and keep the lids closed. If a guest gets sick, ask what they drank and where, and refer them to the clinic.",
+   "tokens": 74
+  },
+  {
+   "id": "tour-018-snorkelling-and-swimming-01",
+   "section": "Snorkelling and swimming",
+   "subsection": "",
+   "page": 18,
+   "page_end": 18,
+   "text": "Before any water trip, check the weather and the tide. Count guests in and out of the water. Give every guest a life jacket on the boat and a snorkel briefing: stay with the group, do not stand on coral, and watch for currents. Never take guests into the water if the guide is not a confident swimmer.",
+   "tokens": 78
+  },
+  {
+   "id": "tour-019-boat-trips-01",
+   "section": "Boat trips",
+   "subsection": "",
+   "page": 19,
+   "page_end": 19,
+   "text": "Check the boat, engine, fuel and life jackets before every trip. Carry a phone or radio, drinking water, a first aid kit and a torch. Tell someone on shore where you are going and when you will be back. Do not overload the boat. Turn back if the weather changes; guests can always go another day.",
+   "tokens": 76
+  },
+  {
+   "id": "tour-020-village-visits-01",
+   "section": "Village visits",
+   "subsection": "",
+   "page": 20,
+   "page_end": 20,
+   "text": "Ask the chief or community leaders before bringing guests into a village, and agree a fee that goes to the community. Brief guests on dress, photos and behaviour before arrival. Walk with the group at all times. Make sure guests buy crafts directly from the makers, and thank the community at the end of the visit.",
+   "tokens": 76
+  },
+  {
+   "id": "tour-021-guided-walks-01",
+   "section": "Guided walks",
+   "subsection": "",
+   "page": 21,
+   "page_end": 21,
+   "text": "Walk the route yourself before taking guests. Tell guests how long the walk is, how hard, and what to bring: water, shoes, hat and insect repellent. Go at the pace of the slowest guest. Carry a first aid kit and know the nearest place to get help. Do not walk in heavy rain or after dark.",
+   "tokens": 76
+  },
+  {
+   "id": "tour-022-first-aid-at-the-guesthouse-01",
+   "section": "First aid at the guesthouse",
+   "subsection": "",
+   "page": 22,
+   "page_end": 22,
+   "text": "Keep a first aid kit stocked with plasters, bandages, antiseptic, gloves and a list of emergency numbers. For cuts from coral, clean the wound well with fresh water. For serious injuries, heavy bleeding, breathing trouble or chest pain, get the guest to the nearest clinic or hospital at once and call ahead if there is signal.",
+   "tokens": 76
+  },
+  {
+   "id": "tour-023-meals-and-local-food-01",
+   "section": "Meals and local food",
+   "subsection": "",
+   "page": 23,
+   "page_end": 23,
+   "text": "Offer local food: fish, root crops, greens, fruit and coconut dishes. Tell guests what is in each dish, especially for allergies. Cook fish and meat well, keep raw and cooked food apart, and serve food soon after cooking. Ask guests what they liked and keep a record of popular dishes.",
+   "tokens": 68
+  },
+  {
+   "id": "tour-024-pricing-rooms-and-meals-01",
+   "section": "Pricing rooms and meals",
+   "subsection": "",
+   "page": 24,
+   "page_end": 24,
+   "text": "Work out the real cost of each stay: food, fuel, cleaning, wages and repairs. Set prices that cover costs and leave a fair profit. Write prices clearly and give the same price to every guest. Agree any discount for long stays or groups before arrival, never on the spot, and only the owner sets prices.",
+   "tokens": 74
+  },
+  {
+   "id": "tour-025-group-bookings-01",
+   "section": "Group bookings",
+   "subsection": "",
+   "page": 25,
+   "page_end": 25,
+   "text": "For groups, confirm the number of guests, arrival time, meals and activities in writing. Ask for a deposit to hold the rooms. Check you have enough beds, nets, water and food. Name one contact person in the group for changes. Plan extra helpers for cooking and boat trips.",
+   "tokens": 65
+  },
+  {
+   "id": "tour-026-lost-property-and-complaints-01",
+   "section": "Lost property and complaints",
+   "subsection": "",
+   "page": 26,
+   "page_end": 26,
+   "text": "Keep lost items in a safe place with a note of the date and room, and message the guest. When a guest complains, listen, thank them, and fix what you can at once. Write down what happened. The owner decides any refund. A calm reply often turns a complaint into a good review.",
+   "tokens": 72
+  },
+  {
+   "id": "tour-027-waste-and-the-reef-01",
+   "section": "Waste and the reef",
+   "subsection": "",
+   "page": 27,
+   "page_end": 27,
+   "text": "Give guests a bin for rubbish and explain what is burned, buried or taken to town. Do not let plastic reach the sea. Ask guests not to use soap or sunscreen in streams. Never sell shells or coral taken from the reef. Show guests how the community protects its reef and fish.",
+   "tokens": 70
+  },
+  {
+   "id": "tour-028-power-lights-and-charging-01",
+   "section": "Power, lights and charging",
+   "subsection": "",
+   "page": 28,
+   "page_end": 28,
+   "text": "Tell guests when the solar power or generator is on and where they can charge phones. Ask them to switch off lights and fans when they leave the room. Keep torches or solar lamps in every room for the night. Check batteries and panels every week.",
+   "tokens": 62
+  },
+  {
+   "id": "tour-029-working-with-tour-boats-and-agents-01",
+   "section": "Working with tour boats and agents",
+   "subsection": "",
+   "page": 29,
+   "page_end": 29,
+   "text": "Agents and boat operators bring guests, but the owner confirms every booking and price. Keep a list of trusted agents and their commission. Share clear photos, room details and rules with them. Reply to agents within a day when you have signal, and tell them early if rooms are full.",
+   "tokens": 68
+  },
+  {
+   "id": "tour-030-seasons-and-planning-01",
+   "section": "Seasons and planning",
+   "subsection": "",
+   "page": 30,
+   "page_end": 30,
+   "text": "Note the busy months, school holidays and festival dates, and plan staff and food for them. Use quiet months for repairs, training and cleaning water tanks. Watch the cyclone season and keep a plan for guests: where they shelter, how they travel out, and who to call.",
+   "tokens": 63
+  }
+ ]
+}

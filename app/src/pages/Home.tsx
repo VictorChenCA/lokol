@@ -214,12 +214,11 @@ const FACTS = [
 ];
 
 const STEPS = [
-  { to: "/recommend", t: "Check the phone", cta: "Check a phone", b: "Name the phone (82 Pacific models listed) and the signal. Studio picks a model size for every node and says what will not fit." },
-  { to: "/studio?preset=health", t: "Compose in Studio", cta: "Open Studio", b: "Each pack is a graph of nodes, and every node is its own small model or rule block. Swap model sizes, turn voice in or out, switch internet per node, and do a test run." },
-  { to: "/train", t: "Train custom nodes", cta: "See training runs", b: "Fine-tune the language node on your guideline: a 9B on River for clinic laptops, Apple-silicon LoRA for phone tiers." },
-  { to: "/eval", t: "Prove it works", cta: "See base vs tuned", b: "Held-out test cases score base and tuned models on the right action, refusals and citations, before anything ships." },
+  { to: "/recommend", t: "Check the device", cta: "Check a device", b: "Name the phone or laptop and the signal. Lokol picks a model size for every step and says what will not fit." },
+  { to: "/packs", t: "Build a pack from a guideline", cta: "See packs", b: "Upload the manual your workers already use. Lokol Health was built this way from the Solomon Islands children's treatment manual, with fine-tuned models." },
+  { to: "/studio?pack=health", t: "Shape it in Studio", cta: "Open Studio", b: "Four stages: hear, look up, think, respond. Swap model sizes, turn voice and internet on or off, open a model card for its training and test results, and do a test run." },
   { to: "/deploy", t: "Deploy offline or to WhatsApp", cta: "Deploy a pack", b: "A QR for the offline phone app, a GGUF for PocketPal, commands for a clinic laptop, or a WhatsApp and Messenger bridge." },
-  { to: "/demo", t: "Try it with no signal", cta: "Try the field app", b: "Speak or type a case in English or Pijin and hear the answer read aloud, every node running on this device, with the safety gate last." }
+  { to: "/demo", t: "Try it with no signal", cta: "Try the field app", b: "Speak or type a case and hear the answer read aloud, every step running on this device, with the safety check before the reply." }
 ];
 
 /** One tone per step, following the node colours along the pipeline. */
@@ -293,7 +292,7 @@ function Evidence() {
       <div className="grid gap-4 lg:grid-cols-12">
         <h2 id="evidence" className="scroll-mt-20 font-display text-d-md font-bold lg:col-span-5">Evidence, not a promise</h2>
         <p className="lede lg:col-span-6 lg:col-start-7 lg:self-end">
-          {n} held-out test cases, never seen in training. The same models before and after fine-tuning on the treatment manual. Untuned models cannot follow the protocol at all, so their scores are zero.
+          {n} held-out test cases, never seen in training. The same models before and after fine-tuning on the treatment manual. Stock models are never shown the reply format the app reads, so the app cannot use any of their answers and they score zero. Given two worked examples in the prompt, they still miss the format about four times in five.
         </p>
       </div>
       <div className="mt-8 grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-3">
@@ -305,12 +304,12 @@ function Evidence() {
               <div>
                 <dt className="text-[13px] text-ink-2">Catches danger signs</dt>
                 <dd className="font-display text-[40px] font-bold leading-none tabular-nums">{pct(r.tuned.flag)}</dd>
-                <dd className="mt-1 text-[12.5px] text-frangipani-deep">base model {pct(r.base.flag)}</dd>
+                <dd className="mt-1 text-[12.5px] text-frangipani-deep">stock model {pct(r.base.flag)}</dd>
               </div>
               <div>
                 <dt className="text-[13px] text-ink-2">Right action</dt>
                 <dd className="font-display text-[40px] font-bold leading-none tabular-nums">{pct(r.tuned.act)}</dd>
-                <dd className="mt-1 text-[12.5px] text-frangipani-deep">base model {pct(r.base.act)}</dd>
+                <dd className="mt-1 text-[12.5px] text-frangipani-deep">stock model {pct(r.base.act)}</dd>
               </div>
             </dl>
           </div>
@@ -363,7 +362,7 @@ export default function Home() {
           className="max-w-[16ch] font-display text-d-xl font-bold text-ink [text-wrap:balance]"
           style={{ fontVariationSettings: '"wdth" 82, "opsz" 96' }}
         >
-          Build small AI that runs where the signal does not.
+          Build small AI helpers that run where the signal does not.
         </h1>
         <div className="mt-8 grid gap-6 lg:grid-cols-12 lg:gap-10">
           <div className="lg:col-span-4">
@@ -374,7 +373,7 @@ export default function Home() {
           </div>
           <div className="lg:col-span-8">
             <p className="lede">
-              Lokol Studio composes offline AI from nodes that are each their own small trained model: speech in, guideline lookup, language model, safety gate, speech out and channel. Voice in and out are optional: switch them off for a text-only pack. Studio recommends what fits a given phone, trains the nodes that need it, and deploys the result as a pack that works with no signal.
+              Lokol Studio builds small agentic helper bots that run offline. Each one hears a question, looks it up in your guideline, thinks with a small fine-tuned model behind a safety check, and responds by text or voice. Studio picks what fits a given phone, shows how each model was trained and tested, and deploys the helper as a pack that works with no signal.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <LaunchButton />
@@ -437,7 +436,7 @@ export default function Home() {
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h2 id="packs" className="font-display text-d-md font-bold">One Studio, three sectors</h2>
-            <p className="mt-2 max-w-[58ch] text-[15px] text-ink-3">Health is the worked example with tuned models and evals. Farm and Host are presets: same nodes, another corpus and safety rules.</p>
+            <p className="mt-2 max-w-[58ch] text-[15px] text-ink-3">Health is a custom pack built from a guideline, with fine-tuned models and evaluations. Farm and Host are sample packs: the same four stages with another guide and other safety rules.</p>
           </div>
           <LaunchButton variant="ghost" size="sm" />
         </div>
@@ -453,7 +452,7 @@ export default function Home() {
                 <div className="canvas-dots relative h-[168px] border-b border-canvas-line px-3 py-2">
                   <MiniGraph graph={g} />
                   <span className="absolute left-3 top-3">
-                    {live ? <Badge tone="palm" solid dot>Live</Badge> : <Badge tone="dark">Preset</Badge>}
+                    {live ? <Badge tone="palm" solid dot>Custom pack</Badge> : <Badge tone="dark">Sample pack</Badge>}
                   </span>
                 </div>
                 <div className="flex flex-1 flex-col p-5">
@@ -465,7 +464,7 @@ export default function Home() {
                     <div><dt>Online nodes</dt><dd className="font-display text-[17px] font-semibold text-ink">{onlineNodes}</dd></div>
                   </dl>
                   <div className="mt-4 flex flex-wrap gap-2">
-                    <Link to={`/studio?preset=${s}`} className={btnClass(live ? "ink" : "ghost", "sm")}>Open in Studio</Link>
+                    <Link to={`/studio?pack=${s}`} className={btnClass(live ? "ink" : "ghost", "sm")}>Open in Studio</Link>
                     {live && <Link to="/demo" className={btnClass("ghost", "sm")}>Try the field app</Link>}
                   </div>
                 </div>

@@ -91,7 +91,7 @@ async function exportZip(manifest: Manifest & { corpus_inline?: CorpusFile }) {
   zip.file("corpus.json", JSON.stringify(corpus_inline ?? {}, null, 2));
   zip.file(
     "README.md",
-    `${readme(shipped)}\n\n## Built from your own manual\n\nThis pack was built in Lokol's New pack wizard. corpus.json holds ${corpus_inline?.chunks.length ?? 0} chunks of your manual; the app retrieves from it with BM25 and cites the section and page. The language model is the general Lokol model fine-tuned on the Solomon Islands STM protocol: for a new manual it relies on retrieval. To fine-tune on this manual, see /train.\n`
+    `${readme(shipped)}\n\n## Built from your own manual\n\nThis pack was built in Lokol's New pack wizard. corpus.json holds ${corpus_inline?.chunks.length ?? 0} chunks of your manual; the app retrieves from it with BM25 and cites the section and page. The language model is the general Lokol model fine-tuned on the Solomon Islands STM protocol: for a new manual it relies on retrieval. To fine-tune on this manual, run pipeline/train_mlx.sh (laptop) or pipeline/train_river.py (9B on River).\n`
   );
   zip.file("qr.png", (await qrDataUrl(url)).split(",")[1], { base64: true });
   zip.file("install-url.txt", url);
@@ -185,7 +185,10 @@ export default function NewPack() {
     const index = new BM25Index(corpus);
     const preset = PRESETS[sector === "other" ? "health" : sector];
     const dev = DEVICES.find((d) => d.id === device) ?? DEVICES[1];
-    const graph = { ...preset, name: name || "My pack", language: langs.split(/[,\s]+/).filter(Boolean), target: { ...preset.target, device: dev.label, ram_gb: dev.ram } };
+    const packName = name || "My pack";
+    // The lookup step searches this manual, so it is named after it.
+    const nodes = preset.nodes.map((n) => (n.type === "rag" ? { ...n, label: `${packName} lookup`, params: { ...n.params, corpus: packId, note: `Built from ${source || "your manual"}` } } : n));
+    const graph = { ...preset, nodes, name: packName, language: langs.split(/[,\s]+/).filter(Boolean), target: { ...preset.target, device: dev.label, ram_gb: dev.ram } };
     const base = buildManifest(graph, PWA_URL, packId);
     const manifest = {
       ...base,
@@ -250,7 +253,11 @@ export default function NewPack() {
                 <span className="font-display text-[17px] font-semibold">Use the STM sample</span>
                 <span className="text-[13.5px] text-ink-3">Solomon Islands Standard Treatment Manual for Children (2017)</span>
               </button>
-              <button type="button" onClick={() => ingest(COFFEE_SAMPLE, COFFEE_SAMPLE_NAME, "Coffee leaf rust (sample)")} className="card-flat card-hover flex flex-col items-start gap-1 p-5 text-left">
+              <button type="button" onClick={() => {
+                  pickSector("agriculture");
+                  setLangs("en");
+                  ingest(COFFEE_SAMPLE, COFFEE_SAMPLE_NAME, "Coffee leaf rust (sample)");
+                }} className="card-flat card-hover flex flex-col items-start gap-1 p-5 text-left">
                 <span className="font-display text-[17px] font-semibold">Use a farming sample</span>
                 <span className="text-[13.5px] text-ink-3">Coffee leaf rust leaflet, written for this demo</span>
               </button>
@@ -371,8 +378,10 @@ export default function NewPack() {
             ) : (
               <div className="space-y-5">
                 <div className="flex flex-wrap gap-2">
-                  <Button size="lg" onClick={() => tryIt(built.manifest, built.manifest.pack_id)}>Try it</Button>
-                  <Button size="lg" variant="ghost" onClick={() => exportZip(built.manifest)}>Export pack</Button>
+                  <Button size="lg" onClick={() => navigate(`/studio?pack=${encodeURIComponent(`idb:${built.manifest.pack_id}`)}`)}>Open in Studio</Button>
+                  <Button size="lg" variant="ghost" onClick={() => navigate(`/deploy?pack=${encodeURIComponent(`idb:${built.manifest.pack_id}`)}`)}>Deploy</Button>
+                  <Button size="lg" variant="ghost" onClick={() => tryIt(built.manifest, built.manifest.pack_id)}>Try in the field app</Button>
+                  <Button size="lg" variant="quiet" onClick={() => exportZip(built.manifest)}>Export zip</Button>
                 </div>
                 <p className="text-[14px] text-ink-2">
                   Saved as <code className="rounded bg-sand px-1 font-mono text-[12.5px]">{built.manifest.pack_id}</code>: {built.index.size} chunks, {built.index.sectionTitles().length} sections.
@@ -395,8 +404,7 @@ export default function NewPack() {
             <div className="mt-6">
               <Callout tone="frangipani" title="What the model knows">
                 The language model is the general Lokol model fine-tuned on the Solomon Islands STM protocol. For a new manual it relies on retrieval: it reads the
-                matching section of your manual and cites it. Fine-tuning on your manual is the Train step, see the command on{" "}
-                <Link to="/train#your-own" className="font-medium text-reef-deep underline">Train</Link>.
+                matching section of your manual and cites it. Fine-tuning on your manual is one command (pipeline/train_mlx.sh on a laptop, or pipeline/train_river.py for the 9B); Lokol Health's model cards show what that buys.
               </Callout>
             </div>
           </Panel>
@@ -421,7 +429,7 @@ export default function NewPack() {
           </section>
         )}
         <p className="mt-8 text-[13px] text-ink-3">
-          Prefer the command line? The same chunker runs in <code className="font-mono">app/src/runtime/corpus_builder.ts</code>. <Link className={btnClass("quiet", "sm")} to="/studio">Open the Studio</Link>
+          Prefer the command line? The same chunker runs in <code className="font-mono">app/src/runtime/corpus_builder.ts</code>. <Link className={btnClass("quiet", "sm")} to="/packs">Back to Packs</Link>
         </p>
       </div>
     </div>

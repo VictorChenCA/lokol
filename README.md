@@ -80,6 +80,7 @@ Held-out test set: 300 synthetic cases, 150 of them with 14 presentations never 
 | Qwen3-1.7B (base) | 0% | 0% / 45% | 75% | 0% | 33% / **0%** |
 | **Lokol Health 1.7B** (on-device, 1.1 GB) | **99%** | **64% / 62%** | **95%** | 17% | 82% / **0%** |
 
+- **Is the 0% baseline fair?** It measures the clinic answer format, which stock models never produce unprompted. Given two worked examples in the prompt, stock models still fall far short: Qwen3-0.6B reaches 21% format, 8% right action and 0% danger-sign referrals; Qwen3.5-9B reaches 24% format, 38% right action and 46% danger-sign referrals. The fine-tuned 0.6B reaches 98%, 64% and 95%.
 - Stock models never follow the protocol, so with the gate they can only refer or say "ask a person": safe, but they never help (0% of advice cases answered). The tuned 9B answers 78% of them correctly.
 - The tuned models reply in Pijin when the nurse writes Pijin 97–100% of the time (base: 45–69%).
 - The phone models are cautious: the 0.6B and 1.7B catch 93–95% of danger signs and never advised on a case that needed referral (1.7B: 0%), but they over-refer and rarely abstain. The 1.7B cites the right manual section more often (72% vs 57%). The recommender puts the largest model each device can hold.

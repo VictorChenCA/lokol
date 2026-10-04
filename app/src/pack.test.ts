@@ -53,3 +53,15 @@ describe("pack export", () => {
     expect(readme(m)).toContain("deploy/lokol-laptop.sh | bash -s -- --model");
   });
 });
+
+describe("buildManifest with voice switched off", () => {
+  it("drops disabled speech nodes and their models", () => {
+    const g = { ...HEALTH_GRAPH, nodes: HEALTH_GRAPH.nodes.map((n) => (n.type === "stt" || n.type === "tts" ? { ...n, params: { ...n.params, enabled: false } } : n)) };
+    const m = buildManifest(g, "https://lokol.vercel.app");
+    expect(m.graph.nodes.some((n) => n.type === "stt" || n.type === "tts")).toBe(false);
+    const speechIds = new Set(HEALTH_GRAPH.nodes.filter((n) => (n.type === "stt" || n.type === "tts") && n.model).map((n) => n.model!.id));
+    const kept = new Set(m.graph.nodes.filter((n) => n.model).map((n) => n.model!.id));
+    expect(m.models.every((x) => kept.has(x.id))).toBe(true);
+    for (const id of speechIds) if (!kept.has(id)) expect(m.models.some((x) => x.id === id)).toBe(false);
+  });
+});

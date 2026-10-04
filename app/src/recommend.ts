@@ -34,15 +34,16 @@ export interface Recommendation {
   minutes3g: number;
 }
 
+/** Internal size classes (never shown as "tiers" in the UI). */
 export const TIER_LABEL: Record<Tier, string> = {
-  A: "Tier A: small phone (under 3 GB)",
-  B: "Tier B: everyday phone (3–5 GB)",
-  C: "Tier C: better phone (6–8 GB)",
-  D: "Tier D: laptop or clinic PC"
+  A: "Small phone (under 3 GB)",
+  B: "Everyday phone (3–5 GB)",
+  C: "Better phone (6–8 GB)",
+  D: "Laptop or clinic PC"
 };
 
-/** Tooltip for the small tier badge: tiers are a memory grouping, not the headline. */
-export const TIER_HINT = "Lokol groups phones by memory: under 3 GB, 3-5 GB, 6-8 GB, laptop.";
+/** Tooltip copy for memory size classes. */
+export const TIER_HINT = "Lokol groups devices by memory: under 3 GB, 3-5 GB, 6-8 GB, laptop.";
 
 const ROLE: Record<string, string> = { stt: "speech in", tts: "speech out", rag: "manual lookup", llm: "language model" };
 
@@ -70,7 +71,7 @@ export function appOverheadMb(computer: boolean): number {
 }
 
 export function isComputerName(name: string): boolean {
-  return /laptop|clinic pc|desktop|macbook|\bpc\b|computer/i.test(name);
+  return /laptop|clinic pc|desktop|macbook|\bpc\b|computer|ideapad|thinkpad|latitude|chromebook|inspiron|elitebook|probook|vivobook|aspire|\bhp \d{3}\b/i.test(name);
 }
 
 const SECTOR_NAME: Record<Sector, string> = {
@@ -239,11 +240,6 @@ export function recommend(input: RecommendInput): Recommendation {
   });
   edges.push({ from: llmId, to: gate });
 
-  if (health) {
-    nodes.push({ id: nodeId("note", 1), type: "note", label: "Visit note (on device)", params: { storage: "indexeddb", encrypted: "pin", export: "dhis2-shaped-json" }, online: false, position: P });
-    edges.push({ from: gate, to: nodeId("note", 1) });
-  }
-
   const ttss = optional.filter((o) => o.type === "tts");
   const chOut = nodeId("channel", 2);
   ttss.forEach((o, i) => {
@@ -268,13 +264,13 @@ export function recommend(input: RecommendInput): Recommendation {
     reasons.push("No signal, so every node runs on the device and nothing is sent anywhere. Notes stay on the phone.");
     willNotWork.push("WhatsApp or Messenger: there is no signal to send messages through. The app itself still works.");
   } else if (input.connectivity === "intermittent") {
-    reasons.push("Signal comes and goes, so the app works offline and sends notes or WhatsApp replies when it reconnects.");
+    reasons.push("Signal comes and goes, so the app works offline and sends WhatsApp replies when it reconnects.");
   } else {
     reasons.push("Online, so the WhatsApp or Messenger bridge is on and the phone can use the stronger hosted model.");
   }
 
   if (!health) {
-    willNotWork.push(`${SECTOR_NAME[input.sector]}: no tuned model or guideline corpus ships tonight. The graph uses the base model and a placeholder corpus; Lokol Health is the worked example.`);
+    willNotWork.push(`${SECTOR_NAME[input.sector]} is a sample pack: the general model and a sample guide, with no fine-tuned model yet. Build your own from a manual under Packs, New pack.`);
   }
 
   const seen = new Set<string>();

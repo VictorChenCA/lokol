@@ -4,8 +4,8 @@ import { PRESETS } from "./data/presets";
 import { NODE_META, getModel, ref } from "./models";
 import { autoLayout, COL_W, stageIndex } from "./components/studio/layout";
 
-// v3: catalog ids changed (lokol-health-qwen3-*) and the canvas moved to stage columns.
-const KEY = "lokol.studio.graph.v3";
+// v4: four stage columns (Hear, Look up, Think, Respond); the visit-note node left the default graphs.
+const KEY = "lokol.studio.graph.v4";
 
 function load(): Graph {
   try {
@@ -28,16 +28,37 @@ function persist(g: Graph) {
   }
 }
 
+/** Which pack the canvas holds: a sector preset ("health"), a saved pack ("idb:<id>"), an export ("export:<pack_id>") or "custom". */
+const PACK_KEY = `${KEY}.pack`;
+function loadPackKey(): string {
+  try {
+    return localStorage.getItem(PACK_KEY) ?? "health";
+  } catch {
+    return "health";
+  }
+}
+function persistPackKey(k: string) {
+  try {
+    localStorage.setItem(PACK_KEY, k);
+  } catch {
+    /* ignore */
+  }
+}
+
 const ONLINE_KINDS = ["whatsapp", "messenger"];
 
 interface StudioState {
   graph: Graph;
+  /** Which pack is open (see PACK_KEY). */
+  packKey: string;
   selectedId: string | null;
   dirty: boolean;
   /** Node ids that just changed model (Recommend or a swap); cards flash once. */
   flash: { ids: string[]; nonce: number };
-  setGraph: (g: Graph) => void;
+  setGraph: (g: Graph, packKey?: string) => void;
   loadPreset: (s: Sector) => void;
+  /** Turn every speech-in (stt) or speech-out (tts) node on or off; turning on a pack with none adds one. */
+  setVoice: (kind: "stt" | "tts", on: boolean) => void;
   select: (id: string | null) => void;
   updateNode: (id: string, patch: Partial<GraphNode>) => void;
   updateParam: (id: string, key: string, value: unknown) => void;
@@ -75,17 +96,45 @@ export const useStudio = create<StudioState>((set, get) => {
   };
   return {
     graph: load(),
+    packKey: loadPackKey(),
     selectedId: null,
     dirty: false,
     flash: { ids: [], nonce: 0 },
-    setGraph: (graph) => {
+    setGraph: (graph, packKey = "custom") => {
       persist(graph);
-      set({ graph, selectedId: null, dirty: false });
+      persistPackKey(packKey);
+      set({ graph, packKey, selectedId: null, dirty: false });
     },
     loadPreset: (s) => {
       const graph = structuredClone(PRESETS[s]);
       persist(graph);
-      set({ graph, selectedId: null, dirty: false });
+      persistPackKey(s);
+      set({ graph, packKey: s, selectedId: null, dirty: false });
+    },
+    setVoice: (kind, on) => {
+      const g = get().graph;
+      if (g.nodes.some((n) => n.type === kind)) {
+        commit({ ...g, nodes: g.nodes.map((n) => (n.type === kind ? { ...n, params: { ...n.params, enabled: on } } : n)) });
+        return;
+      }
+      if (!on) return;
+      const id = get().addNode(kind);
+      if (kind === "tts" && g.language[0] === "en") get().swapModel(id, "kokoro-82m-en");
+      const g2 = get().graph;
+      const find = (f: (n: GraphNode) => boolean) => g2.nodes.find(f);
+      const chIn = find((n) => n.type === "channel" && n.params?.direction !== "out");
+      const chOut = find((n) => n.type === "channel" && n.params?.direction === "out");
+      const edges = [...g2.edges];
+      if (kind === "stt") {
+        const next = find((n) => n.type === "rag") ?? find((n) => n.type === "llm");
+        if (chIn) edges.push({ from: chIn.id, to: id });
+        if (next) edges.push({ from: id, to: next.id });
+      } else {
+        const prev = find((n) => n.type === "router") ?? find((n) => n.type === "gate") ?? find((n) => n.type === "llm");
+        if (prev) edges.push({ from: prev.id, to: id });
+        if (chOut) edges.push({ from: id, to: chOut.id });
+      }
+      commit(autoLayout({ ...g2, edges }), { selectedId: null });
     },
     select: (selectedId) => set({ selectedId }),
     updateNode: (id, patch) => commit(withNode(get().graph, id, (n) => ({ ...n, ...patch }))),

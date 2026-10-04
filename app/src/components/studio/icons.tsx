@@ -105,6 +105,18 @@ export const Icon = {
       <path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4" />
     </Svg>
   ),
+  speaker: (p: P) => (
+    <Svg {...p}>
+      <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" />
+      <path d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a7.6 7.6 0 0 1 0 11" />
+    </Svg>
+  ),
+  info: (p: P) => (
+    <Svg {...p}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 11v5.5M12 7.6v.1" />
+    </Svg>
+  ),
   play: (p: P) => (
     <Svg {...p}>
       <path d="M7 4.5v15l12.5-7.5z" fill="currentColor" />

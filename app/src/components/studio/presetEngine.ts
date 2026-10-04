@@ -1,11 +1,31 @@
 import type { Action, Chunk, Engine, Flags, GateResult, ParsedReply, Sector } from "../../types";
+import { BM25Index } from "../../runtime/rag";
 
 /**
- * Farm and Host are preset packs: same nodes as Lokol Health, but their guide corpus is a placeholder
- * and no tuned model exists yet. A trace on them must not answer with the child treatment manual, so
- * guideline lookup, the language model and the safety gate are answered from this small sample set.
- * Speech in and speech out still use the loaded engine.
+ * Farm and Host are sample packs: same nodes as Lokol Health, a sample guide (public/packs/<sector>/corpus.json)
+ * and no tuned model yet. A trace on them must not answer with the child treatment manual, so guideline
+ * lookup searches the sample guide with BM25, and the model and safety check answer from a small set of
+ * worked replies (or quote the best section). Speech in and speech out still use the loaded engine.
  */
+
+const indexes = new Map<string, Promise<BM25Index | null>>();
+function sampleIndex(sector: Sector): Promise<BM25Index | null> {
+  if (!indexes.has(sector)) {
+    indexes.set(
+      sector,
+      fetch(`/packs/${sector}/corpus.json`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((c) => (c ? new BM25Index(c) : null))
+        .catch(() => null)
+    );
+  }
+  return indexes.get(sector)!;
+}
+
+function firstSentences(text: string, n = 2): string {
+  const parts = text.match(/[^.!?]+[.!?]+/g) ?? [text];
+  return parts.slice(0, n).map((p) => p.trim()).join(" ");
+}
 
 interface Case {
   match: RegExp;
@@ -25,7 +45,7 @@ const FARM: Case[] = [
     chunk: {
       id: "farm-taro-blight",
       section: "TARO LEAF BLIGHT",
-      subsection: "Sample farm guide (placeholder corpus)",
+      subsection: "Sample farm guide",
       page: 14,
       score: 7.2,
       text: "Brown, water-soaked spots that grow and join, then holes and yellowing. Spreads in wet weather. Remove and burn sick leaves, space plants for air, replant with a tolerant variety. Ask the extension officer if more than half the garden is affected."
@@ -40,7 +60,7 @@ const FARM: Case[] = [
     chunk: {
       id: "farm-pesticide-safety",
       section: "PESTICIDE SAFETY",
-      subsection: "Sample farm guide (placeholder corpus)",
+      subsection: "Sample farm guide",
       page: 31,
       score: 6.4,
       text: "Never mix or spray within 30 m of a drinking-water source. Only use products on the approved list, at the label rate. If unsure which product is allowed, ask the extension officer before buying."
@@ -59,7 +79,7 @@ const HOST: Case[] = [
     chunk: {
       id: "host-ferry",
       section: "GETTING HERE",
-      subsection: "Sample guesthouse listing (placeholder corpus)",
+      subsection: "Sample guesthouse listing",
       page: 2,
       score: 6.9,
       text: "Sample timetable: the Gizo boat leaves Honiara on Friday evening and arrives Saturday morning. Times change with weather; guests should confirm with the shipping office the day before."
@@ -74,7 +94,7 @@ const HOST: Case[] = [
     chunk: {
       id: "host-rooms",
       section: "ROOMS AND RATES",
-      subsection: "Sample guesthouse listing (placeholder corpus)",
+      subsection: "Sample guesthouse listing",
       page: 1,
       score: 5.8,
       text: "Two twin rooms and one double room with a sea view. Rates and availability are confirmed by the owner; Lokol never takes a booking or quotes a price on its own."
@@ -97,21 +117,31 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 export function presetEngine(base: Engine, sector: Sector): Engine {
   const cases = sector === "agriculture" ? FARM : HOST;
   const pick = (q: string) => cases.find((c) => c.match.test(q)) ?? null;
+  const who = sector === "agriculture" ? "the extension officer" : "the owner";
 
   return {
     transcribe: (audio, lang) => base.transcribe(audio, lang),
     speak: (text, lang) => base.speak(text, lang),
     status: () => base.status(),
     async retrieve(query: string): Promise<Chunk[]> {
+      const idx = await sampleIndex(sector);
+      const hits = idx ? idx.search(query, 3) : [];
       await sleep(120);
       const c = pick(query);
-      return c?.chunk ? [c.chunk] : [];
+      return c?.chunk ? [c.chunk, ...hits.slice(0, 2)] : hits;
     },
     async generate(flags: Flags, chunk: Chunk | null, message: string, onToken?: (t: string) => void): Promise<ParsedReply> {
       const c = pick(message);
-      const action: Action = c?.action ?? "ASK_PERSON";
+      const fromGuide = !c && chunk && flags.lang !== "pis";
+      const action: Action = c?.action ?? (fromGuide ? "ADVISE" : "ASK_PERSON");
       const stm = chunk?.section ?? "NONE";
-      const body = c ? (flags.lang === "en" && c.en ? c.en : c.body) : FALLBACK[flags.lang === "pis" ? "pis" : "en"];
+      const body = c
+        ? flags.lang === "en" && c.en
+          ? c.en
+          : c.body
+        : fromGuide
+          ? `From the guide, ${chunk!.section}:\n${firstSentences(chunk!.text)}\nIf this does not match what you see, ask ${who}.`
+          : FALLBACK[flags.lang === "pis" ? "pis" : "en"];
       const raw = `ACTION: ${action}\nSTM: ${stm}\n---\n${body}`;
       const t0 = performance.now();
       const parts = raw.split(/(\s+)/);

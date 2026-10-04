@@ -1,7 +1,7 @@
 import { Suspense, lazy, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import devicesJson from "../data/devices.json";
-import { recommend, searchDevices, tierFor, TIER_LABEL, TIER_HINT, type RecommendInput, type Recommendation } from "../recommend";
+import { recommend, searchDevices, tierFor, isComputerName, type RecommendInput, type Recommendation } from "../recommend";
 import { useStudio } from "../store";
 import { Badge, Boundary, Chip, Field, Kbd, Progress, Segmented, Toggle, btnClass, mb, toast } from "../components/ui";
 import { buildManifest, packZip, download, slug } from "../pack";
@@ -88,10 +88,10 @@ export default function Recommend() {
     voiceIn,
     voiceOut,
     connectivity,
-    deviceName: manual ? (laptop ? "Laptop or clinic PC" : "Phone (manual)") : device ? `${device.brand} ${device.model}` : "",
+    deviceName: manual ? (laptop ? "Custom laptop or PC" : "Custom phone") : device ? (device.brand === "Generic" ? device.model : `${device.brand} ${device.model}`) : "",
     ram_gb: manual ? ram : device?.ram_gb ?? 3,
     storage_gb: manual ? storage : device?.storage_gb ?? 32,
-    isLaptop: manual ? laptop : device?.brand === "Laptop",
+    isLaptop: manual ? laptop : !!device && isComputerName(`${device.brand} ${device.model}`),
     device
   };
 
@@ -230,7 +230,7 @@ export default function Recommend() {
                   body={SECTOR_COPY[s].line}
                 >
                   <span className="mt-auto pt-3">
-                    {s === "health" ? <Badge tone="palm" solid>Tuned models and evals</Badge> : <Badge tone="white">Preset: base model</Badge>}
+                    {s === "health" ? <Badge tone="reef">Custom pack</Badge> : <Badge tone="white">Sample pack</Badge>}
                   </span>
                 </Option>
               ))}
@@ -245,7 +245,7 @@ export default function Recommend() {
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
               {[
                 { code: "pis", name: "Solomon Islands Pijin", note: "Text and voice out on every phone. Voice in needs a laptop: the Pijin speech model is 1.3 GB." },
-                { code: "en", name: "English", note: "Text and voice both ways on every tier." }
+                { code: "en", name: "English", note: "Text and voice both ways on every device." }
               ].map((l) => (
                 <Option key={l.code} role="checkbox" on={langs.includes(l.code)} onClick={() => toggleLang(l.code)} title={l.name} body={l.note} />
               ))}
@@ -322,9 +322,9 @@ export default function Recommend() {
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <h2 className="font-display text-d-sm font-bold">Which device?</h2>
-                <p className="mt-1 text-[14px] text-ink-3">{DEVICES.length} phones sold in the Pacific, with approximate RAM and storage.</p>
+                <p className="mt-1 text-[14px] text-ink-3">{DEVICES.length} phones, laptops and clinic PCs common in the Pacific, with their RAM and storage. Not listed? Use Custom device.</p>
               </div>
-              <Segmented value={manual ? "manual" : "search"} onChange={(v) => setManual(v === "manual")} options={[{ value: "search", label: "Search the list" }, { value: "manual", label: "Enter numbers" }]} label="Device entry" />
+              <Segmented value={manual ? "manual" : "search"} onChange={(v) => setManual(v === "manual")} options={[{ value: "search", label: "Search the list" }, { value: "manual", label: "Custom device" }]} label="Device entry" />
             </div>
             {!manual ? (
               <div className="mt-5">
@@ -335,17 +335,16 @@ export default function Recommend() {
                 <ul className="mt-3 grid max-h-[420px] gap-2 overflow-y-auto pr-1 sm:grid-cols-2">
                   {hits.map((d) => {
                     const sel = device === d;
-                    const t = tierFor(d.ram_gb, d.brand === "Laptop");
                     return (
                       <li key={d.brand + d.model}>
                         <button type="button" onClick={() => setDevice(d)} aria-pressed={sel} className={`flex w-full items-center justify-between gap-3 rounded-xl border px-3 py-2.5 text-left transition-colors ${sel ? "border-reef bg-reef-pale shadow-[0_0_0_1px_var(--reef)]" : "border-line-2 bg-white hover:border-ink-4"}`}>
                           <span className="min-w-0">
-                            <span className="block truncate text-[15px] font-medium">{d.brand} {d.model}</span>
+                            <span className="block truncate text-[15px] font-medium">{d.brand === "Generic" ? d.model : `${d.brand} ${d.model}`}</span>
                             <span className="block truncate text-[12px] text-ink-3">{d.soc}, {d.os}, {d.year}</span>
                           </span>
                           <span className="shrink-0 text-right text-[13px]">
                             <span className="block font-semibold text-ink">{d.ram_gb} GB RAM</span>
-                            <span className="block text-ink-3" title={TIER_HINT}>{d.storage_gb} GB storage <span className="text-ink-4">· tier {t}</span></span>
+                            <span className="block text-ink-3">{d.storage_gb} GB storage</span>
                           </span>
                         </button>
                       </li>
@@ -353,7 +352,7 @@ export default function Recommend() {
                   })}
                   {hits.length === 0 && (
                     <li className="rounded-xl border border-dashed border-line p-4 text-[14px] text-ink-3 sm:col-span-2">
-                      No phone matches "{query}". Switch to <button type="button" className="link" onClick={() => setManual(true)}>Enter numbers</button> and copy RAM and storage from the phone's About screen.
+                      No phone matches "{query}". Switch to <button type="button" className="link" onClick={() => setManual(true)}>Custom device</button> and copy RAM and storage from the phone's About screen.
                     </li>
                   )}
                 </ul>
@@ -375,7 +374,6 @@ export default function Recommend() {
             {previewTier && (
               <div className="mt-5 flex flex-wrap items-center gap-3 rounded-xl bg-sand px-4 py-3 text-[14px]" aria-live="polite">
                 <span className="font-medium text-ink">{input.deviceName}: {input.ram_gb} GB RAM, {input.storage_gb} GB storage.</span>
-                <span className="text-[12px] text-ink-3" title={TIER_HINT}>{TIER_LABEL[previewTier]}</span>
               </div>
             )}
           </div>
@@ -386,7 +384,6 @@ export default function Recommend() {
             <h2 className="font-display text-d-sm font-bold">{result.fitLine}</h2>
             <div className="mt-2 flex flex-wrap items-center gap-2 text-[13px] text-ink-3">
               <span>{result.graph.name}</span>
-              <span title={`${result.tierLabel}. ${TIER_HINT}`} className="cursor-help rounded-md bg-sand px-1.5 py-0.5 text-[11.5px] text-ink-3">Tier {result.tier}</span>
             </div>
 
             <div className="mt-5 rounded-xl border border-line bg-white p-4">

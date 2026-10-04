@@ -32,21 +32,27 @@ Tips: open https://lokol-studio.vercel.app/demo once on Wi-Fi so the model downl
 | 28–45 s | Eval page: base vs tuned bars | "On 300 held-out cases, stock models never follow the protocol. Tuned, the 9B picks the right action 87 percent of the time, and every model catches over 90 percent of danger signs." |
 | 45–60 s | Eval dose audit, then README limitations | "Hardest part: models invent doses, even the teachers. So Lokol shows no dose that isn't printed in the cited page for that drug. Limits: synthetic data, the children's manual only, and Pijin voice input needs a laptop." |
 
-## 3. Team introduction (you on camera)
+## 3. Team introduction (you on camera, about 115 words, 55 s)
 
-**Covers:** who you are, why this, "what localizing AI means to me".
+Modelled on the winning team video from Hack-Nation #6: product in the first line, a name lower-third, burned-in captions with a few highlighted words, short B-roll cutaways, a mission line to close. Music low under the voice.
 
-"Hi, I'm Victor Chen, a [year/program] at Stanford. I build small, practical AI tools. [One line of your own: past project, for example the River-trained classifier you built at YC's Own Your Intelligence hackathon last week.]
+| Time | Picture | You say |
+|---|---|---|
+| 0–5 s | B-roll: laptop at night with the Studio canvas lighting up (Test run), then you | "Hi, I'm Victor Chen, and this weekend I built **Lokol**: small AI that runs where the signal doesn't." |
+| 5–15 s | You on camera. Lower-third: **Victor Chen · Founder, OurLife Labs · Stanford** | "I'm a [year / major] at Stanford, and I founded **OurLife Labs**, where we build memory support on AI glasses for older adults. We were selected for Meta's AI Glasses Impact Grant." |
+| 15–30 s | Cut to the field app on a phone in airplane mode, Pijin on screen | "That work taught me one thing: AI only helps if it works **where the person actually is**. For a nurse aide in rural Solomon Islands, that's a cheap phone, no signal, and Pijin." |
+| 30–40 s | B-roll: agents' terminals, the River training curve | "So I built Lokol solo, with a **team of AI agents**, and trained the models myself on River." |
+| 40–52 s | You on camera | "To me, localizing AI means three things: **small** enough to send over a one-day data bundle, **trained on the country's own guidelines**, and **honest** enough to say 'ask a person' when it doesn't know." |
+| 52–58 s | End card: Lokol logo, lokol-studio.vercel.app | "Smol AI blong iumi: small AI that belongs to us. Thank you." |
 
-I built Lokol solo this weekend because the people who most need AI help are often the ones with the weakest signal and the smallest phones. The World Bank's Solomon Islands example made that concrete: nurse aides, seventy languages, a treatment manual on paper.
+What to include and what to skip:
+- **Your startup: yes, in one sentence**, because it proves you ship health AI for real users. Say "selected for Meta's AI Glasses Impact Grant"; do not say the funds were received.
+- **Social entrepreneurship: show it, don't say it.** OurLife plus this project is the evidence. Skip the word "passionate".
+- **Why this track: yes**, it is the core (the "where the person actually is" line).
+- **Gratitude: one short "thank you" at the end.** Judges score substance.
+- **Seoul (optional):** you can swap the last line for "I'd love to bring this to Seoul." Skip Korean.
 
-To me, localizing AI means three things. It's small enough to send over a one-day data bundle. It's trained on the country's own guidelines and speaks the language people actually use. And it's honest about what it doesn't know, so a person stays in charge.
-
-Smol AI blong iumi: small AI that belongs to us."
-
-*(about 135 words; record in good light, phone at eye level, quiet room)*
-
----
+Recording: landscape 1080p, camera at eye level, window light in front of you, quiet room, 3 takes. Also grab 5–10 s B-roll clips: the Studio Test run, the phone in airplane mode, your terminal with agents, the River loss curve. Captions and the lower-third get added in editing.
 
 ## Recording checklist
 

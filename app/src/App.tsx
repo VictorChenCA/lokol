@@ -13,6 +13,7 @@ const Deploy = lazy(() => import("./pages/Packs"));
 const Eval = lazy(() => import("./pages/Eval"));
 const Train = lazy(() => import("./pages/Train"));
 const NewPack = lazy(() => import("./pages/NewPack"));
+const PackLibrary = lazy(() => import("./pages/PackLibrary"));
 
 function PageLoading() {
   return (
@@ -26,10 +27,10 @@ function PageLoading() {
 
 const lazyPage = (el: ReactNode) => <Suspense fallback={<PageLoading />}>{el}</Suspense>;
 
-/** Old links: /packs is now /deploy (query string kept, e.g. ?pack=). */
-function PacksRedirect() {
+/** Old links: /new is now /packs/new (query string kept). */
+function NewRedirect() {
   const { search } = useLocation();
-  return <Navigate to={`/deploy${search}`} replace />;
+  return <Navigate to={`/packs/new${search}`} replace />;
 }
 
 export default function App() {
@@ -45,11 +46,12 @@ export default function App() {
         <Route path="/app" element={lazyPage(<AppHome />)} />
         <Route path="/recommend" element={lazyPage(<Recommend />)} />
         <Route path="/studio" element={lazyPage(<Studio />)} />
-        <Route path="/new" element={lazyPage(<NewPack />)} />
+        <Route path="/packs" element={lazyPage(<PackLibrary />)} />
+        <Route path="/packs/new" element={lazyPage(<NewPack />)} />
+        <Route path="/new" element={<NewRedirect />} />
         <Route path="/train" element={lazyPage(<Train />)} />
         <Route path="/eval" element={lazyPage(<Eval />)} />
         <Route path="/deploy" element={lazyPage(<Deploy />)} />
-        <Route path="/packs" element={<PacksRedirect />} />
       </Route>
 
       {/* Field app: the installable phone app a nurse aide uses */}

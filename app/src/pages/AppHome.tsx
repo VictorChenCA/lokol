@@ -5,9 +5,11 @@ import { getModel } from "../models";
 import { Badge, btnClass, mb } from "../components/ui";
 import { SAMPLE_USER } from "../components/Profile";
 import { listPacks, type SavedPack } from "../runtime/corpus_builder";
+import { useModelCard } from "../components/ModelCard";
 
 /* Headline from public/eval/results.json (300 held-out cases); used until the file loads. */
-type Headline = { size: string; base: { act: number; flag: number; fmt: number }; tuned: { act: number; flag: number; fmt: number } };
+type Score = { act: number; flag: number; fmt: number };
+type Headline = { size: string; base: Score; tuned: Score; fewshot?: Score };
 const FALLBACK: Headline = { size: "0.6B", base: { act: 0, flag: 0, fmt: 0 }, tuned: { act: 0.637, flag: 0.948, fmt: 0.98 } };
 
 function useHeadline(): { h: Headline; n: number } {
@@ -18,17 +20,12 @@ function useHeadline(): { h: Headline; n: number } {
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (!alive || !d?.rows) return;
-        const pick = (variant: string) => d.rows.find((r: any) => r.size === "0.6B" && r.variant === variant)?.metrics;
-        const b = pick("base"), t = pick("tuned");
+        const all = [...d.rows, ...(d.prompted_baselines ?? [])];
+        const pick = (variant: string) => all.find((r: any) => r.size === "0.6B" && r.variant === variant)?.metrics;
+        const b = pick("base"), t = pick("tuned"), f = pick("fewshot");
         if (!b || !t) return;
-        setState({
-          n: d.test_set?.n ?? 300,
-          h: {
-            size: "0.6B",
-            base: { act: b.action_accuracy, flag: b.red_flag_recall, fmt: b.format_compliance },
-            tuned: { act: t.action_accuracy, flag: t.red_flag_recall, fmt: t.format_compliance }
-          }
-        });
+        const score = (m: any): Score => ({ act: m.action_accuracy, flag: m.red_flag_recall, fmt: m.format_compliance });
+        setState({ n: d.test_set?.n ?? 300, h: { size: "0.6B", base: score(b), tuned: score(t), fewshot: f ? score(f) : undefined } });
       })
       .catch(() => {});
     return () => {
@@ -109,6 +106,7 @@ export default function AppHome() {
     };
   }, []);
   const first = SAMPLE_USER.name.split(" ")[0];
+  const openCard = useModelCard((s) => s.open);
 
   return (
     <div className="pb-20">
@@ -122,7 +120,7 @@ export default function AppHome() {
             <h1 className="mt-3 font-display text-d-lg font-bold" style={{ fontVariationSettings: '"wdth" 86' }}>
               Welcome back, {first}
             </h1>
-            <p className="lede mt-2">Your packs, and the shortest path to change one: check a device, edit the graph, build from a manual, or try it as a nurse aide would.</p>
+            <p className="lede mt-2">Lokol Studio builds small helper agents that run offline. Check a device, build a pack from a guideline, shape it in Studio, then deploy it.</p>
           </div>
         </div>
 
@@ -131,8 +129,8 @@ export default function AppHome() {
           <h2 id="qa" className="sr-only">Quick actions</h2>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <QuickAction to="/recommend" title="Check a device" body="Name the phone; see which model sizes fit it and what will not." icon={I.phone} />
-            <QuickAction to="/studio?preset=health" title="Open Studio" body="Edit the pack as a graph of small models. Switch voice in or out per node." icon={I.graph} />
-            <QuickAction to="/new" title="Build from a manual" body="Drop in a PDF guideline; get a pack that cites its pages, offline." icon={I.book} />
+            <QuickAction to="/studio?pack=health" title="Open Studio" body="Hear, look up, think, respond: swap models, switch voice and internet, do a test run." icon={I.graph} />
+            <QuickAction to="/packs/new" title="Build from a manual" body="Drop in a PDF guideline; get a pack that cites its pages, offline." icon={I.book} />
             <QuickAction to="/demo" title="Try the field app" body="Talk to Lokol Health and hear it answer, with no signal." icon={I.mic} />
           </div>
         </section>
@@ -141,30 +139,34 @@ export default function AppHome() {
         <section aria-labelledby="packs" className="mt-12">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <h2 id="packs" className="font-display text-d-sm font-bold">Your packs</h2>
-            <Link to="/new" className={btnClass("ghost", "sm")}>New pack</Link>
+            <Link to="/packs/new" className={btnClass("ghost", "sm")}>New pack</Link>
           </div>
           <div className="mt-5 grid gap-5 lg:grid-cols-3">
             {/* Lokol Health: the live, tuned pack */}
             <article className="flex flex-col rounded-2xl border border-ink/80 bg-white p-5 shadow-lift lg:col-span-1">
               <div className="flex items-center justify-between gap-2">
                 <h3 className="font-display text-[22px] font-bold leading-tight">{SECTOR_COPY.health.title}</h3>
-                <Badge tone="palm" solid dot>Live</Badge>
+                <Badge tone="reef">Custom pack</Badge>
               </div>
               <p className="mt-2 text-[14.5px] leading-relaxed text-ink-2">{SECTOR_COPY.health.line}</p>
+              <p className="mt-2 text-[13px] font-medium text-ink">Built from: Solomon Islands Standard Treatment Manual for Children, 2017</p>
               <ul className="mt-4 grid grid-cols-3 gap-2 border-t border-line-2 pt-3">
                 {HEALTH_SIZES.map((s) => {
                   const m = getModel(s.id);
                   return (
                     <li key={s.id} className="min-w-0">
-                      <p className="font-display text-[17px] font-semibold text-ink">{s.label}</p>
-                      <p className="text-[12px] text-ink-3">{m ? mb(m.size_mb) : ""}</p>
-                      <p className="text-[12px] text-ink-3">{s.where}</p>
+                      <button type="button" onClick={() => openCard(s.id)} className="w-full rounded-lg text-left hover:bg-sand/60" title="Model card: training and evaluation">
+                        <p className="font-display text-[17px] font-semibold text-ink">{s.label}</p>
+                        <p className="text-[12px] text-ink-3">{m ? mb(m.size_mb) : ""}</p>
+                        <p className="text-[12px] text-ink-3">{s.where}</p>
+                        <p className="text-[11.5px] font-semibold text-reef-deep">Model card</p>
+                      </button>
                     </li>
                   );
                 })}
               </ul>
               <div className="mt-auto flex flex-wrap gap-2 pt-5">
-                <Link to="/studio?preset=health" className={btnClass("ink", "sm")}>Open in Studio</Link>
+                <Link to="/studio?pack=health" className={btnClass("ink", "sm")}>Open in Studio</Link>
                 <Link to="/deploy?pack=health" className={btnClass("ghost", "sm")}>Deploy</Link>
                 <Link to="/demo" className={btnClass("ghost", "sm")}>Field app</Link>
               </div>
@@ -174,14 +176,14 @@ export default function AppHome() {
               <article key={s} className="flex flex-col rounded-2xl border border-line bg-white p-5">
                 <div className="flex items-center justify-between gap-2">
                   <h3 className="font-display text-[22px] font-bold leading-tight">{SECTOR_COPY[s].title}</h3>
-                  <Badge tone="sand">Preset</Badge>
+                  <Badge tone="sand">Sample pack</Badge>
                 </div>
                 <p className="mt-2 text-[14.5px] leading-relaxed text-ink-2">{SECTOR_COPY[s].line}</p>
                 <p className="mt-3 text-[13px] text-ink-3">
-                  {PRESETS[s].nodes.length} nodes, {mb(packSize(s))} download. Base model and a placeholder corpus.
+                  {PRESETS[s].nodes.length} steps, {mb(packSize(s))} download.
                 </p>
                 <div className="mt-auto flex flex-wrap gap-2 pt-5">
-                  <Link to={`/studio?preset=${s}`} className={btnClass("ghost", "sm")}>Open in Studio</Link>
+                  <Link to={`/studio?pack=${s}`} className={btnClass("ghost", "sm")}>Open in Studio</Link>
                   <Link to={`/deploy?pack=${s}`} className={btnClass("quiet", "sm")}>Deploy</Link>
                 </div>
               </article>
@@ -195,7 +197,7 @@ export default function AppHome() {
             ) : saved.length === 0 ? (
               <div className="mt-2 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-dashed border-line bg-paper-2/60 px-4 py-4">
                 <p className="text-[14px] text-ink-2">No custom packs yet. Build one from any PDF guideline; it stays in this browser.</p>
-                <Link to="/new" className={btnClass("ink", "sm")}>Build from a manual</Link>
+                <Link to="/packs/new" className={btnClass("ink", "sm")}>Build from a manual</Link>
               </div>
             ) : (
               <ul className="mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -213,8 +215,8 @@ export default function AppHome() {
                         {chunks ? `, ${chunks} sections of text` : ""}
                       </p>
                       <div className="mt-3 flex flex-wrap gap-2">
-                        <Link to={`/demo?pack=${encodeURIComponent(`idb:${p.id}`)}`} className={btnClass("ink", "sm")}>Field app</Link>
-                        <Link to={packId ? `/deploy?pack=${encodeURIComponent(packId)}` : "/deploy"} className={btnClass("ghost", "sm")}>Deploy</Link>
+                        <Link to={`/studio?pack=${encodeURIComponent(`idb:${p.id}`)}`} className={btnClass("ink", "sm")}>Open in Studio</Link>
+                        <Link to={`/deploy?pack=${encodeURIComponent(`idb:${packId ?? p.id}`)}`} className={btnClass("ghost", "sm")}>Deploy</Link>
                       </div>
                     </li>
                   );
@@ -228,24 +230,25 @@ export default function AppHome() {
         <section aria-labelledby="ev" className="mt-12 overflow-hidden rounded-2xl bg-ink text-white">
           <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1.1fr_2fr] lg:items-center">
             <div>
-              <h2 id="ev" className="font-display text-[22px] font-bold">Evidence: base vs tuned, {h.size}</h2>
+              <h2 id="ev" className="font-display text-[22px] font-bold">Evidence: stock vs custom model, {h.size}</h2>
               <p className="mt-2 text-[14px] leading-relaxed text-white/70">
                 {n} held-out cases the model never saw in training. Same small model before and after fine-tuning on the treatment manual.
               </p>
-              <Link to="/eval" className="mt-4 inline-flex text-[14px] font-semibold text-reef-bright underline decoration-reef-bright/40 underline-offset-[3px] hover:decoration-reef-bright">
-                See every metric
-              </Link>
+              <button type="button" onClick={() => openCard("lokol-health-qwen3-0.6b")} className="mt-4 inline-flex text-[14px] font-semibold text-reef-bright underline decoration-reef-bright/40 underline-offset-[3px] hover:decoration-reef-bright">
+                Open the model card
+              </button>
             </div>
             <dl className="grid grid-cols-3 gap-4">
               {[
-                { k: "Catches danger signs", b: h.base.flag, t: h.tuned.flag },
-                { k: "Right action", b: h.base.act, t: h.tuned.act },
-                { k: "Readable by the app", b: h.base.fmt, t: h.tuned.fmt }
+                { k: "Catches danger signs", b: h.base.flag, t: h.tuned.flag, f: h.fewshot?.flag },
+                { k: "Right action", b: h.base.act, t: h.tuned.act, f: h.fewshot?.act },
+                { k: "Readable by the app", b: h.base.fmt, t: h.tuned.fmt, f: h.fewshot?.fmt }
               ].map((x) => (
                 <div key={x.k} className="min-w-0">
                   <dt className="text-[12.5px] leading-snug text-white/70">{x.k}</dt>
                   <dd className="mt-1 font-display text-[34px] font-bold leading-none tabular-nums sm:text-[40px]">{pct(x.t)}</dd>
-                  <dd className="mt-1 text-[12.5px] text-glow-rag">base {pct(x.b)}</dd>
+                  <dd className="mt-1 text-[12.5px] text-glow-rag" title="The stock model is never shown the reply format the app reads, so the app cannot use any of its answers and every check counts them as wrong.">Stock model, same prompt: {pct(x.b)}</dd>
+                  {h.fewshot && <dd className="text-[12.5px] text-white/60">Stock + 2 examples: {pct(x.f ?? 0)}</dd>}
                 </div>
               ))}
             </dl>

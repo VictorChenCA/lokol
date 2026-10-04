@@ -137,7 +137,7 @@ export default function Eval() {
                     <span className="min-w-0">
                       <span className="block text-[12.5px] font-semibold leading-tight">{TIER_NAME[x.tier]}</span>
                       <span className={`block text-[11.5px] leading-tight ${x.size === g.size ? "text-white/70" : "text-ink-3"}`}>
-                        Tier {x.tier}
+                        {x.size} parameters
                         {x.smoke ? ", smoke run" : ""}
                       </span>
                     </span>

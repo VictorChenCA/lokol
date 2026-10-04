@@ -103,7 +103,7 @@ describe("recommend", () => {
       ram_gb: 4,
       storage_gb: 64
     });
-    expect(r.willNotWork.join(" ")).toMatch(/no tuned model/);
+    expect(r.willNotWork.join(" ")).toMatch(/no fine-tuned model/);
     expect(r.graph.nodes.find((n) => n.type === "llm")?.model?.id).toMatch(/-base$/);
   });
 
@@ -133,20 +133,23 @@ describe("recommend", () => {
     expect(r.willNotWork.some((w) => /^Pijin voice-in: the smallest/.test(w))).toBe(false);
   });
 
-  it("lays nodes out in stage columns", () => {
+  it("lays nodes out in four stage columns, with the safety check under the model in Think", () => {
     const r = recommend({ sector: "health", languages: ["en"], voiceIn: true, voiceOut: true, connectivity: "none", deviceName: "x", ram_gb: 8, storage_gb: 128 });
-    const x = (t: string) => r.graph.nodes.find((n) => n.type === t)!.position.x;
+    const node = (t: string) => r.graph.nodes.find((n) => n.type === t)!;
+    const x = (t: string) => node(t).position.x;
     expect(x("stt")).toBeLessThan(x("rag"));
     expect(x("rag")).toBeLessThan(x("llm"));
-    expect(x("llm")).toBeLessThan(x("gate"));
+    expect(x("llm")).toBe(x("gate"));
+    expect(node("gate").position.y).toBeGreaterThan(node("llm").position.y);
     expect(x("gate")).toBeLessThan(x("tts"));
+    expect(r.graph.nodes.some((n) => n.type === "note")).toBe(false);
   });
 });
 
 describe("searchDevices", () => {
   it("finds by brand and model fragments", () => {
-    const hits = searchDevices(devices, "redmi 9a");
-    expect(hits[0].model).toBe("Redmi 9A");
+    const hits = searchDevices(devices, "galaxy a05s");
+    expect(hits[0].model).toBe("Galaxy A05s");
     expect(searchDevices(devices, "galaxy a0").length).toBeGreaterThan(3);
   });
 });

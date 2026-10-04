@@ -1,0 +1,199 @@
+{
+  "pack_id": "tourism",
+  "created_at": "2026-10-03T22:40:00-07:00",
+  "pwa_url": "https://lokol.vercel.app/demo",
+  "description": "Sample pack: practical guidance for small tour and guesthouse operators in the Pacific. Uses retrieval over its guide with the general Lokol model (lokol-health-qwen3-0.6b is fine-tuned on the health protocol; Host has no fine-tune of its own). Runs offline.",
+  "corpus_url": "packs/tourism/corpus.json",
+  "system_prompt": "You are Lokol Host, a helper for small tour and guesthouse operators in the Pacific. Answer only from the operator guide. Be short, friendly and practical.",
+  "graph": {
+    "version": 1,
+    "name": "Lokol Host",
+    "sector": "tourism",
+    "language": [
+      "en",
+      "pis"
+    ],
+    "target": {
+      "device": "Oppo A58",
+      "ram_gb": 6,
+      "storage_gb": 128,
+      "connectivity": "online"
+    },
+    "nodes": [
+      {
+        "id": "channel-1",
+        "type": "channel",
+        "label": "Messenger + app",
+        "params": {
+          "kinds": [
+            "messenger",
+            "pwa"
+          ],
+          "direction": "in"
+        },
+        "online": true,
+        "position": {
+          "x": 0,
+          "y": -51
+        }
+      },
+      {
+        "id": "rag-1",
+        "type": "rag",
+        "label": "Guesthouse and ferry info",
+        "model": {
+          "id": "host-listings-bm25",
+          "file": "corpus.json",
+          "url": "/packs/tourism/corpus.json",
+          "size_mb": 0.1,
+          "license": "Owner's own listings",
+          "runtime": "js"
+        },
+        "params": {
+          "method": "bm25",
+          "top_k": 2,
+          "corpus": "host_sample_guide",
+          "note": "Sample data: a 14-section guesthouse guide written for the demo. A host replaces it with their own listings and timetables."
+        },
+        "online": false,
+        "position": {
+          "x": 344,
+          "y": -102
+        }
+      },
+      {
+        "id": "llm-1",
+        "type": "llm",
+        "label": "Lokol Host 1.7B (base model)",
+        "model": {
+          "id": "qwen3-1.7b-base",
+          "file": "Qwen3-1.7B-Q4_K_M.gguf",
+          "url": "https://huggingface.co/unsloth/Qwen3-1.7B-GGUF/resolve/main/Qwen3-1.7B-Q4_K_M.gguf",
+          "size_mb": 1110,
+          "license": "Apache-2.0",
+          "runtime": "wllama"
+        },
+        "params": {
+          "quant": "Q4_K_M",
+          "max_tokens": 260,
+          "temperature": 0.3,
+          "escalate_to": null
+        },
+        "online": false,
+        "position": {
+          "x": 688,
+          "y": -89
+        }
+      },
+      {
+        "id": "gate-1",
+        "type": "gate",
+        "label": "Booking and payment gate",
+        "params": {
+          "rules": [
+            "never confirm a booking without the host",
+            "never quote a price not in the listing"
+          ],
+          "abstain_when_no_guideline": true
+        },
+        "online": false,
+        "position": {
+          "x": 688,
+          "y": 133
+        }
+      },
+      {
+        "id": "tts-1",
+        "type": "tts",
+        "label": "Speech out (English)",
+        "model": {
+          "id": "kokoro-82m-en",
+          "file": "onnx/model_quantized.onnx",
+          "url": "https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX",
+          "size_mb": 92,
+          "license": "Apache-2.0",
+          "runtime": "transformersjs"
+        },
+        "params": {
+          "lang": "en"
+        },
+        "online": false,
+        "position": {
+          "x": 1032,
+          "y": -273
+        }
+      },
+      {
+        "id": "channel-2",
+        "type": "channel",
+        "label": "Reply (Messenger, app)",
+        "params": {
+          "kinds": [
+            "messenger",
+            "pwa"
+          ],
+          "direction": "out",
+          "store_and_forward": false
+        },
+        "online": true,
+        "position": {
+          "x": 1032,
+          "y": -51
+        }
+      }
+    ],
+    "edges": [
+      {
+        "from": "channel-1",
+        "to": "rag-1"
+      },
+      {
+        "from": "rag-1",
+        "to": "llm-1"
+      },
+      {
+        "from": "llm-1",
+        "to": "gate-1"
+      },
+      {
+        "from": "gate-1",
+        "to": "tts-1"
+      },
+      {
+        "from": "gate-1",
+        "to": "channel-2"
+      },
+      {
+        "from": "tts-1",
+        "to": "channel-2"
+      }
+    ]
+  },
+  "models": [
+    {
+      "id": "host-listings-bm25",
+      "file": "corpus.json",
+      "url": "/packs/tourism/corpus.json",
+      "size_mb": 0.1,
+      "license": "Owner's own listings",
+      "runtime": "js"
+    },
+    {
+      "id": "qwen3-1.7b-base",
+      "file": "Qwen3-1.7B-Q4_K_M.gguf",
+      "url": "https://huggingface.co/unsloth/Qwen3-1.7B-GGUF/resolve/main/Qwen3-1.7B-Q4_K_M.gguf",
+      "size_mb": 1110,
+      "license": "Apache-2.0",
+      "runtime": "wllama"
+    },
+    {
+      "id": "kokoro-82m-en",
+      "file": "onnx/model_quantized.onnx",
+      "url": "https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX",
+      "size_mb": 92,
+      "license": "Apache-2.0",
+      "runtime": "transformersjs"
+    }
+  ],
+  "excerpt_tokens": 220
+}

@@ -563,7 +563,7 @@ export const CATALOG: CatalogModel[] = [
     size_label: "index",
     quant: "BM25",
     file: "corpus.json",
-    url: "/packs/farm/corpus.json",
+    url: "/packs/agriculture/corpus.json",
     size_mb: 0.2,
     ram_mb: 10,
     license: "Bring your own guide",
@@ -572,7 +572,7 @@ export const CATALOG: CatalogModel[] = [
     tiers: ["A", "B", "C", "D"],
     variant: "index",
     placeholder: true,
-    blurb: "Placeholder: the extension service adds its own crop and pest guide."
+    blurb: "Sample data: a crop and pest guide written for this demo. An extension service swaps in its own manual."
   },
   {
     id: "host-listings-bm25",
@@ -584,7 +584,7 @@ export const CATALOG: CatalogModel[] = [
     size_label: "index",
     quant: "BM25",
     file: "corpus.json",
-    url: "/packs/host/corpus.json",
+    url: "/packs/tourism/corpus.json",
     size_mb: 0.1,
     ram_mb: 10,
     license: "Owner's own listings",
@@ -593,7 +593,7 @@ export const CATALOG: CatalogModel[] = [
     tiers: ["A", "B", "C", "D"],
     variant: "index",
     placeholder: true,
-    blurb: "Placeholder: the guesthouse adds its own rooms, prices and ferry timetable."
+    blurb: "Sample data: a guesthouse guide written for this demo. A host swaps in their own rooms, prices and ferry timetable."
   }
 ];
 

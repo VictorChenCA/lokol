@@ -6,6 +6,7 @@ import { tierFor } from "../../recommend";
 import { computeBudget, gb, internetOn, isComputer } from "./budget";
 import { NodeIcon, Icon } from "./icons";
 import { isEnabled, isOptionalStage } from "./enabled";
+import { useModelCard } from "../ModelCard";
 
 function mbShort(n: number) {
   return n >= 1024 ? `${(n / 1024).toFixed(1)} GB` : n < 1 ? `${n.toFixed(1)} MB` : `${Math.round(n)} MB`;
@@ -33,7 +34,7 @@ function ModelPicker({ node }: { node: GraphNode }) {
   const groups: { title: string; items: CatalogModel[] }[] =
     node.type === "llm"
       ? [
-          { title: "Trained by Lokol", items: options.filter((m) => m.variant === "tuned") },
+          { title: "Custom models", items: options.filter((m) => m.variant === "tuned") },
           { title: "Untuned base models", items: options.filter((m) => m.variant === "base") }
         ]
       : [{ title: "", items: options }];
@@ -61,9 +62,9 @@ function ModelPicker({ node }: { node: GraphNode }) {
                     {m.variant === "index" ? `BM25 index, ${mbShort(m.size_mb)}` : `${paramsLabel(m.active_b)} active, ${m.quant}, ${mbShort(m.size_mb)} file, ${mbShort(m.ram_mb)} RAM`}
                   </span>
                   <span className="lk-mopt__tags">
-                    {m.trainedBy && <span className="lk-tag lk-tag--trained">Lokol, {TRAINED_BY_LABEL[m.trainedBy]}</span>}
+                              {m.trainedBy && <span className="lk-tag lk-tag--trained" title={`Fine-tuned by Lokol on ${TRAINED_BY_LABEL[m.trainedBy]}`}>Custom model</span>}
                     <span className={`lk-tag ${/NC/.test(m.license) ? "lk-tag--warn" : ""}`}>{m.license}</span>
-                    {warn ? <span className="lk-tag lk-tag--bad" title={`Tier ${tier}`}>Too big for {graph.target.device}</span> : <span className="lk-tag lk-tag--ok" title={`Tier ${tier}`}>Fits {graph.target.device}</span>}
+                    {warn ? <span className="lk-tag lk-tag--bad">Too big for {graph.target.device}</span> : <span className="lk-tag lk-tag--ok">Fits {graph.target.device}</span>}
                     {m.online_runtime && <span className="lk-tag">{net ? "Can run on River" : "River needs internet"}</span>}
                     {m.availability !== "browser" && <span className={`lk-tag ${m.availability === "catalog only" ? "lk-tag--warn" : ""}`}>{AVAILABILITY_LABEL[m.availability]}</span>}
                     {m.audio_llm && <span className="lk-tag">Audio LLM</span>}
@@ -78,6 +79,11 @@ function ModelPicker({ node }: { node: GraphNode }) {
         </div>
       ))}
       {current && <p className="lk-insp__muted">{current.blurb}</p>}
+      {current && node.type === "llm" && (current.trainedBy || current.variant === "base") && (
+        <button type="button" className="lk-tool lk-modelcard-btn" onClick={() => useModelCard.getState().open(current.trainedBy ? current.id : modelsFor("llm").find((m) => m.trainedBy && m.size_label === current.size_label)?.id ?? current.id)}>
+          <Icon.bolt size={13} /> View model card: training and evaluation
+        </button>
+      )}
       {!current && node.model && <p className="lk-insp__muted">Custom model {node.model.id} ({mbShort(node.model.size_mb)}). Pick one above to swap.</p>}
     </div>
   );

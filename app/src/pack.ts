@@ -1,6 +1,7 @@
 import JSZip from "jszip";
 import QRCode from "qrcode";
 import type { Graph, Manifest, PackModel } from "./types";
+import { activeGraph } from "./components/studio/enabled";
 
 export const PWA_URL: string = (import.meta.env.VITE_PWA_URL as string | undefined) || (typeof location !== "undefined" ? location.origin : "https://lokol.vercel.app");
 
@@ -8,7 +9,9 @@ export function slug(s: string): string {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "").slice(0, 48) || "pack";
 }
 
-export function buildManifest(graph: Graph, pwaUrl: string = PWA_URL, packId?: string): Manifest {
+export function buildManifest(input: Graph, pwaUrl: string = PWA_URL, packId?: string): Manifest {
+  // Switched-off nodes (voice in/out off) are removed so the pack ships no unused speech model.
+  const graph = activeGraph(input);
   const seen = new Set<string>();
   const models: PackModel[] = [];
   for (const n of graph.nodes) {

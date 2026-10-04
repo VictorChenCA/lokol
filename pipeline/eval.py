@@ -335,6 +335,20 @@ def write_studio_results(evs):
     return out
 
 # ----------------------------------------------------------------------------- main
+def fewshot_turns(n):
+    """Gold exemplars from style_guide.md (same regex synth.py uses), never test rows.
+    Order: exemplar 1 (guidance / Pijin), exemplar 4 (referral / English)."""
+    if not n:
+        return []
+    text = (ROOT / "pipeline/style_guide.md").read_text(encoding="utf-8")
+    ex = {int(m.group(1)): (m.group(4).strip(), m.group(5).strip()) for m in re.finditer(
+        r"### exemplar (\d+): (\w+) / (\w+)[^\n]*\n\s*```user\n(.*?)\n```\s*```assistant\n(.*?)\n```", text, re.S)}
+    turns = []
+    for k in [1, 4][:n]:
+        u, asst = ex[k]
+        turns += [{"role": "user", "content": u}, {"role": "assistant", "content": asst}]
+    return turns
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", help="path.gguf | river://... | base | mlx:<path> | http://host:port")
@@ -350,6 +364,7 @@ def main():
     ap.add_argument("--workers", type=int, default=None)
     ap.add_argument("--smoke", action="store_true", help="one protocol prompt; print the raw reply and exit")
     ap.add_argument("--report", nargs="*", default=None, help="eval json globs -> markdown table at --out")
+    ap.add_argument("--fewshot", type=int, default=0, help="prepend N gold exemplars from style_guide.md as prior turns (prompted baseline; max 2: guidance/pis, referral/en)")
     a = ap.parse_args()
 
     if a.report is not None:
@@ -374,9 +389,13 @@ def main():
             raise SystemExit(f"no rows in {a.data}")
         workers = a.workers or getattr(be, "parallel", 1)
         t0 = time.time()
+        shots = fewshot_turns(a.fewshot)
         def one(r):
             try:
-                text, meta = be.complete(prompt_messages(r))
+                msgs = prompt_messages(r)
+                if shots:
+                    msgs = msgs[:1] + shots + msgs[1:]
+                text, meta = be.complete(msgs)
             except Exception as e:
                 text, meta = "", {"error": f"{type(e).__name__}: {e}"[:200]}
             return {"text": text, "meta": meta}
@@ -385,7 +404,8 @@ def main():
         wall = time.time() - t0
         metrics, parsed, labs = score(rows, preds)
         metrics["wall_s"] = round(wall, 1)
-        res = {"name": a.name or Path(a.model).stem, "model": a.model, "data": a.data, "metrics": metrics}
+        res = {"name": a.name or Path(a.model).stem, "model": a.model, "data": a.data, "metrics": metrics,
+               **({"fewshot": a.fewshot, "variant": "fewshot"} if a.fewshot else {})}
         if a.judge:
             res["judge"], jres = run_judge(rows, preds, a.judge)
         else:

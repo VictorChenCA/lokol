@@ -3,18 +3,22 @@ import devicesJson from "../../data/devices.json";
 import type { Device, Graph } from "../../types";
 import { NODE_META } from "../../models";
 import { useStudio } from "../../store";
-import { searchDevices, TIER_HINT } from "../../recommend";
-import { computeBudget, duration, gb, internetOn, BUNDLE_SOURCE, SBD_PER_GB, VERDICT_COPY, type Budget } from "./budget";
+import { isComputerName } from "../../recommend";
+import { computeBudget, duration, gb, isComputer, BUNDLE_SOURCE, SBD_PER_GB, VERDICT_COPY, type Budget } from "./budget";
 import { Icon } from "./icons";
 
-const COMPUTERS: Device[] = [
-  { brand: "Laptop", model: "16 GB", ram_gb: 16, storage_gb: 512, soc: "Apple M1 or Intel i5", os: "macOS / Windows", year: 2021, price_band: "upper", approximate: true },
-  { brand: "Clinic PC", model: "8 GB", ram_gb: 8, storage_gb: 256, soc: "Intel Core i3", os: "Windows 10", year: 2019, price_band: "mid", approximate: true }
-];
-const PHONES = (devicesJson as { devices: Device[] }).devices;
+const ALL = (devicesJson as { devices: Device[] }).devices;
 
 function deviceName(d: Device) {
-  return `${d.brand} ${d.model}`;
+  return d.brand === "Generic" ? d.model : `${d.brand} ${d.model}`;
+}
+const COMPUTERS = ALL.filter((d) => isComputerName(deviceName(d)));
+const PHONES = ALL.filter((d) => !isComputerName(deviceName(d)));
+
+function matches(d: Device, q: string) {
+  const parts = q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const hay = `${d.brand} ${d.model} ${d.soc}`.toLowerCase();
+  return parts.every((p) => hay.includes(p));
 }
 
 function useClickAway(ref: React.RefObject<HTMLElement>, onAway: () => void, active: boolean) {
@@ -33,18 +37,61 @@ function useClickAway(ref: React.RefObject<HTMLElement>, onAway: () => void, act
   }, [ref, onAway, active]);
 }
 
+function CustomDevice({ graph, onDone }: { graph: Graph; onDone: () => void }) {
+  const setTarget = useStudio((s) => s.setTarget);
+  const [ram, setRam] = useState(graph.target.ram_gb);
+  const [storage, setStorage] = useState(graph.target.storage_gb);
+  const [pc, setPc] = useState(isComputer(graph.target));
+  return (
+    <form
+      className="lk-custom"
+      onSubmit={(e) => {
+        e.preventDefault();
+        setTarget({ device: pc ? `Custom laptop or PC` : `Custom phone`, ram_gb: Math.max(1, ram), storage_gb: Math.max(4, storage) });
+        onDone();
+      }}
+    >
+      <label>
+        <span>RAM (GB)</span>
+        <input type="number" min={1} max={128} step={0.5} value={ram} onChange={(e) => setRam(Number(e.target.value))} />
+      </label>
+      <label>
+        <span>Storage (GB)</span>
+        <input type="number" min={4} max={4096} value={storage} onChange={(e) => setStorage(Number(e.target.value))} />
+      </label>
+      <label className="lk-custom__pc">
+        <input type="checkbox" checked={pc} onChange={(e) => setPc(e.target.checked)} />
+        <span>Laptop or clinic PC</span>
+      </label>
+      <button type="submit" className="lk-custom__go">
+        Use these numbers
+      </button>
+    </form>
+  );
+}
+
 function DevicePicker({ graph }: { graph: Graph }) {
   const setTarget = useStudio((s) => s.setTarget);
   const [open, setOpen] = useState(false);
+  const [custom, setCustom] = useState(false);
   const [q, setQ] = useState("");
   const ref = useRef<HTMLDivElement>(null);
   useClickAway(ref, () => setOpen(false), open);
-  const list = useMemo(() => {
-    const s = q.trim().toLowerCase();
-    const comps = COMPUTERS.filter((d) => !s || deviceName(d).toLowerCase().includes(s) || "laptop computer pc clinic".includes(s));
-    return [...comps, ...searchDevices(PHONES, q)];
+  const groups = useMemo(() => {
+    const s = q.trim();
+    const phones = s ? PHONES.filter((d) => matches(d, s)).slice(0, 30) : PHONES.slice(0, 14);
+    const comps = s ? COMPUTERS.filter((d) => matches(d, s) || /laptop|computer|pc|clinic/i.test(s)) : COMPUTERS;
+    return [
+      { title: "Phones", items: phones },
+      { title: "Laptops and clinic PCs", items: comps }
+    ].filter((g) => g.items.length);
   }, [q]);
-  const computer = /laptop|pc/i.test(graph.target.device);
+  const computer = isComputer(graph.target);
+  const close = () => {
+    setOpen(false);
+    setQ("");
+    setCustom(false);
+  };
   return (
     <div className="relative" ref={ref}>
       <button type="button" className="lk-dev" aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
@@ -61,36 +108,50 @@ function DevicePicker({ graph }: { graph: Graph }) {
         <div className="lk-pop lk-pop--devices" role="dialog" aria-label="Pick a target device">
           <label className="lk-search">
             <Icon.search size={15} />
-            <input autoFocus placeholder="Search phones: Redmi 9A, Galaxy A0…" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search devices" />
+            <input autoFocus placeholder="Search: Galaxy A15, Redmi, MacBook…" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search devices" />
           </label>
+          <button type="button" className={`lk-devopt lk-devopt--custom ${custom ? "is-sel" : ""}`} aria-expanded={custom} onClick={() => setCustom((v) => !v)}>
+            <span className="lk-devopt__name">Custom device</span>
+            <span className="lk-devopt__spec">Type RAM and storage</span>
+          </button>
+          {custom && <CustomDevice graph={graph} onDone={close} />}
           <ul role="listbox" className="lk-devlist">
-            {list.map((d) => {
-              const name = deviceName(d);
-              const sel = name === graph.target.device;
-              return (
-                <li key={name}>
-                  <button
-                    type="button"
-                    role="option"
-                    aria-selected={sel}
-                    className={`lk-devopt ${sel ? "is-sel" : ""}`}
-                    onClick={() => {
-                      setTarget({ device: name, ram_gb: d.ram_gb, storage_gb: d.storage_gb });
-                      setOpen(false);
-                      setQ("");
-                    }}
-                  >
-                    <span className="lk-devopt__name">{name}</span>
-                    <span className="lk-devopt__spec">
-                      {d.ram_gb} GB, {d.storage_gb} GB{d.year ? `, ${d.year}` : ""}
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
-            {list.length === 0 && <li className="lk-devlist__empty">No phone matches “{q}”. Try the brand and model number, like “A12”.</li>}
+            {groups.map((g) => (
+              <li key={g.title}>
+                <p className="lk-packsel__group">{g.title}</p>
+                <ul>
+                  {g.items.map((d) => {
+                    const name = deviceName(d);
+                    const sel = name === graph.target.device;
+                    return (
+                      <li key={name}>
+                        <button
+                          type="button"
+                          role="option"
+                          aria-selected={sel}
+                          className={`lk-devopt ${sel ? "is-sel" : ""}`}
+                          onClick={() => {
+                            setTarget({ device: name, ram_gb: d.ram_gb, storage_gb: d.storage_gb });
+                            close();
+                          }}
+                        >
+                          <span className="lk-devopt__name">{name}</span>
+                          <span className="lk-devopt__spec">
+                            {d.ram_gb} GB, {d.storage_gb} GB{d.year ? `, ${d.year}` : ""}
+                          </span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </li>
+            ))}
+            {groups.length === 0 && (
+              <li className="lk-devlist__empty">
+                No device matches “{q}”. Use Custom device and copy RAM and storage from the phone's About screen.
+              </li>
+            )}
           </ul>
-          <p className="lk-pop__foot">Specs are approximate: the most common variant sold in the Pacific.</p>
         </div>
       )}
     </div>
@@ -127,7 +188,7 @@ function DiskBar({ b }: { b: Budget }) {
   const scale = Math.max(b.storage_free_mb, b.disk_mb);
   const over = b.disk_mb > b.storage_free_mb;
   return (
-    <div className="lk-meter lk-meter--sm" title="We assume about 35% of the phone's storage is free.">
+    <div className="lk-meter lk-meter--sm" title="We assume about 35% of the device's storage is free for the pack.">
       <div className="lk-meter__top">
         <span>Storage</span>
         <strong className={over ? "is-bad" : ""}>
@@ -143,9 +204,7 @@ function DiskBar({ b }: { b: Budget }) {
 
 export function DeviceBar({ onRecommend, busy }: { onRecommend: () => void; busy?: boolean }) {
   const graph = useStudio((s) => s.graph);
-  const setInternet = useStudio((s) => s.setInternet);
   const b = useMemo(() => computeBudget(graph), [graph]);
-  const net = internetOn(graph);
   const [why, setWhy] = useState(false);
   const whyRef = useRef<HTMLDivElement>(null);
   useClickAway(whyRef, () => setWhy(false), why);
@@ -154,9 +213,10 @@ export function DeviceBar({ onRecommend, busy }: { onRecommend: () => void; busy
   return (
     <div className="lk-devicebar" role="region" aria-label="Target device and budget">
       <DevicePicker graph={graph} />
-      <span className="lk-tier" title={TIER_HINT}>
-        Tier {b.tier}
-      </span>
+      <button type="button" className="lk-recommend" onClick={onRecommend} disabled={busy} title="Pick the models, voice and size that fit this device">
+        <Icon.wand size={16} />
+        Recommend for this device
+      </button>
       <div className="lk-sep" />
       <RamBar b={b} />
       <DiskBar b={b} />
@@ -166,18 +226,7 @@ export function DeviceBar({ onRecommend, busy }: { onRecommend: () => void; busy
           {duration(b.minutes_3g)} on 3G, SBD {b.sbd < 1 ? b.sbd.toFixed(2) : b.sbd.toFixed(1)} of data
         </span>
       </div>
-      <div className="lk-sep" />
-      <button type="button" role="switch" aria-checked={net} className={`lk-net-switch ${net ? "is-on" : ""}`} onClick={() => setInternet(!net)} title={net ? "Online nodes may use the internet (River 9B, WhatsApp, Messenger)." : "Everything runs on the device. Nothing is sent anywhere."}>
-        {net ? <Icon.wifi size={16} /> : <Icon.wifiOff size={16} />}
-        <span className="lk-net-switch__text">
-          <span>Internet {net ? "on" : "off"}</span>
-          <em>{net ? "Online steps allowed" : "All on this device"}</em>
-        </span>
-        <span className="lk-net-switch__track">
-          <span />
-        </span>
-      </button>
-      <div className="relative" ref={whyRef}>
+      <div className="relative lk-verdictwrap" ref={whyRef}>
         <button type="button" className={`lk-verdict is-${b.verdict}`} aria-expanded={why} onClick={() => setWhy((x) => !x)}>
           {b.verdict === "fits" ? <Icon.check size={14} strokeWidth={2.4} /> : <Icon.warn size={14} strokeWidth={2.2} />}
           <span>{b.verdict === "fits" ? `Fits your ${graph.target.device}` : b.verdict === "tight" ? `Tight on your ${graph.target.device}` : `Too big for your ${graph.target.device}`}</span>
@@ -197,10 +246,6 @@ export function DeviceBar({ onRecommend, busy }: { onRecommend: () => void; busy
           </div>
         )}
       </div>
-      <button type="button" className="lk-recommend" onClick={onRecommend} disabled={busy}>
-        <Icon.wand size={16} />
-        Recommend for this device
-      </button>
     </div>
   );
 }

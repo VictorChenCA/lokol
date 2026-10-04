@@ -8,6 +8,7 @@ import { NodeIcon, Icon } from "./studio/icons";
 import { TracePreview } from "./studio/TracePreview";
 import { stageIndex } from "./studio/layout";
 import { isEnabled, isOptionalStage } from "./studio/enabled";
+import { useModelCard } from "./ModelCard";
 import "./studio/studio.css";
 
 export type LokolNodeData = {
@@ -73,11 +74,23 @@ function Body({ node }: { node: GraphNode }) {
           </span>
           {cat?.trainedBy && (
             <span className="lk-chip lk-chip--trained" title={`Fine-tuned by Lokol on ${TRAINED_BY_LABEL[cat.trainedBy]}`}>
-              <Icon.bolt size={11} strokeWidth={2.2} /> Trained by Lokol on {TRAINED_BY_LABEL[cat.trainedBy]}
+              <Icon.bolt size={11} strokeWidth={2.2} /> Custom model
             </span>
           )}
+          {cat?.trainedBy && node.type === "llm" && (
+            <button
+              type="button"
+              className="lk-chip lk-chip--btn nodrag nopan"
+              onClick={(e) => {
+                e.stopPropagation();
+                useModelCard.getState().open(cat.id);
+              }}
+              title="Training and evaluation results for this model"
+            >
+              View model card
+            </button>
+          )}
           {cat?.variant === "base" && <span className="lk-chip">Base, untuned</span>}
-          {cat?.placeholder && <span className="lk-chip lk-chip--warn">Placeholder corpus</span>}
           {cat?.availability === "catalog only" && <span className="lk-chip lk-chip--warn">Catalog only</span>}
           {cat?.approx_lang?.includes("pis") && <span className="lk-chip">Pijin approx.</span>}
         </div>

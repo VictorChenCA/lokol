@@ -72,23 +72,36 @@ export const useTrace = create<TraceState>((set, get) => ({
 
 let cached: { key: string; engine: Engine; source: RuntimeSource } | null = null;
 
-function engineKey(g: Graph): string {
-  return g.nodes
+/**
+ * A pack built from a guideline carries its own corpus (corpus_inline), red flags and fallback message.
+ * Studio registers them by pack key when it opens the pack, so a test run searches that manual.
+ */
+const extrasByKey = new Map<string, Record<string, unknown>>();
+export function registerPackExtras(key: string, extras: Record<string, unknown>) {
+  extrasByKey.set(key, extras);
+}
+export function packExtras(key: string | null | undefined): Record<string, unknown> | null {
+  return key ? extrasByKey.get(key) ?? null : null;
+}
+
+function engineKey(g: Graph, extrasKey = ""): string {
+  return extrasKey + "#" + g.nodes
     .map((n) => n.model?.id)
     .filter(Boolean)
     .sort()
     .join("|");
 }
 
-async function getEngine(g: Graph): Promise<{ engine: Engine; source: RuntimeSource }> {
-  const key = engineKey(g);
+async function getEngine(g: Graph, extrasKey?: string): Promise<{ engine: Engine; source: RuntimeSource }> {
+  const extras = packExtras(extrasKey);
+  const key = engineKey(g, extras ? extrasKey : "");
   if (cached && cached.key === key) return cached;
   const t = useTrace.getState();
   t.set({ status: "loading", progress: null });
   // ?runtime=shim forces the canned runtime (UI checks, a deterministic demo take)
   const forceShim = typeof location !== "undefined" && new URLSearchParams(location.search).get("runtime") === "shim";
   const rt = forceShim ? { loadPack: (await import("../../runtime-shim")).loadPack, source: "shim" as RuntimeSource } : await getRuntime();
-  const manifest = buildManifest(g);
+  const manifest = { ...buildManifest(g), ...(extras ?? {}) } as ReturnType<typeof buildManifest>;
   const engine = await rt.loadPack(manifest, (p) => useTrace.getState().set({ progress: p }));
   cached = { key, engine, source: rt.source };
   return cached;
@@ -116,6 +129,8 @@ export interface RunInput {
   text: string;
   audio?: Blob | null;
   flags: Flags;
+  /** Studio pack key; a pack built from a guideline searches its own manual. */
+  packKey?: string;
 }
 
 /**
@@ -123,7 +138,7 @@ export interface RunInput {
  * note / speech out → reply. Each node lights up while its runtime call is in flight; the badge shows
  * the measured time of that call, not the animation.
  */
-export async function runTrace({ graph: full, text, audio, flags }: RunInput): Promise<void> {
+export async function runTrace({ graph: full, text, audio, flags, packKey }: RunInput): Promise<void> {
   // Switched-off stages (voice in or out) are left out of the run, the way the exported pack leaves them out.
   const graph = activeGraph(full);
   const offIds = full.nodes.filter((n) => !isEnabled(n)).map((n) => n.id);
@@ -155,11 +170,12 @@ export async function runTrace({ graph: full, text, audio, flags }: RunInput): P
   const skip = (id: string, note: string) => useTrace.getState().step(id, { state: "skipped", peek: note, note });
 
   try {
-    const loaded = await getEngine(graph);
+    const custom = !!packExtras(packKey);
+    const loaded = await getEngine(graph, custom ? packKey : undefined);
     if (!alive()) return;
     const source = loaded.source;
-    // Farm and Host have placeholder corpora: answer lookup, model and gate from their sample set.
-    const engine = graph.sector === "health" ? loaded.engine : presetEngine(loaded.engine, graph.sector);
+    // Farm and Host search their sample guides; a pack built from a guideline searches its own manual.
+    const engine = graph.sector === "health" || custom ? loaded.engine : presetEngine(loaded.engine, graph.sector);
     const queued: Record<string, StepRun> = {};
     nodes.forEach((n) => (queued[n.id] = { state: "queued" }));
     offIds.forEach((id) => (queued[id] = { state: "skipped", peek: "Turned off", note: "Turned off" }));

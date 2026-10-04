@@ -26,20 +26,21 @@ import { edgeHandles, CARD_W, estimateHeight } from "../components/studio/layout
 import { useTrace } from "../components/studio/trace";
 import { activeGraph, isEnabled, isOptionalStage } from "../components/studio/enabled";
 import { NODE_META, getModel } from "../models";
-import { recommend, TIER_HINT, type Recommendation } from "../recommend";
+import { recommend, type Recommendation } from "../recommend";
 import { buildManifest, packZip, download, slug } from "../pack";
-import type { Graph, NodeType, Sector } from "../types";
+import type { Graph, NodeType } from "../types";
+import { PackSelect, HeaderSwitch, useOpenPack, useRestoreExtras } from "../components/studio/PackSelect";
 import "../components/studio/studio.css";
 
-const NODE_ORDER: NodeType[] = ["channel", "stt", "rag", "llm", "gate", "tts", "note", "router"];
+const NODE_ORDER: NodeType[] = ["channel", "stt", "rag", "llm", "gate", "tts", "router"];
 const FIT_DESK = { padding: { top: "84px", right: "36px", bottom: "64px", left: "36px" }, minZoom: 0.5, maxZoom: 1 } as const;
 const FIT_PHONE = { padding: { top: "40px", right: "12px", bottom: "56px", left: "12px" }, minZoom: 0.15, maxZoom: 1 } as const;
 const fitOpts = () => (typeof window !== "undefined" && window.innerWidth < 768 ? FIT_PHONE : FIT_DESK);
 
 /**
  * Fit the stage lanes (not just the cards) into the canvas. On a desktop the zoom never drops below
- * 0.62 so card text stays readable; if the canvas is short (trace console open) the graph is centred
- * and the outer rows may run past the edge. A phone always shows the whole pipeline.
+ * 0.62 so card text stays readable; if the canvas is short (trace console open) the stage names stay
+ * in view and the lowest rows may run past the bottom edge. A phone always shows the whole pipeline.
  */
 function useSmartFit(box: React.RefObject<HTMLDivElement>) {
   const { setViewport } = useReactFlow();
@@ -62,18 +63,13 @@ function useSmartFit(box: React.RefObject<HTMLDivElement>) {
       const ah = Math.max(50, H - pad.t - pad.b);
       const zoom = Math.max(phone ? 0.15 : 0.62, Math.min(1, aw / bw, ah / bh));
       const x = pad.l + (aw - bw * zoom) / 2 - x0 * zoom;
-      const y = bh * zoom <= ah ? pad.t + (ah - bh * zoom) / 2 - y0 * zoom : pad.t + Math.min(0, (ah - bh * zoom) / 2) - y0 * zoom;
+      // When the graph is taller than the canvas, keep the top (the stage names) in view.
+      const y = bh * zoom <= ah ? pad.t + (ah - bh * zoom) / 2 - y0 * zoom : pad.t - y0 * zoom;
       void setViewport({ x, y, zoom }, duration ? { duration } : undefined);
     },
     [box, setViewport]
   );
 }
-
-const SECTORS: { s: Sector; name: string; pis: string }[] = [
-  { s: "health", name: "Lokol Health", pis: "Helt" },
-  { s: "agriculture", name: "Lokol Farm", pis: "Fama" },
-  { s: "tourism", name: "Lokol Host", pis: "Visita" }
-];
 
 /* ---------- Add-node menu ---------- */
 
@@ -137,29 +133,6 @@ function AddNodeMenu() {
   );
 }
 
-/* ---------- Text only: switch speech in and speech out off (or back on) ---------- */
-
-function TextOnlyButton() {
-  const graph = useStudio((s) => s.graph);
-  const voice = graph.nodes.filter(isOptionalStage);
-  if (!voice.length) return null;
-  const textOnly = voice.every((n) => !isEnabled(n));
-  return (
-    <button
-      type="button"
-      className="lk-tool lk-textonly"
-      aria-pressed={textOnly}
-      title={textOnly ? "Turn speech in and speech out back on" : "Turn off speech in and speech out: a text-only pack with no voice models to download"}
-      onClick={() => {
-        const up = useStudio.getState().updateParam;
-        voice.forEach((n) => up(n.id, "enabled", textOnly));
-      }}
-    >
-      {textOnly ? "Turn voice on" : "Text only"}
-    </button>
-  );
-}
-
 /* ---------- Recommendation summary card ---------- */
 
 interface RecNotice {
@@ -191,8 +164,7 @@ function RecommendCard({ notice, onClose }: { notice: RecNotice; onClose: () => 
         <div className="min-w-0 flex-1">
           <p className="lk-rec__title">{rec.fitLine}</p>
           <p className="lk-rec__sub">
-            Installs {rec.installs.map((m) => m.name).join(", ")}; about {rec.minutes3g < 1 ? "1 minute" : `${Math.round(rec.minutes3g)} minutes`} on 3G.{" "}
-            <span title={TIER_HINT} style={{ opacity: 0.7, cursor: "help" }}>Tier {rec.tier}</span>
+            Installs {rec.installs.map((m) => m.name).join(", ")}; about {rec.minutes3g < 1 ? "1 minute" : `${Math.round(rec.minutes3g)} minutes`} on 3G.
           </p>
         </div>
         <button type="button" className="lk-iconbtn" onClick={onClose} aria-label="Dismiss">
@@ -409,7 +381,6 @@ function Canvas({ onReady }: { onReady: () => void }) {
       </ReactFlow>
       <div className="lk-tools">
         <AddNodeMenu />
-        <TextOnlyButton />
         <button type="button" className="lk-tool" onClick={() => tidy()} title="Put every node back in its stage column">
           <Icon.grid size={14} /> Tidy
         </button>
@@ -428,7 +399,7 @@ function Canvas({ onReady }: { onReady: () => void }) {
       {graph.nodes.length === 0 && (
         <div className="lk-empty">
           <p className="lk-empty__title">Empty canvas</p>
-          <p>Add steps with Add node, load a preset above, or press Recommend for this device to build a pipeline for the target phone.</p>
+          <p>Add steps with Add node, pick a pack above, or press Recommend for this device to build a helper for the target phone.</p>
         </div>
       )}
     </div>
@@ -439,11 +410,14 @@ function Canvas({ onReady }: { onReady: () => void }) {
 
 function StudioHeader() {
   const graph = useStudio((s) => s.graph);
-  const loadPreset = useStudio((s) => s.loadPreset);
-  const setMeta = useStudio((s) => s.setMeta);
+  const setInternet = useStudio((s) => s.setInternet);
+  const setVoice = useStudio((s) => s.setVoice);
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const net = internetOn(graph);
+  const voiceIn = graph.nodes.some((n) => n.type === "stt" && isEnabled(n));
+  const voiceOut = graph.nodes.some((n) => n.type === "tts" && isEnabled(n));
 
   const exportPack = async () => {
     setBusy(true);
@@ -459,7 +433,7 @@ function StudioHeader() {
       } catch {
         /* storage blocked: the zip still downloaded */
       }
-      setToast("Pack exported. It is also listed under Deploy.");
+      setToast("Pack exported. It is also listed under Packs and Deploy.");
     } catch (e) {
       setToast(`Export failed: ${(e as Error).message}`);
     } finally {
@@ -470,13 +444,29 @@ function StudioHeader() {
 
   return (
     <div className="lk-header">
-      <input className="lk-header__name" value={graph.name} onChange={(e) => setMeta({ name: e.target.value })} aria-label="Pack name" />
-      <div className="lk-presets" role="radiogroup" aria-label="Sector preset">
-        {SECTORS.map((p) => (
-          <button key={p.s} type="button" role="radio" aria-checked={graph.sector === p.s} onClick={() => graph.sector !== p.s && loadPreset(p.s)} title={`Load the ${p.name} preset`}>
-            {p.name}
-          </button>
-        ))}
+      <PackSelect />
+      <div className="lk-header__switches" role="group" aria-label="Pack settings">
+        <HeaderSwitch
+          on={net}
+          onToggle={() => setInternet(!net)}
+          label="Internet"
+          icon={net ? <Icon.wifi size={15} /> : <Icon.wifiOff size={15} />}
+          hint={net ? "Online steps may use the internet when there is a signal (River 9B, WhatsApp, Messenger)." : "Everything runs on the device. Nothing is sent anywhere."}
+        />
+        <HeaderSwitch
+          on={voiceIn}
+          onToggle={() => setVoice("stt", !voiceIn)}
+          label="Voice input"
+          icon={<Icon.mic size={15} />}
+          hint={voiceIn ? "Speech in is on: the worker can speak a question. Turn off for a text-only pack with no speech model to download." : "Text input only. Turn on to add speech in (a speech-to-text model)."}
+        />
+        <HeaderSwitch
+          on={voiceOut}
+          onToggle={() => setVoice("tts", !voiceOut)}
+          label="Voice output"
+          icon={<Icon.speaker size={15} />}
+          hint={voiceOut ? "Replies are read aloud. Turn off to skip the voice model and save memory and storage." : "Text replies only. Turn on to read replies aloud."}
+        />
       </div>
       <div className="lk-header__actions">
         {toast && <span className="lk-header__toast">{toast}</span>}
@@ -548,11 +538,14 @@ function StudioInner() {
 
 export default function Studio() {
   const [params] = useSearchParams();
-  const loadPreset = useStudio((s) => s.loadPreset);
-  const preset = params.get("preset");
+  const openPack = useOpenPack();
+  const packKey = useStudio((s) => s.packKey);
+  useRestoreExtras(packKey);
+  // ?pack=health|agriculture|tourism|farm|host|idb:<id>|export:<pack_id> (or the older ?preset=)
+  const want = params.get("pack") ?? params.get("preset");
   useEffect(() => {
-    if (preset === "health" || preset === "agriculture" || preset === "tourism") loadPreset(preset);
-  }, [preset, loadPreset]);
+    if (want) void openPack(want);
+  }, [want, openPack]);
 
   return (
     <ReactFlowProvider>

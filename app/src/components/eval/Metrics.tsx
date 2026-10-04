@@ -101,7 +101,7 @@ export function TierMatrix({ groups, selected, onSelect }: { groups: Group[]; se
                   className={`rounded-lg px-2 py-1 text-left ${g.size === selected ? "bg-ink text-white" : "hover:bg-sand"}`}
                 >
                   <span className="block font-display text-[16px] font-bold leading-tight">{g.size}</span>
-                  <span className={`block text-[11.5px] ${g.size === selected ? "text-white/70" : "text-ink-3"}`} title={`Tier ${g.tier}`}>{TIER_NAME[g.tier]}</span>
+                  <span className={`block text-[11.5px] ${g.size === selected ? "text-white/70" : "text-ink-3"}`}>{TIER_NAME[g.tier]}</span>
                 </button>
               </th>
             ))}

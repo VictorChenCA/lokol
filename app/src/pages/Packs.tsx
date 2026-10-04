@@ -1,5 +1,7 @@
 import { Suspense, lazy, useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { listPacks } from "../runtime/corpus_builder";
+import { DeployConfig, applyCfg, cfgFrom, type DeployCfg } from "../components/deploy/DeployConfig";
 import { PRESETS, SECTOR_COPY } from "../data/presets";
 import { getModel } from "../models";
 import {
@@ -441,15 +443,52 @@ function MessengerSteps({ bridge }: { bridge: Bridge }) {
 
 type View = "targets" | "graph" | "manifest";
 
+const ALIAS: Record<string, string> = { farm: "agriculture", host: "tourism" };
+
+function StepHead({ n, title, lede }: { n: number; title: string; lede?: string }) {
+  return (
+    <div className="flex items-start gap-3">
+      <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-ink font-display text-[14px] font-bold text-white">{n}</span>
+      <div className="min-w-0">
+        <h2 className="font-display text-[22px] font-bold leading-tight">{title}</h2>
+        {lede && <p className="mt-0.5 text-[14px] text-ink-3">{lede}</p>}
+      </div>
+    </div>
+  );
+}
+
 export default function Packs() {
+  const navigate = useNavigate();
   const presets = useMemo(() => SECTORS.map((s) => buildManifest(PRESETS[s], undefined, s)), []);
   const [saved, setSaved] = useState<Manifest[]>(loadSaved);
-  const all = [...presets, ...saved];
+  const [built, setBuilt] = useState<Manifest[]>([]);
+  useEffect(() => {
+    let alive = true;
+    listPacks()
+      .then((ps) => alive && setBuilt(ps.map((p) => ({ ...(p.manifest as unknown as Manifest), pack_id: p.id, graph: { ...(p.manifest as unknown as Manifest).graph, name: p.name } }))))
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
+  const all = [...presets, ...built, ...saved.filter((m) => !built.some((b) => b.pack_id === m.pack_id))];
+  const builtIds = new Set(built.map((b) => b.pack_id));
   const [sel, setSel] = useState<string>(() => {
     const q = typeof location !== "undefined" ? new URLSearchParams(location.search).get("pack") : null;
-    return q && all.some((m) => m.pack_id === q) ? q : "health";
+    if (!q) return "health";
+    const id = q.startsWith("idb:") ? q.slice(4) : ALIAS[q] ?? q;
+    return id;
   });
-  const current = all.find((m) => m.pack_id === sel) ?? all[0];
+  const base = all.find((m) => m.pack_id === sel) ?? all[0];
+  const [cfg, setCfg] = useState<DeployCfg | null>(null);
+  useEffect(() => {
+    if (base) setCfg(cfgFrom(base.graph));
+  }, [base?.pack_id]); // eslint-disable-line react-hooks/exhaustive-deps
+  const current = useMemo<Manifest | undefined>(() => {
+    if (!base) return undefined;
+    if (!cfg) return base;
+    return { ...base, ...buildManifest(applyCfg(base.graph, cfg), base.pwa_url, base.pack_id) };
+  }, [base, cfg]);
   const [qr, setQr] = useState<string>("");
   const [view, setView] = useState<View>("targets");
   const [busy, setBusy] = useState(false);
@@ -491,10 +530,16 @@ export default function Packs() {
     }
   };
 
-  if (!current) return <div className="page py-16"><Empty title="No packs yet" body="Export one from Studio or Recommend." /></div>;
+  const launchFieldApp = () => {
+    if (!current) return;
+    if (builtIds.has(current.pack_id)) navigate(`/demo?pack=${encodeURIComponent(`idb:${current.pack_id}`)}`);
+    else navigate("/demo", { state: { graph: current.graph } });
+  };
+
+  if (!current || !base) return <div className="page py-16"><Empty title="No packs yet" body="Build one under Packs, or export one from Studio." /></div>;
 
   const onlineNodes = current.graph.nodes.filter((n) => n.online).length;
-  const sector = current.graph.sector;
+  const studioKey = SECTORS.includes(current.pack_id as Sector) ? current.pack_id! : builtIds.has(current.pack_id) ? `idb:${current.pack_id}` : `export:${current.pack_id}`;
 
   return (
     <div className="pb-20">
@@ -502,90 +547,102 @@ export default function Packs() {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="font-display text-d-lg font-bold" style={{ fontVariationSettings: '"wdth" 86' }}>Deploy</h1>
-            <p className="lede mt-3">Pick a pack, then where it runs. Every target uses the same graph and the same model files, so a clinic can start on a laptop and move to phones without retraining.</p>
+            <p className="lede mt-3">Pick a pack, finalize its settings, then launch it: the field app on a phone, a laptop or clinic PC, Android, or WhatsApp. Every target uses the same graph and model files.</p>
           </div>
         </div>
 
-        {/* Pack picker */}
-        <div className="mt-8" role="radiogroup" aria-label="Pack">
-          <div className="no-scrollbar -mx-4 flex gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0 lg:grid-cols-4">
-            {all.map((m) => {
-              const on = m.pack_id === current.pack_id;
-              const isPreset = SECTORS.includes(m.pack_id as Sector);
-              const copy = isPreset ? SECTOR_COPY[m.pack_id as Sector] : null;
-              return (
-                <div key={m.pack_id} className="relative min-w-[230px] sm:min-w-0">
-                  <button
-                    type="button"
-                    role="radio"
-                    aria-checked={on}
-                    onClick={() => setSel(m.pack_id!)}
-                    className={`h-full w-full rounded-2xl border p-4 text-left transition-[border-color,box-shadow,background-color] ${
-                      on ? "border-ink bg-white shadow-lift ring-1 ring-ink" : "border-line bg-white/60 hover:border-ink-4 hover:bg-white"
-                    }`}
-                  >
-                    <span className="flex items-center justify-between gap-2">
-                      <span className="font-display text-[17px] font-bold leading-tight">{copy?.title ?? m.graph.name}</span>
-                      {m.pack_id === "health" ? <Badge tone="palm" solid>Live</Badge> : isPreset ? <Badge tone="white">Preset</Badge> : <Badge tone="reef">Your export</Badge>}
-                    </span>
-                    <span className="mt-1 block text-[13px] text-ink-3">
-                      {m.models.length} models, {mb(totalMb(m))}, {m.graph.language.join(" + ")}
-                    </span>
-                  </button>
-                  {!isPreset && (
-                    <button type="button" onClick={() => remove(m.pack_id!)} className="absolute bottom-2 right-2 rounded-md px-2 py-1 text-[12px] text-ink-3 hover:bg-hibiscus-tint hover:text-hibiscus" aria-label={`Remove ${m.graph.name}`}>
-                      Remove
+        {/* 1. Pack picker */}
+        <section className="mt-8" aria-labelledby="dep-1">
+          <div id="dep-1"><StepHead n={1} title="Select a pack" /></div>
+          <div className="mt-4" role="radiogroup" aria-label="Pack">
+            <div className="no-scrollbar -mx-4 flex gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0 lg:grid-cols-4">
+              {all.map((m) => {
+                const on = m.pack_id === base.pack_id;
+                const isPreset = SECTORS.includes(m.pack_id as Sector);
+                const isBuilt = builtIds.has(m.pack_id);
+                const copy = isPreset ? SECTOR_COPY[m.pack_id as Sector] : null;
+                return (
+                  <div key={m.pack_id} className="relative min-w-[230px] sm:min-w-0">
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked={on}
+                      onClick={() => setSel(m.pack_id!)}
+                      className={`h-full w-full rounded-2xl border p-4 text-left transition-[border-color,box-shadow,background-color] ${
+                        on ? "border-ink bg-white shadow-lift ring-1 ring-ink" : "border-line bg-white/60 hover:border-ink-4 hover:bg-white"
+                      }`}
+                    >
+                      <span className="flex items-center justify-between gap-2">
+                        <span className="min-w-0 truncate font-display text-[17px] font-bold leading-tight">{copy?.title ?? m.graph.name}</span>
+                        {m.pack_id === "health" ? <Badge tone="reef">Custom pack</Badge> : isPreset ? <Badge tone="white">Sample pack</Badge> : isBuilt ? <Badge tone="reef">Your pack</Badge> : <Badge tone="sand">Your export</Badge>}
+                      </span>
+                      <span className="mt-1 block text-[13px] text-ink-3">
+                        {m.models.length} models, {mb(totalMb(m))}, {m.graph.language.join(" + ")}
+                      </span>
                     </button>
-                  )}
-                </div>
-              );
-            })}
-            {saved.length === 0 && (
-              <Link to="/studio" className="hidden min-w-[230px] flex-col justify-center rounded-2xl border border-dashed border-line p-4 text-[13px] text-ink-3 hover:border-ink-4 hover:text-ink lg:flex">
-                <span className="font-display text-[15px] font-semibold text-ink">Your exports land here</span>
-                Build a graph in Studio and click Export pack.
+                    {!isPreset && !isBuilt && (
+                      <button type="button" onClick={() => remove(m.pack_id!)} className="absolute bottom-2 right-2 rounded-md px-2 py-1 text-[12px] text-ink-3 hover:bg-hibiscus-tint hover:text-hibiscus" aria-label={`Remove ${m.graph.name}`}>
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+              <Link to="/packs/new" className="flex min-w-[230px] flex-col justify-center rounded-2xl border border-dashed border-line p-4 text-[13px] text-ink-3 hover:border-ink-4 hover:text-ink">
+                <span className="font-display text-[15px] font-semibold text-ink">+ New pack from a guideline</span>
+                Upload a manual; it shows up here.
               </Link>
-            )}
+            </div>
           </div>
-        </div>
+        </section>
 
-        {/* Pack summary */}
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-b border-line pb-0">
-          <Tabs
-            value={view}
-            onChange={setView}
-            label="Pack details"
-            className="border-b-0"
-            tabs={[
-              { value: "targets", label: "Deploy targets", count: 4 },
-              { value: "graph", label: "Graph and models", count: current.models.length },
-              { value: "manifest", label: "Manifest" }
-            ]}
-          />
-          <div className="flex flex-wrap gap-2 pb-2">
-            <Link to={`/studio?preset=${SECTORS.includes(current.pack_id as Sector) ? current.pack_id : sector}`} className={btnClass("ghost", "sm")}>Open in Studio</Link>
-            <button type="button" className={btnClass("ink", "sm")} onClick={exportZip} disabled={busy}>
+        {/* 2. Configuration */}
+        {cfg && (
+          <section className="mt-10" aria-labelledby="dep-2">
+            <div id="dep-2"><StepHead n={2} title="Finalize configuration" lede="These settings go into the pack. The bars update as you change them." /></div>
+            <div className="mt-4">
+              <DeployConfig base={base.graph} cfg={cfg} onChange={setCfg} />
+            </div>
+          </section>
+        )}
+
+        {/* 3. Launch */}
+        <section className="mt-10" aria-labelledby="dep-3">
+          <div id="dep-3"><StepHead n={3} title="Launch" /></div>
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <button type="button" className={btnClass("ink")} onClick={launchFieldApp}>
+              Launch field app
+            </button>
+            <button type="button" className={btnClass("ghost")} onClick={exportZip} disabled={busy}>
               {busy ? <><Spinner className="h-3.5 w-3.5" /> Building zip</> : "Download pack zip"}
             </button>
+            <Link to={`/studio?pack=${encodeURIComponent(studioKey)}`} className={btnClass("quiet")}>Open in Studio</Link>
           </div>
-        </div>
-
-        <div className="mt-3 flex flex-wrap gap-1.5 text-[12px]">
-          <Chip tone="white">{current.graph.nodes.length} nodes</Chip>
-          <Chip tone={onlineNodes ? "reef" : "palm"}>{onlineNodes ? `${onlineNodes} online nodes` : "all nodes offline"}</Chip>
-          <Chip tone="white">Built for {current.graph.target.device}, {current.graph.target.ram_gb} GB RAM</Chip>
-          {current.pack_id !== "health" && SECTORS.includes(current.pack_id as Sector) && <Chip tone="frangipani">Base model and placeholder corpus</Chip>}
-        </div>
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-b border-line pb-0">
+            <Tabs
+              value={view}
+              onChange={setView}
+              label="Launch options"
+              className="border-b-0"
+              tabs={[
+                { value: "targets", label: "Where it runs", count: 4 },
+                { value: "graph", label: "Graph and models", count: current.models.length },
+                { value: "manifest", label: "Manifest" }
+              ]}
+            />
+            <div className="flex flex-wrap gap-1.5 pb-2 text-[12px]">
+              <Chip tone="white">{current.graph.nodes.length} steps</Chip>
+              <Chip tone={onlineNodes ? "reef" : "palm"}>{onlineNodes ? `${onlineNodes} online steps` : "all steps offline"}</Chip>
+            </div>
+          </div>
+        </section>
       </div>
 
       <div className="page mt-6">
         {view === "targets" && (
           <div className="space-y-10">
-            <section aria-labelledby="t-pick">
-              <h2 id="t-pick" className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 font-display text-[22px] font-bold">
-                Pick where it runs
-              </h2>
-              <p className="mt-1 text-[14px] text-ink-3">
+            <section aria-label="Where it runs">
+              <p className="text-[14px] text-ink-3">
                 Three run with no signal. Chat channels need a signal, but the model still answers from the clinic laptop. Hosted demo: <a className="link" href={HOSTED_DEMO_URL} target="_blank" rel="noreferrer">{HOSTED_DEMO_URL.replace("https://", "")}</a>
               </p>
               <div className="mt-4 grid gap-5 lg:grid-cols-2">

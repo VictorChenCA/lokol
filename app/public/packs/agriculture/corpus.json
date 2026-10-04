@@ -1,0 +1,459 @@
+{
+ "version": 1,
+ "source": "Sample guidance written for the Lokol demo (not an official extension manual)",
+ "generated_at": "2026-10-04T04:10:00-07:00",
+ "sections": [
+  {
+   "title": "Coffee leaf rust",
+   "page_start": 1,
+   "page_end": 1,
+   "chunks": 1
+  },
+  {
+   "title": "Coffee berry borer",
+   "page_start": 2,
+   "page_end": 2,
+   "chunks": 1
+  },
+  {
+   "title": "Pruning coffee",
+   "page_start": 3,
+   "page_end": 3,
+   "chunks": 1
+  },
+  {
+   "title": "Shade for coffee and cocoa",
+   "page_start": 4,
+   "page_end": 4,
+   "chunks": 1
+  },
+  {
+   "title": "Harvesting coffee",
+   "page_start": 5,
+   "page_end": 5,
+   "chunks": 1
+  },
+  {
+   "title": "Drying coffee and cocoa",
+   "page_start": 6,
+   "page_end": 6,
+   "chunks": 1
+  },
+  {
+   "title": "Cocoa black pod",
+   "page_start": 7,
+   "page_end": 7,
+   "chunks": 1
+  },
+  {
+   "title": "Taro leaf blight",
+   "page_start": 8,
+   "page_end": 8,
+   "chunks": 1
+  },
+  {
+   "title": "Cassava growing",
+   "page_start": 9,
+   "page_end": 9,
+   "chunks": 1
+  },
+  {
+   "title": "Soil and compost",
+   "page_start": 10,
+   "page_end": 10,
+   "chunks": 1
+  },
+  {
+   "title": "Safe pesticide use",
+   "page_start": 11,
+   "page_end": 11,
+   "chunks": 1
+  },
+  {
+   "title": "Prices and selling",
+   "page_start": 12,
+   "page_end": 12,
+   "chunks": 1
+  },
+  {
+   "title": "Weather and planting",
+   "page_start": 13,
+   "page_end": 13,
+   "chunks": 1
+  },
+  {
+   "title": "Record keeping",
+   "page_start": 14,
+   "page_end": 14,
+   "chunks": 1
+  },
+  {
+   "title": "Sweet potato weevil",
+   "page_start": 15,
+   "page_end": 15,
+   "chunks": 1
+  },
+  {
+   "title": "Banana bunchy top",
+   "page_start": 16,
+   "page_end": 16,
+   "chunks": 1
+  },
+  {
+   "title": "Coconut rhinoceros beetle",
+   "page_start": 17,
+   "page_end": 17,
+   "chunks": 1
+  },
+  {
+   "title": "Vegetable seedlings",
+   "page_start": 18,
+   "page_end": 18,
+   "chunks": 1
+  },
+  {
+   "title": "Watering in the dry season",
+   "page_start": 19,
+   "page_end": 19,
+   "chunks": 1
+  },
+  {
+   "title": "Chickens: housing and feed",
+   "page_start": 20,
+   "page_end": 20,
+   "chunks": 1
+  },
+  {
+   "title": "Chickens: sickness signs",
+   "page_start": 21,
+   "page_end": 21,
+   "chunks": 1
+  },
+  {
+   "title": "Pigs: care and feeding",
+   "page_start": 22,
+   "page_end": 22,
+   "chunks": 1
+  },
+  {
+   "title": "Fruit fly in vegetables",
+   "page_start": 23,
+   "page_end": 23,
+   "chunks": 1
+  },
+  {
+   "title": "Kava growing",
+   "page_start": 24,
+   "page_end": 24,
+   "chunks": 1
+  },
+  {
+   "title": "Storing seed and planting material",
+   "page_start": 25,
+   "page_end": 25,
+   "chunks": 1
+  },
+  {
+   "title": "Erosion and slopes",
+   "page_start": 26,
+   "page_end": 26,
+   "chunks": 1
+  },
+  {
+   "title": "Intercropping",
+   "page_start": 27,
+   "page_end": 27,
+   "chunks": 1
+  },
+  {
+   "title": "Market day planning",
+   "page_start": 28,
+   "page_end": 28,
+   "chunks": 1
+  },
+  {
+   "title": "Working with the extension officer",
+   "page_start": 29,
+   "page_end": 29,
+   "chunks": 1
+  },
+  {
+   "title": "Cyclone preparation for gardens",
+   "page_start": 30,
+   "page_end": 30,
+   "chunks": 1
+  }
+ ],
+ "chunks": [
+  {
+   "id": "agri-001-coffee-leaf-rust-01",
+   "section": "Coffee leaf rust",
+   "subsection": "",
+   "page": 1,
+   "page_end": 1,
+   "text": "Leaf rust shows as yellow-orange powder under coffee leaves, with pale spots on top. Badly hit trees drop leaves and give a small crop next year. Walk the block every two weeks in the wet season and turn leaves over on the lower branches. Remove and bury fallen leaves near sick trees. Keep shade at about 40 percent; too much shade keeps leaves wet. Prune so air moves through the tree. Feed trees with compost after harvest so they can grow new leaves. If more than one leaf in five has rust, talk to the extension officer about a copper spray and use it before the heavy rains.",
+   "tokens": 146
+  },
+  {
+   "id": "agri-002-coffee-berry-borer-01",
+   "section": "Coffee berry borer",
+   "subsection": "",
+   "page": 2,
+   "page_end": 2,
+   "text": "The berry borer is a small black beetle that makes a pin hole at the tip of green coffee cherries. Pick every ripe and overripe cherry each round, and pick up cherries from the ground, because the beetle breeds in left-over fruit. Do a clean-up strip-pick at the end of the season. Simple bottle traps with alcohol bait catch beetles: hang about 15 per hectare at chest height. Dry cherries quickly; borer keeps working in wet cherries. Do not sell or move infested cherries to new areas.",
+   "tokens": 117
+  },
+  {
+   "id": "agri-003-pruning-coffee-01",
+   "section": "Pruning coffee",
+   "subsection": "",
+   "page": 3,
+   "page_end": 3,
+   "text": "Prune right after harvest. Cut out dead, broken and diseased stems first. Remove suckers that grow straight up from the main stem unless you want to replace an old stem. Keep two to three main stems per tree. Cut low branches that touch the ground. Open the middle of the tree so light and air get in. Use clean, sharp tools and wipe them with bleach water between sick and healthy trees. Old, tired trees can be cut back to 40 cm above the ground; they regrow in about two years.",
+   "tokens": 123
+  },
+  {
+   "id": "agri-004-shade-for-coffee-and-cocoa-01",
+   "section": "Shade for coffee and cocoa",
+   "subsection": "",
+   "page": 4,
+   "page_end": 4,
+   "text": "Shade trees protect coffee and cocoa from strong sun and heavy rain, and their leaves feed the soil. Good shade trees include Gliricidia, Leucaena and fruit or nut trees. Aim for light, broken shade, not dark shade. Trim shade trees before the wet season. Too much shade brings more disease and fewer flowers; too little shade stresses the trees in dry months. Plant new shade trees about 6 to 8 metres apart.",
+   "tokens": 97
+  },
+  {
+   "id": "agri-005-harvesting-coffee-01",
+   "section": "Harvesting coffee",
+   "subsection": "",
+   "page": 5,
+   "page_end": 5,
+   "text": "Pick only red, ripe cherries. Green cherries lower the quality and the price. Pick every 10 to 14 days during the season. Use clean bags or baskets, not fertiliser bags. Pulp cherries the same day you pick them. Keep ripe and unripe cherries apart. Record how many kilos you pick each day so you can see your yield and plan labour.",
+   "tokens": 82
+  },
+  {
+   "id": "agri-006-drying-coffee-and-cocoa-01",
+   "section": "Drying coffee and cocoa",
+   "subsection": "",
+   "page": 6,
+   "page_end": 6,
+   "text": "Dry beans on raised racks or clean tarpaulins, never on bare ground. Spread beans thin, about 3 to 4 cm deep, and turn them several times a day. Cover them at night and when rain comes. Parchment coffee is dry at about 11 to 12 percent moisture: the bean is hard and does not dent with a thumbnail. Cocoa is dry when beans crack and rattle. Mouldy or smoky beans get a lower price, so keep smoke away from the drier.",
+   "tokens": 109
+  },
+  {
+   "id": "agri-007-cocoa-black-pod-01",
+   "section": "Cocoa black pod",
+   "subsection": "",
+   "page": 7,
+   "page_end": 7,
+   "text": "Black pod starts as a brown spot on the pod that spreads fast and turns black, often with white powder. Pick and bury or burn black pods every week. Harvest ripe pods often. Prune trees to below 4 metres and keep the canopy open. Remove pods sitting on the ground. In wet months, copper spray on young pods can help; ask the extension officer for the right mix and wear gloves.",
+   "tokens": 96
+  },
+  {
+   "id": "agri-008-taro-leaf-blight-01",
+   "section": "Taro leaf blight",
+   "subsection": "",
+   "page": 8,
+   "page_end": 8,
+   "text": "Taro leaf blight makes round brown spots on leaves that ooze yellow drops and spread quickly in wet weather. Use clean planting tops from healthy gardens. Plant tolerant varieties if you can get them. Space plants so leaves dry. Remove the worst leaves early. Rotate gardens and do not plant new taro next to an infected patch. Tell neighbours when blight appears so everyone acts together.",
+   "tokens": 89
+  },
+  {
+   "id": "agri-009-cassava-growing-01",
+   "section": "Cassava growing",
+   "subsection": "",
+   "page": 9,
+   "page_end": 9,
+   "text": "Cassava grows in poor soil and handles dry weather. Plant stem cuttings 20 to 25 cm long, at a slant, about 1 metre apart. Use cuttings from healthy plants with no mosaic (yellow patterned leaves). Weed in the first three months. Harvest from 8 to 12 months. Peel and cook cassava well; bitter types must be soaked or grated and dried to remove poison before eating.",
+   "tokens": 89
+  },
+  {
+   "id": "agri-010-soil-and-compost-01",
+   "section": "Soil and compost",
+   "subsection": "",
+   "page": 10,
+   "page_end": 10,
+   "text": "Healthy soil holds water and feeds plants. Make compost from green leaves, dry leaves, kitchen scraps and animal manure in layers. Keep the heap damp like a squeezed sponge and turn it every two weeks. It is ready in 2 to 3 months when it smells like earth. Spread a spade of compost around each tree after harvest. Cover bare soil with mulch to stop erosion on slopes and keep moisture in.",
+   "tokens": 97
+  },
+  {
+   "id": "agri-011-safe-pesticide-use-01",
+   "section": "Safe pesticide use",
+   "subsection": "",
+   "page": 11,
+   "page_end": 11,
+   "text": "Use pesticides only when needed and only the right product for the pest. Read the label. Wear gloves, long sleeves, boots and a mask. Never mix or spray near children, water tanks or streams. Do not eat, drink or smoke while spraying. Wash hands and clothes after. Keep products in their own labelled containers, locked away. Wait the number of days on the label before harvesting. If someone is poisoned, take them and the label to the clinic straight away.",
+   "tokens": 108
+  },
+  {
+   "id": "agri-012-prices-and-selling-01",
+   "section": "Prices and selling",
+   "subsection": "",
+   "page": 12,
+   "page_end": 12,
+   "text": "Know the price before you sell. Ask two or three buyers. Sort your produce by quality; clean, dry, well-sorted beans earn more. Weigh your bags at home so you know what to expect. Keep a simple notebook of dates, kilos, price and buyer. Group selling with neighbours can get a better price and share transport costs. Get a receipt for every sale.",
+   "tokens": 84
+  },
+  {
+   "id": "agri-013-weather-and-planting-01",
+   "section": "Weather and planting",
+   "subsection": "",
+   "page": 13,
+   "page_end": 13,
+   "text": "Plant most food crops at the start of the wet season. Before a cyclone, harvest what is ready, tie down shade trees, and clear drains. After heavy rain, check gardens for standing water and dig drains. In dry spells, mulch heavily and water young plants in the evening. Listen to the radio weather report and plan your field work around it.",
+   "tokens": 82
+  },
+  {
+   "id": "agri-014-record-keeping-01",
+   "section": "Record keeping",
+   "subsection": "",
+   "page": 14,
+   "page_end": 14,
+   "text": "Write down what you plant, when, how much you harvest and what you sell. A simple notebook is enough. Records show which garden or variety does best, help you plan labour, and make it easier to get credit or join a cooperative.",
+   "tokens": 57
+  },
+  {
+   "id": "agri-015-sweet-potato-weevil-01",
+   "section": "Sweet potato weevil",
+   "subsection": "",
+   "page": 15,
+   "page_end": 15,
+   "text": "Weevil damage shows as small holes and dark tunnels in the roots, and a bad smell when cut. Plant clean vine tips, not old stems. Hill soil up around the plants so cracks in dry weather do not open a path to the roots. Harvest on time; roots left in the ground too long get more weevils. Do not replant in the same mound for at least one season. Burn or bury damaged roots far from the garden.",
+   "tokens": 105
+  },
+  {
+   "id": "agri-016-banana-bunchy-top-01",
+   "section": "Banana bunchy top",
+   "subsection": "",
+   "page": 16,
+   "page_end": 16,
+   "text": "Leaves become narrow, stiff and bunched at the top, with dark green streaks on the leaf stalk. The plant will not give a good bunch. The virus is spread by banana aphids and by planting suckers from sick plants. Dig out and destroy the whole sick plant and its suckers. Take new suckers only from healthy fields. Tell the extension officer, because neighbours need to check their gardens too.",
+   "tokens": 93
+  },
+  {
+   "id": "agri-017-coconut-rhinoceros-beetle-01",
+   "section": "Coconut rhinoceros beetle",
+   "subsection": "",
+   "page": 17,
+   "page_end": 17,
+   "text": "Fresh V-shaped cuts in the fronds and holes at the base of the youngest fronds show adult beetles feeding. Beetles breed in rotting logs, old stumps and compost heaps. Remove or cover breeding sites, split and dry fallen logs, and turn compost often. Check heaps for white grubs and destroy them. Report new damage to the extension officer; some districts run trapping programmes.",
+   "tokens": 85
+  },
+  {
+   "id": "agri-018-vegetable-seedlings-01",
+   "section": "Vegetable seedlings",
+   "subsection": "",
+   "page": 18,
+   "page_end": 18,
+   "text": "Raise seedlings in a raised bed or tray with fine, well-rotted compost mixed into the soil. Shade them for the first week and water morning and evening with a fine spray. Thin crowded seedlings so each has room. Harden them off by giving more sun over a few days before transplanting. Transplant in the late afternoon and water well so the roots settle overnight.",
+   "tokens": 86
+  },
+  {
+   "id": "agri-019-watering-in-the-dry-season-01",
+   "section": "Watering in the dry season",
+   "subsection": "",
+   "page": 19,
+   "page_end": 19,
+   "text": "Water early in the morning or late in the afternoon so less is lost to the sun. Water the soil at the base of the plant, not the leaves. A layer of dry grass or leaves on the soil keeps it moist longer. Collect rain from roofs in drums with lids so mosquitoes cannot breed. Give young plants water first; deep-rooted trees can wait longer.",
+   "tokens": 88
+  },
+  {
+   "id": "agri-020-chickens-housing-and-feed-01",
+   "section": "Chickens: housing and feed",
+   "subsection": "",
+   "page": 20,
+   "page_end": 20,
+   "text": "Keep chickens in a dry, airy house raised off the ground, with perches and a clean nest box. Clean out droppings every week and add them to the compost. Give clean water every day. Feed kitchen scraps, grated coconut, cassava and greens, with a mixed feed if you can buy it. Keep young chicks warm and dry for their first weeks.",
+   "tokens": 82
+  },
+  {
+   "id": "agri-021-chickens-sickness-signs-01",
+   "section": "Chickens: sickness signs",
+   "subsection": "",
+   "page": 21,
+   "page_end": 21,
+   "text": "Watch for birds that stand alone with ruffled feathers, have runny eyes or noses, diarrhoea, or stop eating. Separate sick birds at once. Do not sell or eat birds that died of sickness. If several birds get sick or die within a few days, tell the extension or livestock officer quickly, because some poultry diseases spread fast between villages.",
+   "tokens": 80
+  },
+  {
+   "id": "agri-022-pigs-care-and-feeding-01",
+   "section": "Pigs: care and feeding",
+   "subsection": "",
+   "page": 22,
+   "page_end": 22,
+   "text": "Keep pigs in a pen with shade, a dry sleeping area and clean water. Pigs left to roam damage gardens and pick up worms. Feed cooked kitchen scraps, cassava, sweet potato vines and coconut. Clean the pen often and keep it away from drinking water. Ask the livestock officer about worming and how often to do it.",
+   "tokens": 77
+  },
+  {
+   "id": "agri-023-fruit-fly-in-vegetables-01",
+   "section": "Fruit fly in vegetables",
+   "subsection": "",
+   "page": 23,
+   "page_end": 23,
+   "text": "Fruit flies lay eggs in ripening fruit such as chilli, eggplant, pawpaw and cucumber; the fruit rots and drops with small maggots inside. Pick up and bury or burn fallen fruit every few days. Harvest a little early when you can. Bag fruit with paper or cloth while it ripens. Traps with bait can lower numbers; ask the extension officer what is approved.",
+   "tokens": 85
+  },
+  {
+   "id": "agri-024-kava-growing-01",
+   "section": "Kava growing",
+   "subsection": "",
+   "page": 24,
+   "page_end": 24,
+   "text": "Kava needs fertile, well-drained soil and some shade when young. Plant stem cuttings with two or three nodes. Keep weeds down and mulch around the plants. Dieback shows as wilting and black stems; remove sick plants and do not take cuttings from them. Kava takes several years to mature, so record when each block was planted.",
+   "tokens": 76
+  },
+  {
+   "id": "agri-025-storing-seed-and-planting-material-01",
+   "section": "Storing seed and planting material",
+   "subsection": "",
+   "page": 25,
+   "page_end": 25,
+   "text": "Save seed only from strong, healthy plants. Dry seed well in the shade, then keep it in a sealed jar or bottle in a cool, dark place. Label each jar with the crop and the date. Keep cuttings and suckers moist and plant them within a few days. Share good planting material with neighbours to keep local varieties alive.",
+   "tokens": 80
+  },
+  {
+   "id": "agri-026-erosion-and-slopes-01",
+   "section": "Erosion and slopes",
+   "subsection": "",
+   "page": 26,
+   "page_end": 26,
+   "text": "On sloping gardens, plant across the slope, not up and down it. Lines of grass, vetiver or pineapple along the contour slow water and hold soil. Leave trees on the steepest parts and along streams. Do not burn the whole slope; bare soil washes away in the first heavy rain and takes the topsoil with it.",
+   "tokens": 76
+  },
+  {
+   "id": "agri-027-intercropping-01",
+   "section": "Intercropping",
+   "subsection": "",
+   "page": 27,
+   "page_end": 27,
+   "text": "Growing two or more crops together uses the space and spreads the risk. Beans and peanuts add nitrogen to the soil for the next crop. Tall crops like corn or banana can shade low crops that like some shade. Avoid planting crops from the same family together year after year, because pests and diseases build up.",
+   "tokens": 76
+  },
+  {
+   "id": "agri-028-market-day-planning-01",
+   "section": "Market day planning",
+   "subsection": "",
+   "page": 28,
+   "page_end": 28,
+   "text": "Before market day, check which produce sold well last time and what the price was. Harvest leafy greens the morning of the market so they stay fresh. Grade produce by size and quality and price each grade. Keep a small notebook of what you sold, for how much, and what was left, so you can plan the next planting.",
+   "tokens": 80
+  },
+  {
+   "id": "agri-029-working-with-the-extension-officer-01",
+   "section": "Working with the extension officer",
+   "subsection": "",
+   "page": 29,
+   "page_end": 29,
+   "text": "The extension officer can help name pests and diseases, explain which sprays are allowed, and connect farmers to training and markets. Write down your questions before a visit and show the officer the damage in the garden if you can. Take a clear photo when signal allows. Ask for written advice when a chemical is involved.",
+   "tokens": 76
+  },
+  {
+   "id": "agri-030-cyclone-preparation-for-gardens-01",
+   "section": "Cyclone preparation for gardens",
+   "subsection": "",
+   "page": 30,
+   "page_end": 30,
+   "text": "Before a cyclone, harvest what is ready, especially bananas and root crops near maturity. Prop or cut back tall plants that could fall on houses. Store seed and planting material somewhere dry and high. After the storm, clear drains, replant fast-growing crops first, and share planting material so families have food again quickly.",
+   "tokens": 72
+  }
+ ]
+}
