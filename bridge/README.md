@@ -126,7 +126,7 @@ Twilio's new **Limited trial** accounts cannot set the sandbox webhook (Sandbox 
 TWILIO_MODE=poll LLM_BACKEND=river bridge/run_local.sh     # or TWILIO_MODE=poll in .env
 ```
 
-1. `.env`: `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, and `TWILIO_WHATSAPP_FROM` = the sandbox number shown on **Messaging → Try it out → Send a WhatsApp message** for your account (e.g. `whatsapp:+17372583742`).
+1. `.env`: `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, and `TWILIO_WHATSAPP_FROM` = the sandbox number shown on **Messaging → Try it out → Send a WhatsApp message** for your account (e.g. `whatsapp:+14155238886`).
 2. From the verified phone, send the `join <two-words>` code to that number in WhatsApp (Twilio answers the join itself).
 3. Start the bridge as above. It prints `Twilio polling the Messages list every 3 s` instead of the webhook instructions; `GET /health` shows `twilio.poll` with `polls`, `answered`, `sent`, `errors`, `last_error`.
 4. Send a nurse message. Within about 3 s plus the model turn the reply arrives.

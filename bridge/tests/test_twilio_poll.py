@@ -17,7 +17,7 @@ from bridge.twilio_poll import TwilioPoller
 
 SID = "ACpoll000000000000000000000000000"
 TOKEN = "poll_secret_token_xyz"
-FROM = "whatsapp:+17372583742"
+FROM = "whatsapp:+14155238886"
 NURSE = "whatsapp:+15550001234"
 NOW = 1_790_000_000.0  # fixed clock
 
