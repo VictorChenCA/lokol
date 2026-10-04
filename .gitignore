@@ -1,0 +1,11 @@
+.env
+.venv/
+models/gguf/*.gguf
+models/adapters/**/*.safetensors
+__pycache__/
+node_modules/
+dist/
+*.log
+data/raw/*.pdf
+data/raw/*.txt
+docs/research_raw.json

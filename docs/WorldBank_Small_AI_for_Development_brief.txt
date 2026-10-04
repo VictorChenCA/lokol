@@ -1,0 +1,1025 @@
+       In collaboration with MIT Club of Northern California and MIT Club of Germany
+
+
+
+
+                                CHALLENGE
+
+
+
+
+               04               ····················
+
+
+
+
+SMALL AI FOR DEVELOPMENT
+       HACKATHON
+       What does localizing AI development mean for you?
+ Concept Note · Youth Summit × Global AI & Digital Summit (Seoul, October 2026)
+
+
+
+
+                                 POWERED BY
+
+
+
+
+                                                                                       Official Use Only
+                                The World Bank – Youth Summit
+ Please review the first 12 pages and then go to your sector section
+
+                                                                Contents
+
+01 Background ............................................................................................................................. 3
+02 What Small AI means ................................................................................................................. 3
+03 The hackathon ......................................................................................................................... 4
+04 Eligibility, timeline and logistics .................................................................................................... 4
+     Key dates ................................................................................................................................ 4
+
+05 The challenge ......................................................................................................................... 5-7
+     Who you are building for.............................................................................................................. 5
+     Choose your sector .................................................................................................................... 6
+     What you will build .................................................................................................................. 6-7
+
+06 The rules................................................................................................................................. 7
+07 The data ............................................................................................................................. 7-10
+     7.1 How the datasets are organised ................................................................................................ 7
+     7.2 The two kinds of data .......................................................................................................... 8-9
+     7.3 Common datasets — for every sector ........................................................................................ 8-9
+     7.4 Your sector’s datasets ........................................................................................................... 10
+08 What you submit ................................................................................................................ 10-11
+09 How entries are judged .............................................................................................................11
+10 Glossary ........................................................................................................................... 11-12
+_______________________________________________________________________________________________
+Annex A Health ...................................................................................................................... 13-15
+     A.1 The scenario ...................................................................................................................... 13
+     A.2 Datasets, Extended .......................................................................................................... 14-15
+
+Annex B Agriculture................................................................................................................. 16-17
+     B.1 The scenario ...................................................................................................................... 16
+     B.2 Datasets, Extended .............................................................................................................. 17
+
+Annex C Tourism .................................................................................................................... 18-19
+     C.1 The scenario ...................................................................................................................... 18
+     C.2 Datasets, Extended .............................................................................................................. 19
+
+
+
+
+                                                                                                                                          Official Use Only
+                 SMALL AI FOR DEVELOPMENT · Youth Summit × Hack-Nation · Concept Note
+
+
+
+
+01 Background
+
+As of 2024, 2.6 billion people—about one-third of the world’s population—remain offline, and
+internet use ranges from over 90% in high-income countries to just 27% in low-income
+countries. Meanwhile, 800 million people still lack official ID, limiting access to digital public
+services, finance, and healthcare. Closing that divide is the mandate of the World Bank
+Group's Digital & AI Vice Presidency, which supports countries to expand affordable,
+inclusive broadband connectivity, bring people onto digitally enabled services, and bring
+more women online, commitments tracked on the World Bank Group Scorecard.
+
+Employment is the second challenge. Over the next decade, an estimated 1.2 billion young
+people in the Global South will reach working age, while current trends are projected to
+generate only 420 million jobs.
+
+Artificial intelligence and the broader data revolution are expanding what institutions can do,
+improving service delivery, and opening new economic pathways. Yet not everyone is
+benefiting equally. This challenge sits inside that agenda. Most AI applications have been
+deployed and designed with the assumption of baseline access to reliable connectivity, use
+of a smart-model device, and a user already familiar with how to prompt when interacting
+with an AI interface. This challenge is designed for the many settings where these conditions
+are either strained, limited, or intermittent.
+
+
+02 What is Small AI
+
+Small AI is a design approach for AI development that promotes targeted, use-case-driven
+AI: eg. while general-purpose large language models continue to improve their viability in
+constrained environments, a Small AI approach focuses on leveraging AI capabilities —
+pattern recognition, text generation, or the ability to understand context1 — to work on a
+single, well-defined problem, on a device easily accessible to users. That device may be a
+basic phone, or a small piece of on-device hardware such as a sensor or a microcontroller
+that runs the model locally. The AI use case may be predictive, generative, or agentic; what
+matters is that its targeted use, less reliance on the existence of an extensive data-center
+infrastructure, functions where connectivity is weak or absent, can be trained or tuned on
+local data, and centers the user through common interfaces such as SMS and voice. The
+design is governed by the operating constraint and the problem to be solved, not by the
+scale or capability of the model.
+
+This comes with an important caveat. A good AI solution is not sufficient on its own. Small AI
+depends on a set of foundational enablers — adequate connectivity, digital literacy, and
+trusted local institutions — and without them even the best tool remains a pilot. Each sector
+brief below therefore sets out these preconditions alongside the challenges specific to the
+sector, so that a proposed AI solution can demonstrate a clear and distinct value add.
+Applicants should address one sectoral challenge to build their Small AI solution.
+
+
+
+1
+ Vianney Gomezgil Yaspik, Digital and Computational Studies Assistant Professor of Digital and Computational
+Studies
+
+
+
+                 Hack-Nation × World Bank Youth Summit · Global AI Hackathon 2026 · Page 3
+
+                                                                                                        Official Use Only
+               SMALL AI FOR DEVELOPMENT · Youth Summit × Hack-Nation · Concept Note
+
+
+
+
+03 What is the Small AI for Development Hackathon?
+
+In this regard, the World Bank Group Digital & AI Vice Presidency, in collaboration with the
+Youth Summit, Development Economics Vice Presidency (DEC), Information and
+Technology Solutions (ITS) and Hack-nation, is organizing a hackathon to bring the youth
+perspective into how AI is developed. Building on the World Bank Group's work to help
+countries adopt and scale AI, including the AI Repository, a catalogue of AI use cases and
+the lessons from deploying them. Over one weekend, applicants will build a working Small AI
+solution to one of the sector challenges below.
+
+Through their Small AI solution, applicants should seek to answer: what does localizing AI
+development mean for you? Young people are often closest to the challenges this
+competition addresses, and their perspective on how technology should respond is
+essential. This challenge invites young people to consider what it means to develop AI for
+their own context, language, and local needs, and to reflect candidly on both the
+opportunities and the risks. Entries that acknowledge these trade-offs are encouraged.
+
+
+04 Eligibility, Timeline and Logistics
+
+The competition is open to entrants aged 18 to 35, in line with the United Nations’ definition
+of youth, open to participants from over 150 countries. Applicants from emerging economies
+are encouraged to apply.
+
+Key dates
+   •   Application Opens: September 2026
+   •   Competition weekend: 3–4 October 2026
+   •   Shortlist selection by expert evaluators: 5–6 October
+   •   Ignite Talk by the winners in Seoul: 21 October 2026
+
+
+Entries submitted during the competition weekend will be reviewed by expert evaluators
+drawn from health, agriculture, and tourism, who will select the shortlist for final judging.
+Each sector panel selects a shortlist of finalists in its own sector, and one winning team is
+chosen per sector, three winners in total.
+
+One representative from each of the three winning teams, one from each sector, will be
+invited to Seoul to present at the Global AI and Digital Summit 2026, co-hosted by the World
+Bank Group and the Government of Korea from 19 to 22 October. The Summit convenes
+governments, the private sector, investors, and international organizations to examine how
+practical, fit-for-purpose AI can create jobs and expand opportunities in developing
+economies, with dedicated attention to health, agriculture, tourism, education, and
+government services. The Ignite Talks will take place in a breakout session. Organizers will
+facilitate networking opportunities and, where feasible, support introductions to investors,
+private-sector representatives, MSMEs, and government officials attending the event. Travel
+expenses will be covered. Visa arrangements will be communicated to each winning team
+directly (one representative per team will be traveling).
+
+
+
+
+               Hack-Nation × World Bank Youth Summit · Global AI Hackathon 2026 · Page 4
+
+                                                                                            Official Use Only
+               SMALL AI FOR DEVELOPMENT · Youth Summit × Hack-Nation · Concept Note
+
+
+
+
+In summary
+
+  WHAT IT IS                   A Small AI for Development hackathon challenge for young
+                               innovators, held jointly by the World Bank Group Youth Summit
+                               and the Global AI & Digital Summit in Seoul.
+
+  WHO CAN ENTER                Young innovators aged 18 to 35 (the UN definition of youth).
+
+  PARTNER                      Hack-Nation will manage the competition and submit a shortlist of
+                               finalists to the Bank for final judging
+
+  HOW IT RUNS                  Application and Promotion through Hack-Nation opens in
+                               September, a competition weekend in early October, judging by
+                               World Bank Group Bank panel in each sector, then a showcase in
+                               Seoul.
+
+  KEY DATES                    Competition Oct 3 to 4; shortlists on Oct 5-6; the winning teams
+                               travel by Oct 18; Ignite Talks on Oct 21.
+
+  WHAT THE WINNER              One winning team per sector, three in total. One representative
+  GETS                         per team receives flight and lodging to Seoul, a spotlight session
+                               at the summit, and opportunities to engage with government,
+                               private-sector, and development leaders.
+
+
+
+
+05 The Challenge
+
+Who you are building for
+Over one weekend, you build one Small AI tool/solution for one sector and demonstrate it
+works within the constraints specified within each sector. Each sector's scenario, limits,
+evidence, and datasets are in its annex. (Annex A: Health, Annex B: Agriculture, Annex C:
+Tourism)
+
+Meet Noor
+Noor is 38, farms 2 hectares in the Ondera highlands; coffee on the upper slope, maize and
+beans below and has been a member of the Ondera Coffee Cooperative for eleven years.
+Her 16-year-old daughter boards at school in the district town. At home she speaks her local
+language, and the national one when she needs it like most of her neighbors do when they
+have to interact with tourists every now and then. Two phones serve the household: her
+own, which she uses for calls, messages, and mobile money, and her daughter's
+smartphone, which she only really uses when her daughter is home on weekends to set it up
+and show her how, most often to watch the news on YouTube. There is no Wi-Fi at the
+house; they buy 3G data bundles from the local network when they need them. For most of
+the day she is out on the slope, and the phone is at the house.
+
+Noor is fictional; her constraints are not. They are drawn from World Bank-supported work
+with governments, including primary health care access in Solomon Islands, farmers' access
+
+
+               Hack-Nation × World Bank Youth Summit · Global AI Hackathon 2026 · Page 5
+
+                                                                                               Official Use Only
+               SMALL AI FOR DEVELOPMENT · Youth Summit × Hack-Nation · Concept Note
+
+
+
+
+to digital advisory and markets in Cote d'Ivoire and tourism and small operators in The
+Gambia.
+
+Choose your sector
+
+   01 Health
+   She has a clinic near where she lives but it is overcrowded and the quality of care is
+   not always of a good standard. Doctors are well-meaning but are not always up to date
+   with the latest medical guidance. The significant patient load, coupled with
+   burdensome record-keeping requirements, means that they are not able to give each
+   patient the attention that is needed.
+   Full brief and datasets: Annex A: the scenario, the limits, the evidence, and the extended
+   health dataset list.
+
+
+
+
+   02 Agriculture
+   Her coffee yields have slipped and she is not sure why. The extension officer reached her
+   village twice last year, and at harvest a buyer names a price she has no independent
+   reference for.
+   Full brief and datasets: Annex B: the scenario, the limits, the evidence, and the extended
+   agriculture dataset list.
+
+
+
+
+   03 Tourism        turning interest into a business
+   Six or seven visitors a month find her farm by word of mouth. Noor needs to turn informal
+   visitor interest into a manageable, trusted customer workflow, be able to communicate with
+   customers who don't speak her language and leverage good reviews she’s getting to
+   upgrade her farm tours.
+   Full brief and datasets: Annex C: the scenario, the limits, the evidence, and the extended
+   tourism dataset list.
+
+
+
+Read your sector's annex before building. It gives the constraints and evidence; the design
+choices are yours to make and justify.
+
+What you will build
+Pick one of the three sector challenges above (Health, Agriculture, or Tourism) and build
+an AI-powered tool that addresses it. By the end of the weekend, you should have:
+
+   •   A working prototype: a phone app, a chatbot, an SMS service, a voice line, etc.,
+       that addresses one or more of Noor’s challenges. No-code and vibe-coded builds
+       welcome.
+   •   A clear answer to what the AI-powered tool (i.e. machine learning, natural
+       language processing, computer vision, generative AI, etc.) is in use and how it is
+
+
+               Hack-Nation × World Bank Youth Summit · Global AI Hackathon 2026 · Page 6
+
+                                                                                                Official Use Only
+                   SMALL AI FOR DEVELOPMENT · Youth Summit × Hack-Nation · Concept Note
+
+
+
+
+         creating value or better use of technology compared to other digital tools. If SMS, a
+         spreadsheet, or a Google search could do the same job, AI may not be the best tool
+         to invest in.
+    •    Proof it works on at least one sector: an image it helps classify, a conversation it
+         helps translate, a set of reviews helps analyze? Be creative.
+
+
+06 The Rules
+
+Be creative, think out of the box, whatever form your solution takes:
+
+    •    it runs on a device the user already has;
+    •    its core feature works offline;
+    •    its model files are small enough to side-load or send over a weak connection;
+    •    at least one interaction is in a local language, by voice or text — name the language,
+         and expect to be asked how the tool would fare in a less-supported one.
+
+
+    AI Guardrails
+    — Human-in-the-loop principles: A person makes the final call. The tool informs a decision
+    and flags what it is unsure of; it does not act on the user's behalf. If an entry proposes an
+    agentic workflow, ensure the AI checks in with user appropriately.
+    — Avoid hallucinations.
+
+
+
+
+07 The Data
+
+Every entry should cite its data sources. The provided datasets are just suggestions, not a
+required list: you are encouraged to find better. Check the terms yourself before building on
+anything here, as access conditions change.
+
+7.1 How the Datasets are organized
+
+The datasets are arranged in two layers, and a strong entry uses both.
+
+ Where to look              What is in it
+
+
+ Common datasets            Open to every entry, whichever sector you choose. Four groups: A language and speech; B
+ Section 7.3                connectivity, devices and inclusion; C maps, population and satellite; D country statistics and
+                            household surveys. They are listed once, there, rather than repeated in each annex.
+
+ Sector datasets            Specific to one sector — health in Annex A, agriculture in Annex B, tourism in Annex C. You only
+ Your annex                 need the annex for the sector you chose.
+
+
+
+
+                   Hack-Nation × World Bank Youth Summit · Global AI Hackathon 2026 · Page 7
+
+                                                                                                                          Official Use Only
+                 SMALL AI FOR DEVELOPMENT · Youth Summit × Hack-Nation · Concept Note
+
+
+
+
+In practice you will draw on both. The common tables give you the language your tool speaks, the connectivity
+it has to survive, and the evidence that the problem is real. Your sector table gives you the thing your tool
+actually works on. Each annex ends by naming the two or three common datasets that matter most for that
+sector, so you do not have to read all four groups to find them.
+
+
+
+7.2 The two kinds of data
+
+1. Data that shows the problem and gap being filled by the solution. Surface data that
+puts Noor's situation in context — health-worker absence rates, travel time to the nearest
+facility, the gap between phone and smartphone ownership among women. Cite source,
+year, and country. Make note if the closest figures come from synthetic data modeling an
+article or published journal
+
+2. Data you build with. What your tool learns from: speech recordings, labeled
+photographs, example messages. Name every dataset, its source, its license and its size.
+You must also indicate what your data does not cover, and this is scored. Most crop-
+disease datasets, for instance, are studio images on plain backgrounds; a model trained only
+on them performs poorly on real field photos. You may supplement with synthetic data as
+long as you label it accordingly.
+
+
+
+7.3 Common Datasets for Every Sector
+
+A. Language and speech
+The starting point for any tool that has to listen, speak, translate or understand in a local language.
+
+  FOR VOICE AND LANGUAGE
+
+  Dataset                         What it is                             Why it matters here
+
+  Mozilla Common Voice           Crowdsourced voice recordings,         The main starting point for
+                                 CC0, covering many African and         listening in a local language. It
+                                 South Asian languages.                 accepts contributions, so your
+                                                                        own recordings can be given
+                                                                        back.
+
+  FLEURS (Google)                Speech benchmark across                Lets you compare results against
+                                 roughly 100 languages.                 a published standard rather than
+                                                                        asserting them.
+
+  MMS (Meta)                     Speech recognition and synthesis       Often the only usable starting
+                                 covering over a thousand               point for a language with little
+                                 languages.                             data.
+
+  FLORES-200 / NLLB-200          Translation benchmark and open         For any interaction where the
+  (Meta)                         models across 200 languages.           message arrives in a language
+                                                                        your user cannot read.
+
+  OPUS                           A large open collection of parallel    The raw material for translation
+                                 corpora, meaning the same text         between low-resource languages
+                                 in two languages side by side.
+
+
+
+                 Hack-Nation × World Bank Youth Summit · Global AI Hackathon 2026 · Page 8
+
+                                                                                                           Official Use Only
+                 SMALL AI FOR DEVELOPMENT · Youth Summit × Hack-Nation · Concept Note
+
+
+
+
+                                                                         when no ready-made model
+                                                                         exists.
+
+  MASSIVE (Amazon)                About one million short                Sorting incoming messages or
+                                  utterances in 51 languages,            requests into a fixed list of
+                                  labelled by intent.                    intents.
+
+  Masakhane                       African-language NLP resources         On-theme as well as useful:
+                                  built by an African research           localized AI built by local people.
+                                  community.
+
+  AI4Bharat / IndicVoices         Speech and language resources          The equivalent starting point for
+                                  for Indian languages.                  South Asian entries.
+
+
+
+B. Connectivity, Devices, and Inclusion
+
+What device your user actually has, whether there is a signal where she lives, and whether she can be paid
+
+  GSMA Mobile Gender Gap              Phone and smartphone ownership by gender and country:
+  Report                              evidence for the device Noor actually has.
+
+  OpenCelliD                          Open database of mobile cell towers. Show where there
+                                      genuinely is no signal rather than assuming it
+
+  Global Findex (World Bank)          Financial inclusion, including mobile money use, disaggregated
+                                      by gender.
+
+
+
+
+C. Maps, Population, and Satellite
+Where things are, how many people are there, and what the land is doing. Useful in all three sectors — for
+offline base maps, catchment size, and land or crop condition over time.
+
+  WorldPop                            Gridded population estimates, for the size of the catchment your
+                                      tool serves.
+
+  OpenStreetMap                       Crowdsourced roads, buildings and points of interest,
+                                      downloadable for offline use.
+
+  VIIRS Nighttime Lights              Monthly night-light raster imagery, widely used as a proxy for
+                                      electrification and economic activity.
+
+
+
+D. Country Statistics and Household Surveys
+Where you establish the problem at a country level and with a year attached.
+
+  World Bank Data360                  The Bank's integrated data catalogue, bringing indicator and
+                                      survey holdings into one place across all sectors.
+
+
+
+
+                 Hack-Nation × World Bank Youth Summit · Global AI Hackathon 2026 · Page 9
+
+                                                                                                             Official Use Only
+              SMALL AI FOR DEVELOPMENT · Youth Summit × Hack-Nation · Concept Note
+
+
+
+
+ World Development                More than 1,400 development indicators by country and year.
+ Indicators
+
+ World Bank Microdata             The institution's own survey and household microdata holdings.
+ Library and Data Catalog         Start here for evidence that the problem is real.
+
+ Humanitarian Data                UN OCHA's open platform: administrative boundaries, prices,
+ Exchange                         population, infrastructure.
+
+
+
+
+7.4 Your sector’s datasets
+
+
+The second layer, in your annex: Annex A for health, Annex B for agriculture, Annex C for
+tourism.
+
+
+
+08 The Deliverables: what you will submit
+Before the weekend: the application form through Hack-nation’s Global AI Hackathon
+website
+
+[Oct 3-4th 2026]: By the end of the Hackathon weekend, make sure to submit:
+
+1. Your prototype — the working tool, with the code, or a link to it.
+2. A video, 2 to 5 minutes. (Entries without this will not make it to the shortlist)
+   • Problem statement — one sentence: Because of this tool, [user] will [action] by
+       [when] that they would otherwise [not do / do late / do worse]; we know
+       because [evidence].
+   •   AI capabilities of the solution — what the tool does with AI (machine learning,
+       computer vision, language, generative), and why a simpler tool (SMS, a spreadsheet,
+       a search) would not do the same job. Mention the guardrails in place.
+   •   Tool demo — the prototype demo with clear user journey end to end (in form of a
+       slide deck, screen recording showing how the tool you built works)
+   •   The challenge/gap being addressed — where the tool sits in the user's day: when
+       they open it, what they do, what happens next. For more technical builds, please
+       include tech stack details.
+   •   Your take — what localizing AI development means to you.
+
+
+09 Judging Criteria
+
+ Criterion                         Weight       The question to ask
+
+ The built solution (Small AI        25%       Does the tool work end to end within the constraints
+ fidelity)                                     of the sector
+
+
+
+              Hack-Nation × World Bank Youth Summit · Global AI Hackathon 2026 · Page 10
+
+                                                                                                Official Use Only
+                SMALL AI FOR DEVELOPMENT · Youth Summit × Hack-Nation · Concept Note
+
+
+
+
+ Development relevance and             20%       Is this a real problem from the sector briefs, and does
+ impact                                          the outcome matter to the person it is built for?
+
+ Data grounding                        15%       Does the tool help address an identified gap in the
+                                                 data, is the data modeling sound?
+
+ Evidence it works                     15%       Does the solution fit the challenges identified in the
+                                                 sector, does it add other constraints?
+
+ Clarity, design and                   15%       What the tool does with AI (machine learning,
+ inclusivity                                     computer vision, language, generative), and would a
+ Value proposition for AI                        simpler tool (SMS, a spreadsheet, a search) do the
+                                                 same job?
+
+ Scalability, replicability and        10%       Could another setting reuse this innovation?
+ what happens next
+
+ Responsible AI, data and           Pass/fail    Are the limits respected, and the account of privacy,
+ safety                                          consent, bias, and human oversight credible?
+
+
+
+  How the pass/fail works
+  How AI performs and impacts these sectors is still an emerging question, and a confident
+  wrong answer is costly when it touches someone's access to essential services or their
+  livelihood. In this regard, each entry should incorporate a fail-safe: AI signposting to a
+  decision-maker when the data it is acting on is not enough to give a definitive answer eg.
+  "not sure — ask a person" rather than guessing, and a human stays in the loop where
+  relevant.
+
+
+
+10 Glossary
+
+ TERM · WHAT IT MEANS
+ Small AI                          Small AI is a design approach for AI development that promotes
+                                   targeted, use-case-driven AI: e.g. while general-purpose large
+                                   language models continue to improve their viability in constrained
+                                   environments, a Small AI approach focuses on leveraging AI
+                                   capabilities — pattern recognition, text generation, or the ability to
+                                   understand context — to work on a single, well-defined problem,
+                                   on a device easily accessible to users.
+ Offline / on-device (edge)        Running the model on the user's own phone or hardware instead
+ AI                                of a server, so it works with no connection
+ Fine-tuning                       Adapting an existing, pre-trained model to your case — your
+                                   language, your crop — by training it further on a smaller, focused
+                                   dataset. Faster and cheaper than building one from scratch.
+ Quantization                      Shrinking a model so it fits on a basic device or downloads over a
+                                   weak link.
+ Store-and-forward                 Save it now, send it later. The record waits on the phone until a
+                                   signal appears.
+ Dataset                           A collection of examples — recordings, photographs, messages,
+                                   survey answers — that a model learns from or is tested against.
+
+
+
+                Hack-Nation × World Bank Youth Summit · Global AI Hackathon 2026 · Page 11
+
+                                                                                                       Official Use Only
+              SMALL AI FOR DEVELOPMENT · Youth Summit × Hack-Nation · Concept Note
+
+
+
+
+Training / fine-tuning          Teaching a model using examples. Fine-tuning means adjusting
+                                an existing model for your case rather than building one from
+                                scratch.
+Benchmark                       A published standard test that lets different teams' results be
+                                compared.
+Fixed list of answers           The complete set of things your tool is allowed to say. If it can say
+                                anything, it cannot be checked for safety.
+Georeferenced                   Each record has real coordinates attached, so it can be mapped.
+Speech recognition              Turning spoken words into written text.
+Intent classification           Working out what someone wants from what they wrote — a price,
+                                directions, a booking.
+Computer vision                 The use of AI to extract useful information from an image, such as
+                                identifying a disease on a coffee leaf.
+Low-resource language           A language with little digital text or recorded speech available,
+                                which is why most AI tools support it poorly.
+
+
+
+
+             Hack-Nation × World Bank Youth Summit · Global AI Hackathon 2026 · Page 12
+
+                                                                                                    Official Use Only
+              SMALL AI FOR DEVELOPMENT · Youth Summit × Hack-Nation · Concept Note
+
+
+
+
+Annex A. Health
+
+A.1 The scenario
+Noor has a clinic near where she lives, but it is overcrowded and the quality of care is not
+always of a good standard. Doctors are well-meaning but are not always up to date with the
+latest medical guidance. The significant patient load, coupled with burdensome record-
+keeping requirements, means that they are not able to give each patient the attention that is
+needed.
+
+   •   The problem. Access to primary care in remote catchments is limited by clinician
+       scarcity and the absence of on-site diagnostics. Patients travel long distances to be
+       seen, health workers have limited time per case, and low patient digital literacy
+       compounds both.
+   •   What other digital tools have been in use. Basic mobile technology has delivered
+       measurable health gains so far. The Mwana project in Zambia and Malawi ran
+       entirely on SMS: built on the RapidSMS platform, it transmitted infant HIV test results
+       from central laboratories back to rural clinics and sent automated appointment
+       reminders to mothers, cutting result turnaround times sharply. Uganda's mTrac used
+       the same SMS foundation to collect weekly data from health facilities into the national
+       health information system and to push medicine stock-out alerts, reaching over 10
+       million subscribers. Both worked through message routing and data aggregation. The
+       Broadband Commission estimated that wider mHealth adoption in Sub-Saharan
+       Africa could save approximately one million lives over five years against malaria,
+       HIV/AIDS, and perinatal conditions.
+   •   Where AI can add value. The clinical use of AI in low-resource health with the
+       strongest evidence base is image-based screening. In 2021, the World Health
+       Organization endorsed computer-aided detection (CAD) software for chest X-ray
+       interpretation in tuberculosis screening in individuals aged 15 and older, based on
+       the evaluation of three products — CAD4TB, Lunit INSIGHT CXR, and qXR — that
+       performed comparably to, and in later versions better than, human readers. These
+       tools are now deployed in active case-finding programmes across India, the
+       Philippines, and some countries in Africa, often paired with ultra-portable X-ray
+       hardware. AI-enabled retinal screening for diabetic retinopathy and visual inspection
+       tools for cervical pre-cancer follow the same pattern: the model reads an image and
+       flags the cases that warrant a clinician's review.
+   •   The risks. The World Health Organization (WHO)'s Ethics and governance of
+       artificial intelligence for health is explicit that opportunities and risks are linked, and
+       cautions against unethical collection of health data, biases encoded in algorithms,
+       and risks to patient safety and cybersecurity. Models trained largely on data from
+       high-income countries can underperform on the populations they are then deployed
+       to. Bias can be encoded silently and reproduced across many patients before it is
+       detected. Patient data moving through a mobile network raises safety exposures that
+       a paper record does not. A confident wrong output where a life is at stake is worse
+       than no output. Applicants should design for these risks from the start.
+   •   Preconditions to keep in mind. International Finance Corporation (IFC)'s
+       TechEmerge Health program covered Kenya, Uganda, and Ethiopia. Even its
+       strongest AI-assisted ECG and diagnostic tools needed 2G/3G to work. Clinician
+       trust and regulatory acceptance took years to build before anything scaled. Health
+
+
+
+
+              Hack-Nation × World Bank Youth Summit · Global AI Hackathon 2026 · Page 13
+
+                                                                                              Official Use Only
+                 SMALL AI FOR DEVELOPMENT · Youth Summit × Hack-Nation · Concept Note
+
+
+
+
+        entries touch patient data. Applicants should state where the data sits, who can read
+        it, and what happens when the phone is lost or shared.
+
+
+    Hackathon challenge
+    Design and demonstrate a Small AI solution that improves one meaningful part of Noor's
+    access to primary care or a frontline worker's ability to serve her; for example screening
+    support, documentation, referral, follow-up or continuity of care.
+
+
+
+
+A.2 Datasets, extended
+This annex lists the health datasets only — the second of the two layers described in Section 7.1. Every entry
+can also draw on the common datasets in Section 7.3, which are open to all three sectors.
+
+Note the hard limits above: this sector deliberately lists no medical imaging or diagnosis
+datasets, because interpreting them is out of bounds.
+
+
+
+  FOR HEALTH ACCESS
+
+  Dataset                         What it is                             Why it matters here
+
+  Service Delivery               Facility surveys: provider              Literally the "is Tobi there today"
+  Indicators (World Bank)        absenteeism, staffing, equipment,       problem, measured. The
+                                 drug availability.                      strongest single source for this
+                                                                         sector.
+
+  healthsites.io                 Open, OpenStreetMap-based               Answers "where is the nearest
+                                 register of health facility locations   facility" with coordinates.
+                                 worldwide.
+
+  Maina et al., Scientific       About 98,000 geolocated public          A published facility list.
+  Data                           health facilities in sub-Saharan
+                                 Africa.
+
+  DHS Program and                Health-seeking behaviour; facility      How far people travel, and what
+  Service Provision              staffing, hours and stock. Free         they find on arrival.
+  Assessments                    registration.
+
+  Malaria Atlas Project          Modelled travel time to the             Useful travel data.
+  travel-time surfaces           nearest town or health facility.
+
+  AccessMod (WHO)                Modelling geographic access to          Useful if your solution touches
+                                 health services.                        which facility to send someone
+                                                                         to.
+
+  DHIS2                          The open-source health                  The system your record most
+                                 information platform used by            plausibly lands in. If your tool
+                                 ministries of health in more than       feeds a facility record, this is
+                                 70 countries, with demo                 what "institutional fit" looks like.
+                                 instances and documentation.
+
+
+
+
+                 Hack-Nation × World Bank Youth Summit · Global AI Hackathon 2026 · Page 14
+
+                                                                                                           Official Use Only
+            SMALL AI FOR DEVELOPMENT · Youth Summit × Hack-Nation · Concept Note
+
+
+
+
+WHO Global Health           Country-level health indicators,      Problem-is-real evidence:
+Observatory                 workforce density, service            workforce shortages and
+                            coverage.                             coverage gaps, cited by country
+                                                                  and year.
+
+Global Health Data          Catalogue of health surveys,          A second, citable source for
+Exchange (IHME)             censuses and burden-of-disease        establishing the scale of the
+                            estimates.                            access problem.
+
+
+
+
+            Hack-Nation × World Bank Youth Summit · Global AI Hackathon 2026 · Page 15
+
+                                                                                                  Official Use Only
+                 SMALL AI FOR DEVELOPMENT · Youth Summit × Hack-Nation · Concept Note
+
+
+
+
+Annex B. Agriculture
+B1. Scenario
+
+Noor’s coffee yields have dropped this season, and she cannot say why. The nearest
+extension officer visits the sub-county twice a year at best, and at harvest she sells her
+parchment to whichever middleman drives up the valley, at whatever price he names.
+
+    •   The problem. Smallholder farmers lack timely, localized advice on what is affecting
+        their crop, and they lack independent information on what that crop is worth when it is
+        time to sell. Public extension services are constrained by staff shortages, manual
+        data collection, and delayed alerts. In many settings, the binding constraint is the
+        absence of a working farmer registry rather than the absence of an algorithm; without
+        a registry, farmers cannot be reached at scale by any tool, digital or otherwise.
+    •   What other digital tools have been in use. In Côte d'Ivoire, the World Bank has
+        supported digital platforms that connect farmers to advisory content and to markets,
+        registering producers and delivering price and input information through the web and
+        mobile channels. The World Bank Group's AgriConnect initiative aims to reach 300
+        million farmers and double annual agribusiness investment to $9 billion by 2030.
+    •   Where AI can add value. India's Wadhwani AI cotton pest tool uses computer
+        vision: a farmer photographs a pheromone trap, and the model counts and identifies
+        the pests on the image, then advises whether and when to spray. That is pattern
+        recognition across thousands of visual examples, compressed to run on a basic
+        smartphone offline. Voice-based advisory in local languages is a second line of
+        promising work, particularly where literacy or screen literacy is a constraint.
+    •   Preconditions to keep in mind. In Ukraine, a working farmer registry unlocked
+        advisory services, insurance, and grants for 150,000 farmers. AI stacked on absent
+        registries, absent phones, or absent trust in the advisory system will be difficult to
+        implement in practice.
+
+
+    Hackathon challenge
+    Design and demonstrate a Small AI solution that helps Noor make, communicate or act on
+    one better agricultural decision; for example identifying a crop or post-harvest problem,
+    timing a farming activity, accessing localized advisory, documenting a field observation,
+    improving quality, value addition or connecting evidence to a pricing, market or extension-
+    service next step.
+
+
+
+
+B.2 Datasets, extended
+
+This annex lists the agriculture datasets only — the second of the two layers described in Section 7.1. Every
+entry can also draw on the common datasets in Section 7.3, which are open to all three sectors.
+
+
+
+  FOR AGRICULTURE
+
+  Dataset                         What it is                              Why it matters here
+
+
+
+                 Hack-Nation × World Bank Youth Summit · Global AI Hackathon 2026 · Page 16
+
+                                                                                                         Official Use Only
+               SMALL AI FOR DEVELOPMENT · Youth Summit × Hack-Nation · Concept Note
+
+
+
+
+LSMS-ISA (World Bank           Georeferenced farm household          Hosts smallholder farmer data
+Microdata Library)             panels across several African
+                               countries.
+
+Cassava Leaf Disease           Crop disease photographs taken        Field conditions closer to
+and iBean (Makerere            in real fields by real farmers.       scenario
+University)
+
+PlantVillage                   About 54,000 leaf images, 38          Plain-background studio images.
+                               disease classes.                      Use it and be honest about the
+                                                                     gap.
+
+PlantDoc                       About 2,600 crop disease images       A field-condition counterweight to
+                               scraped from real, uncontrolled       PlantVillage
+                               field conditions.
+
+BRACOL                         Arabica coffee leaf disease and       Directly relevant to Noor's crop.
+                               pest images.
+
+WFP food prices (via           Market price series for staples       The independent price reference
+HDX)                           across many countries.                Noor lacks when the buyer
+                                                                     arrives.
+
+CHIRPS                         Gridded historical rainfall           Grounds "40 mm overnight" in
+                               estimates.                            something real.
+
+iSDAsoil and SoilGrids         Gridded soil property maps: pH,       Context for why the third row is
+                               nutrients, texture. iSDAsoil          struggling; free, and citable at
+                               covers Africa at 30 m; SoilGrids      plot level.
+                               is the global equivalent.
+
+Digital Earth Africa           Analysis-ready ready Sentinel-2       Cropland condition and change
+                               and Landsat and Landsat satellite     over time, if your tool uses any
+                               imagery over Africa.                  earth observation.
+
+Sentinel-2 and Landsat         Open satellite imagery, global        Cropland mapping and land use
+                               coverage, free registration via the   anywhere, where Digital Earth
+                               Copernicus Data Space.                Africa stops at the continent.
+
+NASA POWER                     Free agro-climate data: rainfall,     A no-registration way to time an
+                               temperature, solar, by                action to the weather that
+                               coordinates.                          actually happened.
+
+FAOSTAT                        Production, yield and price           Background numbers for your
+                               statistics by country and crop.       problem case.
+
+
+
+
+               Hack-Nation × World Bank Youth Summit · Global AI Hackathon 2026 · Page 17
+
+                                                                                                    Official Use Only
+SMALL AI FOR DEVELOPMENT · Youth Summit × Hack-Nation · Concept Note
+
+
+
+
+Hack-Nation × World Bank Youth Summit · Global AI Hackathon 2026 · Page 18
+
+                                                                             Official Use Only
+                 SMALL AI FOR DEVELOPMENT · Youth Summit × Hack-Nation · Concept Note
+
+
+
+
+Annex C. Tourism
+C.1 The scenario
+Noor's farm is not marketed on a digital platform. The visitors who find it arrive and have
+help translating through a local guide, and she has no way of knowing what value she
+created, what worked during the tourists’ visits and what did not once they leave.
+
+    •   The problem. Tourism is a major job creator in the economies where Noor lives, and
+        small operators are where most of that employment sits. Their ability to hire and grow
+        depends on customers they can reach and on understanding the value those
+        customers actually take home. Most small operators run on instinct: they know
+        visitors leave happy, but not why, not which parts of the experience are worth
+        building on, and not how to turn a good review into a returning customer, a referral,
+        or a new product. Weak digital presence and marketing that rarely extends past word
+        of mouth compound the gap.
+    •   What other digital tools have been in use. In Jordan, the World Bank has
+        supported work to bring youth and small operators onto digital platforms and into
+        online services, including training operators to list and manage their business on
+        booking and marketing platforms. Getting an operator visible online with a listing, a
+        booking page, digital payments, already unlocks customers without any AI.
+    •   Where AI can add value. Small language models can read across a scattered set of
+        reviews and messages and tell the operator what visitors keep returning to, what they
+        wish had been different, and which parts of the experience are worth building the
+        next product around; the analytical work most small operators cannot do for
+        themselves.
+    •   Pre-conditions to keep in mind. In Jordan, the binding constraint for informal
+        operators was the absence of a digital listing and the skills to manage one.
+
+
+    Hackathon challenge
+    Design and demonstrate a Small AI solution that helps Noor, as a small tourism operator,
+    complete one meaningful business workflow; for example, becoming discoverable,
+    communicating across languages, responding to enquiries, shaping an experience,
+    managing a booking, learning from vistor feedback or following up with a guest.
+
+
+
+
+C.2 Datasets, extended
+
+This annex lists the to agriculture datasets only — the second of the two layers described in Section 7.1.
+Every entry can also draw on the common datasets in Section 7.3, which are open to all three sectors.
+Tourism is the sector where the voice and language table below carries the most weight,
+because the core task is multilingual.
+
+  FOR TOURISM
+
+  Dataset                         What it is                              Why it matters here
+
+
+
+
+                 Hack-Nation × World Bank Youth Summit · Global AI Hackathon 2026 · Page 19
+
+                                                                                                             Official Use Only
+             SMALL AI FOR DEVELOPMENT · Youth Summit × Hack-Nation · Concept Note
+
+
+
+
+UN Tourism statistics        Arrivals, receipts and tourism        Problem-is-real evidence for how
+                             industries by country and year.       much visitor money matters in
+                                                                   your named country.
+
+World Development            International tourism receipts,       A second, citable source, and
+Indicators, tourism          arrivals and expenditure as           one that connects tourism to jobs
+series (World Bank)          country indicators.                   and GDP.
+
+World Bank Enterprise        Firm-level survey data across         Evidence on what actually
+Surveys                      more than 150 economies,              constrains a small operator:
+                             including the smallest firms.         finance, skills, competition,
+                                                                   informality.
+
+OpenStreetMap via            Open map data: accommodation,         The findability baseline: what a
+Overpass                     attractions, roads, points of         visitor searching near Ondera
+                             interest.                             would and would not discover
+                                                                   today.
+
+Wikivoyage                   Openly licensed travel guide text     Multilingual tourism text for
+                             in many languages.                    building or testing what visitors
+                                                                   ask about.
+
+Yelp Open Dataset            Millions of real business reviews,    Real review language for the
+                             released for academic use.            "what did visitors actually like"
+                                                                   analysis; check the license terms
+                                                                   fit your use.
+
+MASSIVE (Amazon)             About one million short               The closest open template for
+                             utterances in 51 languages,           sorting visitor requests into your
+                             labelled by intent.                   fixed list: a price, directions, a
+                                                                   booking.
+
+FLORES-200 / NLLB-200        Translation benchmark and open        The message arrives in a
+(Meta)                       models across 200 languages.          language Noor cannot read; this
+                                                                   is where the reply draft starts.
+
+
+
+
+             Hack-Nation × World Bank Youth Summit · Global AI Hackathon 2026 · Page 20
+
+                                                                                                   Official Use Only
+
