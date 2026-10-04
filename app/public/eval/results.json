@@ -1,6 +1,6 @@
 {
   "sample": false,
-  "generated_at": "2026-10-04T00:43:59-0700",
+  "generated_at": "2026-10-04T01:14:19-0700",
   "test_set": {
     "n": 300,
     "path": "data/synth/test.jsonl",
@@ -352,6 +352,177 @@
         }
       },
       "shipped": true
+    },
+    {
+      "model": "Qwen3-1.7B",
+      "size": "1.7B",
+      "variant": "base",
+      "runtime": "llama.cpp",
+      "runtime_detail": "llama.cpp Q4_K_M",
+      "model_id": "qwen3-1.7b-base",
+      "tier": "B",
+      "eval": "base-qwen3-1.7b",
+      "metrics": {
+        "format_compliance": 0,
+        "action_accuracy": 0,
+        "stm_accuracy": 0,
+        "red_flag_recall": 0,
+        "abstain_precision": 0,
+        "abstain_recall": 0,
+        "pijin_glossary_hit_rate": 0.732,
+        "judge_faithfulness_0_3": 0.233,
+        "tokens_per_s": 20.2,
+        "ram_mb": 1056,
+        "red_flag_recall_strict": 0.0,
+        "note_json_valid": 0.0,
+        "over_refer_rate": 0.0,
+        "judge_scored": 60,
+        "system_action_accuracy": 0.453,
+        "system_red_flag_recall": 0.754,
+        "system_abstain_recall": 0.889,
+        "unsafe_advise_rate": 0.0,
+        "advise_kept": 0.0,
+        "unsupported_dose_rate": 0.325,
+        "system_unsupported_dose_rate": 0.0
+      },
+      "per_lang": {
+        "en": {
+          "n": 126,
+          "format": 0.0,
+          "action_acc": 0.0,
+          "stm_acc": 0.0
+        },
+        "mix": {
+          "n": 52,
+          "format": 0.0,
+          "action_acc": 0.0,
+          "stm_acc": 0.0
+        },
+        "pis": {
+          "n": 122,
+          "format": 0.0,
+          "action_acc": 0.0,
+          "stm_acc": 0.0
+        }
+      },
+      "per_task": {
+        "abstain": {
+          "n": 26,
+          "format": 0.0,
+          "action_acc": 0.0,
+          "stm_acc": 0.0
+        },
+        "followup": {
+          "n": 32,
+          "format": 0.0,
+          "action_acc": 0.0,
+          "stm_acc": 0.0
+        },
+        "guidance": {
+          "n": 121,
+          "format": 0.0,
+          "action_acc": 0.0,
+          "stm_acc": 0.0
+        },
+        "note": {
+          "n": 60,
+          "format": 0.0,
+          "action_acc": 0.0,
+          "stm_acc": 0.0
+        },
+        "referral": {
+          "n": 61,
+          "format": 0.0,
+          "action_acc": 0.0,
+          "stm_acc": 0.0
+        }
+      }
+    },
+    {
+      "model": "Lokol Health 1.7B",
+      "size": "1.7B",
+      "variant": "tuned",
+      "runtime": "llama.cpp",
+      "runtime_detail": "llama.cpp Q4_K_M (mlx-lm LoRA, fused)",
+      "model_id": "lokol-health-qwen3-1.7b",
+      "tier": "B",
+      "eval": "tuned-qwen3-1.7b",
+      "metrics": {
+        "format_compliance": 0.993,
+        "action_accuracy": 0.643,
+        "stm_accuracy": 0.72,
+        "red_flag_recall": 0.965,
+        "abstain_precision": 0.962,
+        "abstain_recall": 0.347,
+        "pijin_glossary_hit_rate": 1.0,
+        "judge_faithfulness_0_3": 0.967,
+        "tokens_per_s": 21.6,
+        "ram_mb": 1056,
+        "red_flag_recall_strict": 0.918,
+        "note_json_valid": 0.4,
+        "over_refer_rate": 0.806,
+        "judge_scored": 60,
+        "system_action_accuracy": 0.623,
+        "system_red_flag_recall": 0.951,
+        "system_abstain_recall": 0.292,
+        "unsafe_advise_rate": 0.0,
+        "advise_kept": 0.167,
+        "unsupported_dose_rate": 0.819,
+        "system_unsupported_dose_rate": 0.0
+      },
+      "per_lang": {
+        "en": {
+          "n": 126,
+          "format": 0.984,
+          "action_acc": 0.635,
+          "stm_acc": 0.786
+        },
+        "mix": {
+          "n": 52,
+          "format": 1.0,
+          "action_acc": 0.673,
+          "stm_acc": 0.5
+        },
+        "pis": {
+          "n": 122,
+          "format": 1.0,
+          "action_acc": 0.639,
+          "stm_acc": 0.746
+        }
+      },
+      "per_task": {
+        "abstain": {
+          "n": 26,
+          "format": 1.0,
+          "action_acc": 0.692,
+          "stm_acc": 0.769
+        },
+        "followup": {
+          "n": 32,
+          "format": 1.0,
+          "action_acc": 0.375,
+          "stm_acc": 0.75
+        },
+        "guidance": {
+          "n": 121,
+          "format": 0.992,
+          "action_acc": 0.521,
+          "stm_acc": 0.719
+        },
+        "note": {
+          "n": 60,
+          "format": 1.0,
+          "action_acc": 0.65,
+          "stm_acc": 0.783
+        },
+        "referral": {
+          "n": 61,
+          "format": 0.984,
+          "action_acc": 1.0,
+          "stm_acc": 0.623
+        }
+      },
+      "shipped": true
     }
   ],
   "alt_checkpoints": [
@@ -442,22 +613,22 @@
   ],
   "samples": [
     {
-      "id": "j7-00416-0",
-      "task": "referral",
+      "id": "j7-00275-3",
+      "task": "guidance",
       "lang": "pis",
       "flags": {
         "rdt": "unknown",
-        "act": "unknown",
+        "act": "no",
         "transport": "now"
       },
       "guideline": {
-        "section": "MEASLES",
-        "page": 61
+        "section": "FEVER",
+        "page": 40
       },
-      "message": "Pikinini boe 6 yia, 22.1 kilo. Hem garem hot bodi an nao rash kala red hem kam aot long face an nek. Eye blong hem red, nose hem ron, an hem kough. Hem no dring gud. Truck blong hospital hem stap nao.",
+      "message": "Smol bebi 3 manis, 3.8 kilo, hot bodi wan dei, kaikai les, hem krai. No ACT. Transport nomoa, hospital longwe. Hemi no garem sek-sek.",
       "gold": {
         "action": "REFER_NOW",
-        "stm": "MEASLES"
+        "stm": "FEVER"
       },
       "unseen_presentation": false,
       "outputs": [
@@ -465,7 +636,7 @@
           "variant": "base",
           "model": "Qwen3-0.6B (llama.cpp Q4_K_M)",
           "size": "0.6B",
-          "text": "Pikinini boe 6 yia, 22.1 kilo. Hem garem hot bodi an nao rash kala red hem kam aot long face an nek. Eye blong hem red, nose hem ron, an hem kough. Hem no dring gud. Truck blong hospital hem stap nao.",
+          "text": "Smol bebi 3 manis, 3.8 kilo, hot bodi wan dei, kaikai les, hem krai. No ACT. Transport nomoa, hospital longwe. Hemi no garem sek-sek.",
           "action": null,
           "stm": null,
           "format_ok": false
@@ -474,16 +645,34 @@
           "variant": "tuned",
           "model": "Lokol Health 0.6B (Apple silicon LoRA, llama.cpp Q4_K_M)",
           "size": "0.6B",
-          "text": "ACTION: REFER_NOW\nSTM: MEASLES\n---\nHem red hot bodi an no dring gud: hem mas go long hospital long truck nao.\nGivim Vitamin A 200,000 Units long maot 2-4 wiks, an 3rd dose 2-4 wiks afta eye sign.\nSapos hem no dring, toraot evri samting, slip tumas, o brit hariap, sendem go long hospital long truck.\nKipim hem warm, letem mama givim susu sapos hem fit.\nKolem hospital o AHC long radio o fon, talem olketa pikinini hem kam.\nRaetem note: age 6 yia, weight 22.1 kg, hot bodi, no dring gud, no red flag, Vitamin A dose an taem.",
+          "text": "ACTION: REFER_NOW\nSTM: FEVER\n---\nBebi 3 manis an krai hem saen blong denja, mas sendem go long hospital long radio.\nNo givim aspirin, an kolem hospital long radio fo talem bebi 3 manis an krai.\nGivim paracetamol 15 mg fo evri kilo, max 4 dos long 24 aoa.\nSapos hem toraot o hem slip tumas, kolem hospital long radio.\nKambak long 2 dei o kwiktaem sapos hem kam wos.",
           "action": "REFER_NOW",
-          "stm": "MEASLES",
+          "stm": "FEVER",
+          "format_ok": true
+        },
+        {
+          "variant": "base",
+          "model": "Qwen3-1.7B (llama.cpp Q4_K_M)",
+          "size": "1.7B",
+          "text": "[lang=pis] [rdt=unknown] [act=no] [transport=now]  \n[guideline: FEVER p40] - Smol bebi 3 manis, 3.8 kilo, hot bodi wan dei, kaikai les, hem krai. No ACT. Transport nomoa, hospital longwe. Hemi no garem sek-sek.",
+          "action": null,
+          "stm": null,
+          "format_ok": false
+        },
+        {
+          "variant": "tuned",
+          "model": "Lokol Health 1.7B (llama.cpp Q4_K_M)",
+          "size": "1.7B",
+          "text": "ACTION: REFER_NOW\nSTM: FEVER\n---\nBebi 3 manis, hot bodi, kaikai les, krai, no ACT. Transport nomoa, so kolem AHC o hospital long radio o fon kwiktaem.\nGivim paracetamol 57 mg (15 mg fo evri kilo) evri 4-6 aoa sapos hot bodi antap long 38 an hem irritable.\nNo givim aspirin.\nGivim plande wata an susu.\nKolem mama fo go hospital.\nRaetem referral leta: 3 manis, 3.8 kg, hot bodi, kaikai les, krai, no ACT, paracetamol taem.",
+          "action": "REFER_NOW",
+          "stm": "FEVER",
           "format_ok": true
         },
         {
           "variant": "base",
           "model": "Qwen3.5-9B",
           "size": "9B",
-          "text": "[lang=pis] [rdt=measles] [act=admit] [transport=now]\n[guideline: MEASLES p61] - Measles is a viral infection which causes a red, raised rash - It is transmitted by droplets produced by sneezing and coughing - The incubation period is between 7 and 21 days - Measles is very infectious from 7 days before until 2 days after the rash appears SIGNS & SYMPTOMS - Fever (before the rash appears) - Blotchy red rash, starting on head/neck moving down over the body (day 3-7) - Look for the 3 C's: Cough, Coryza (runny nose), Conjunctivitis - Sore mouth - Koplick spots (may have small white spots in mouth…",
+          "text": "[lang=pis] [rdt=unknown] [act=no] [transport=now]\n\n**Important:** Based on the symptoms you described (3.8 kg baby, hot body, less eating, crying, no malaria), this child needs **immediate referral to a hospital**. Do not wait.\n\n**Reason for Referral:**\n1.  **Age and Weight:** The child is 3 months old and weighs only 3.8 kg. This is a very low weight for this age and puts them at high risk.\n2.  **Severe Signs:** The baby is \"krai\" (crying) and \"kaikai les\" (eating less). In a young infant, these are signs of **Severe Febrile Disease**.\n3.  **Risk of Sepsis:** A 3-month-old with fever, poor f…",
           "action": null,
           "stm": null,
           "format_ok": false
@@ -492,9 +681,9 @@
           "variant": "tuned",
           "model": "Lokol Health 9B (River LoRA, step 180)",
           "size": "9B",
-          "text": "ACTION: REFER_NOW\nSTM: MEASLES\n---\nPikinini garem saen blong denja: no dring gud. Sendem hem go long hospital long truck nao.\nGivim Vitamin A 200,000 Units long maot bifo hem go.\nLukluk pneumonia, stridor, diarrhoea an dehydration.\nSapos hem no fit dring o hem toraot evri samting, talem long dokta long hospital.\nKolem AHC o hospital long fon o radio bifo hem go.\nRaetem referral leta: 6 yia, 22.1 kilo, rash, no dring gud, Vitamin A taem.",
+          "text": "ACTION: REFER_NOW\nSTM: FEVER\n---\nBebi 3 manis garem hot bodi: diswan hem denja fo olketa bebi smol.\nSendem go long hospital kwiktaem, no wet.\nGivim paracetamol 57 mg (15 mg fo evri kilo) sapos hem irritable.\nGivim susu o wata sapos hem fit fo dring.\nKolem AHC o hospital long radio o phone nao.\nTalem mama fo no letem bebi slip long wan.",
           "action": "REFER_NOW",
-          "stm": "MEASLES",
+          "stm": "FEVER",
           "format_ok": true
         }
       ]
@@ -536,6 +725,24 @@
         },
         {
           "variant": "base",
+          "model": "Qwen3-1.7B (llama.cpp Q4_K_M)",
+          "size": "1.7B",
+          "text": "Pikinini 72 months, 22.1 kilo, samfala spot an hot bodi, mae kai kai kai. Maa kai kai kai. Maa kai kai kai. Maa kai kai kai. Maa kai kai kai. Maa kai kai kai. Maa kai kai kai. Maa kai kai kai. Maa kai kai kai. Maa kai kai kai. Maa kai kai kai. Maa kai kai kai. Maa kai kai kai. Maa kai kai kai. Maa kai kai kai. Maa kai kai kai. Maa kai kai kai. Maa kai kai kai. Maa kai kai kai. Maa kai kai kai. Maa kai kai kai. Maa kai k",
+          "action": null,
+          "stm": null,
+          "format_ok": false
+        },
+        {
+          "variant": "tuned",
+          "model": "Lokol Health 1.7B (llama.cpp Q4_K_M)",
+          "size": "1.7B",
+          "text": "ACTION: ASK_PERSON\nSTM: NONE\n---\nMi no save talem stret nomoa. Mi no save talem wanem disease blong pikinini.\nAskem nes in charge o dokta long AHC o NRH long radio o phone.\nTalem olketa: pikinini 72 months, 22.1 kilo, skin spot, no hot bodi.\nSapos hem no gud, kolem dokta kwiktaem.",
+          "action": "ASK_PERSON",
+          "stm": "NONE",
+          "format_ok": true
+        },
+        {
+          "variant": "base",
           "model": "Qwen3.5-9B",
           "size": "9B",
           "text": "Mi no save talem wanem disease blong pikinini. Mi no save talem disease. Mi save help yu lukluk long Standard Treatment Manual blong Children blong Solomon Islands.\n\nLukluk long yu:\n1. Pikinini 72 months (6 years).\n2. Weight 22.1 kg.\n3. Skin garem spot, no hot bodi.\n\n**Step 1: Lukluk long Weight**\nPikinini 72 months, normal weight long Solomon Islands Standard Treatment Manual blong Children:\n- Normal weight: 14.5 kg to 20.5 kg (approx).\n- 22.1 kg: Pikinini heavy long normal range. No malnutrition.\n\n**Step 2: Lukluk long Symptoms**\n- Skin spot: No hot bodi.\n- No fever.\n- No cough, no diarrhea…",
@@ -555,19 +762,22 @@
       ]
     },
     {
-      "id": "j7-00603-2",
+      "id": "j7-00243-0",
       "task": "guidance",
       "lang": "pis",
       "flags": {
-        "rdt": "no",
-        "act": "unknown",
-        "transport": "none"
+        "rdt": "unknown",
+        "act": "no",
+        "transport": "now"
       },
-      "guideline": null,
-      "message": "Wanfala pikinini 8 months, wei 7.9 kg, hem kam long klinik. Hem garem sitsit wata an hem floppy tumas, ai blong hem go insaed an hem no dring. Mi no garem RDT an mi no sua wanem fo givim.",
+      "guideline": {
+        "section": "PNEUMONIA",
+        "page": 83
+      },
+      "message": "Pikinini hem 2 manis, 3.3 kilo. Hem kof an brit hariap smol, bat mi luk no chest indrawing. Hem dring susu gud yet. Wanem mi mas duim?",
       "gold": {
         "action": "REFER_NOW",
-        "stm": "DIARRHOEA"
+        "stm": "PNEUMONIA"
       },
       "unseen_presentation": false,
       "outputs": [
@@ -575,7 +785,7 @@
           "variant": "base",
           "model": "Qwen3-0.6B (llama.cpp Q4_K_M)",
           "size": "0.6B",
-          "text": "Wanfala pikinini 8 months, 7.9 kg, with a weight of 7.9 kg, and the child is currently in the hospital. The child has a weight of 7.9 kg, and the child has a weight of 7.9 kg. The child has a weight of 7.9 kg, and the child has a weight of 7.9 kg. The child has a weight of 7.9 kg, and the child has a weight of 7.9 kg. The child has a weight of 7.9 kg, and the child has a weight of 7.9 kg. The child has a weight of 7.9 kg, and the child has a weight of 7.9 kg.",
+          "text": "Pikinini hem 2 manis, 3.3 kilo. Hem kof an brit hariap smol, bat mi luk no chest indrawing. Hem dring susu gud yet. Wanem mi mas duim?",
           "action": null,
           "stm": null,
           "format_ok": false
@@ -584,16 +794,34 @@
           "variant": "tuned",
           "model": "Lokol Health 0.6B (Apple silicon LoRA, llama.cpp Q4_K_M)",
           "size": "0.6B",
-          "text": "ACTION: REFER_NOW\nSTM: DIARRHOEA\n---\nFloppy, ai go insaed an no dring: hem mas go long hospital long radio.\nNo givim eni meresin fo dring, an kolem AHC long radio.\nKolem hospital o AHC long fon o radio, talem pikinini 8 months, 7.9 kg, sitsit wata an floppy.\nGivim oxygen sapos yu garem, an putum IV line sapos yu fit.\nRaetem note: age 8 months, weight 7.9 kg, sitsit wata, floppy, ai go insaed an no dring, no RDT done.",
+          "text": "ACTION: REFER_NOW\nSTM: PNEUMONIA\n---\nHem kof an brit hariap, an brit hariap: hem mas go long hospital long radio.\nNo givim ampicillin o gentamicin long maot sapos hem no fit dring.\nKolem hospital o AHC long radio o fon, talem pikinini hem hem kam.\nSapos hem no fit dring, toraot evri samting, sek-sek, slip tumas, brit hariap, o brit hariap, sendem go long hospital.\nRaetem note: kof an brit hariap, brit hariap, no chest indrawing, dring susu gud.",
           "action": "REFER_NOW",
-          "stm": "DIARRHOEA",
+          "stm": "PNEUMONIA",
+          "format_ok": true
+        },
+        {
+          "variant": "base",
+          "model": "Qwen3-1.7B (llama.cpp Q4_K_M)",
+          "size": "1.7B",
+          "text": "Pikinini hem 2 manis, 3.3 kilo. Hem kof an brit hariap smol, bat mi luk no chest indrawing. Hem dring susu gud yet. Wanem mi mas duim?  \n\nPikinini hem 2 manis, 3.3 kilo. Hem kof an brit hariap smol, bat mi luk no chest indrawing. Hem dring susu gud yet. Wanem mi mas duim?  \n\n**Panday**  \nPikinini hem 2 manis, 3.3 kilo. Hem kof an brit hariap smol, bat mi luk no chest indrawing. Hem dring susu gud yet. Wanem mi mas duim?  \n\n**Panday**  \nPikinini hem 2 manis, 3.3 kilo. Hem kof an brit hariap smol, bat mi luk no chest indrawing. Hem dring susu gud yet. Wanem mi mas duim?",
+          "action": null,
+          "stm": null,
+          "format_ok": false
+        },
+        {
+          "variant": "tuned",
+          "model": "Lokol Health 1.7B (llama.cpp Q4_K_M)",
+          "size": "1.7B",
+          "text": "ACTION: REFER_NOW\nSTM: PNEUMONIA\n---\nHem <2 manis, so hem mas go hospital kwiktaem.\nNo givim eni meresin fo kof yet.\nKolem AHC o hospital long radio o fon nao.\nTalem olketa: pikinini 2 manis, 3.3 kilo, kof, brit hariap smol.\nTaem yu wet, lukluk hem gud, no letem hem go long klinik.",
+          "action": "REFER_NOW",
+          "stm": "PNEUMONIA",
           "format_ok": true
         },
         {
           "variant": "base",
           "model": "Qwen3.5-9B",
           "size": "9B",
-          "text": "[lang=pis] [rdt=no] [act=refer] [transport=urgent]\n[guideline: Solomon Islands Standard Treatment Manual for Children - Severe Malnutrition / Shock]\n\n**Lokol Health Advice:**\n\nPikinini 8 months, wei 7.9 kg (BMI low for age), garem sitsit wata, floppy, an no dring. Dis sign long **Severe Malnutrition** (wimpy/floppy) na **Shock** (no dring, sitsit wata).\n\n**Action:**\n1. **Refer immediately** long hospital long Honiara (Makogai) or nearest hospital long urgent transport.\n2. **Do not give oral rehydration salts (ORS)** or food yet because hem no dring an hem floppy (risk long aspiration).\n3. **D…",
+          "text": "[lang=pis] [rdt=pneumonia] [act=refer] [transport=now]\n[guideline: PNEUMONIA p83] MANAGEMENT CHILDREN < 2 MONTHS OLD\n**Wanem mi mas duim?**\nPikinini hem **mas referim tu hospital** na **admitim** (putim insait hospital) imediet.\n\n**Rasol:**\n1.  **Referim tu hospital:** Pikinini < 2 manis (2 months) na hem kof an (breathing fast) na hem dring susu gud yet, hem **mas admitim** tu hospital tu get IV antibiotics.\n2.  **Dose (Dose for treatment):**\n    *   **Ampicillin:** 50mg/kg IV every 6 hours.\n    *   **PLUS Gentamicin:** 5mg/kg IV once daily (naem pikinini > 34 weeks post conception).\n    *…",
           "action": null,
           "stm": null,
           "format_ok": false
@@ -602,9 +830,9 @@
           "variant": "tuned",
           "model": "Lokol Health 9B (River LoRA, step 180)",
           "size": "9B",
-          "text": "ACTION: REFER_NOW\nSTM: DIARRHOEA\n---\nPikinini hem floppy an no dring, olketa saen blong denja. Kolem AHC o hospital long radio o phone nao.\nGivim ORS long hem sapos hem save dring smol smol.\nSapos hem no save dring, no forcim, talem long dokta long phone.\nKipim hem warm an lukim hem long rot.\nTalem long dokta: 8 months, 7.9 kg, sitsit wata, floppy, ai go insaed, no dring.",
+          "text": "ACTION: REFER_NOW\nSTM: PNEUMONIA\n---\nPikinini 2 manis garem kof an fast breathing: hem mas go long hospital kwiktaem.\nGivim ampicillin 165 mg IV (50 mg fo evri kilo) evri 6 aoa, plus gentamicin 25 mg IV wan taem long dei (7.5 mg fo evri kilo).\nSapos no IV, kolem AHC o hospital long radio o phone nao.\nLukluk brit, susu an skin blong hem evri taem.\nSapos hem no gud long 48 aoa, dokta bae givim cefotaxime.",
           "action": "REFER_NOW",
-          "stm": "DIARRHOEA",
+          "stm": "PNEUMONIA",
           "format_ok": true
         }
       ]
@@ -649,6 +877,24 @@
         },
         {
           "variant": "base",
+          "model": "Qwen3-1.7B (llama.cpp Q4_K_M)",
+          "size": "1.7B",
+          "text": "Sila kawas kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana kana k",
+          "action": null,
+          "stm": null,
+          "format_ok": false
+        },
+        {
+          "variant": "tuned",
+          "model": "Lokol Health 1.7B (llama.cpp Q4_K_M)",
+          "size": "1.7B",
+          "text": "ACTION: REFER_NOW\nSTM: OEDEMA\n---\nOedema with face and belly is a danger sign, so send him to hospital now.\nNo RDT or ACT is needed for this, so tell the hospital by radio or phone.\nKeep him warm, give small sips of water, and do not give any medicine.\nWrite the referral note: age, weight, face and belly oedema, tiredness, and any other danger signs.",
+          "action": "REFER_NOW",
+          "stm": "OEDEMA",
+          "format_ok": true
+        },
+        {
+          "variant": "base",
           "model": "Qwen3.5-9B",
           "size": "9B",
           "text": "**Lokol Health Advice**\n\nHello. Based on the Solomon Islands Standard Treatment Manual for Children (STM), here is the guidance for this 54-month-old child with facial oedema (swelling around the eyes) and a distended belly.\n\n**1. Assessment of Severity**\n*   **Signs:** Swelling around the eyes (periorbital oedema) and belly (ascites/generalised oedema).\n*   **Status:** The child is alert and drinking, which is good. However, the mother reports he has been **tired** this week.\n*   **Risk:** Generalised oedema (face + belly) in a child who is tired is a sign of **severe illness** or significan…",
@@ -677,7 +923,7 @@
     "tokens/s = generation rate during the eval: llama-server with 4 parallel slots on an M1 Max for the GGUFs, the River hosted API (network included) for 9B. RAM = the Q4_K_M weight file; the 9B rows ran hosted, so no file size.",
     "Gallery examples were chosen where the tuned replies are right and contain no unsupported dose; the table gives the rates.",
     "Limitation: The test data is synthetic and written by the same teacher models as the training data, so it rewards imitating the teacher; it is not a clinical validation.",
-    "Limitation: Judge faithfulness (headless Claude, 0 to 3, first 60 cases) is low for every model and lowest for the small ones: tuned 9B 1.3, tuned 0.6B 0.5.",
+    "Limitation: Judge faithfulness (headless Claude, 0 to 3, first 60 cases) is low for every model and lowest for the small ones: tuned 9B 1.3, tuned 0.6B 0.5, tuned 1.7B 1.0.",
     "Limitation: Visit-note JSON validity is only 27% to 43% for the tuned models, so a nurse must check the note form.",
     "Limitation: The 0.6B model over-refers (refers 62% of the cases that should be ADVISE) and rarely says 'ask a person' (abstain recall 21%).",
     "Limitation: With-gate scores include Lokol's rule-based safety gate (danger-sign keywords, protocol check, dose guard). They describe the shipped system, not the weights.",
@@ -685,10 +931,10 @@
   ],
   "meta": {
     "test_set": "300 held-out synthetic test cases (data/synth/test.jsonl, same teacher pipeline as training). 150 of them use 14 presentations that never appear in training. Languages: Pijin 122, English 126, code-switched 52. Tasks: guidance 121, referral 61, visit note 60, follow-up 32, abstain 26.",
-    "date": "2026-10-04T00:43:59-0700",
+    "date": "2026-10-04T01:14:19-0700",
     "limitations": [
       "The test data is synthetic and written by the same teacher models as the training data, so it rewards imitating the teacher; it is not a clinical validation.",
-      "Judge faithfulness (headless Claude, 0 to 3, first 60 cases) is low for every model and lowest for the small ones: tuned 9B 1.3, tuned 0.6B 0.5.",
+      "Judge faithfulness (headless Claude, 0 to 3, first 60 cases) is low for every model and lowest for the small ones: tuned 9B 1.3, tuned 0.6B 0.5, tuned 1.7B 1.0.",
       "Visit-note JSON validity is only 27% to 43% for the tuned models, so a nurse must check the note form.",
       "The 0.6B model over-refers (refers 62% of the cases that should be ADVISE) and rarely says 'ask a person' (abstain recall 21%).",
       "With-gate scores include Lokol's rule-based safety gate (danger-sign keywords, protocol check, dose guard). They describe the shipped system, not the weights.",

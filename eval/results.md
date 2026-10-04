@@ -1,6 +1,6 @@
 # Lokol Health eval: base vs tuned
 
-_Generated 2026-10-04T00:43:59-0700 by `pipeline/report_studio.py` from `eval/*.json`._
+_Generated 2026-10-04T01:14:19-0700 by `pipeline/report_studio.py` from `eval/*.json`._
 
 300 held-out synthetic test cases (data/synth/test.jsonl, same teacher pipeline as training). 150 of them use 14 presentations that never appear in training. Languages: Pijin 122, English 126, code-switched 52. Tasks: guidance 121, referral 61, visit note 60, follow-up 32, abstain 26.
 
@@ -14,6 +14,8 @@ _Generated 2026-10-04T00:43:59-0700 by `pipeline/report_studio.py` from `eval/*.
 | Lokol Health 9B (River LoRA, step 180) **(shipped)** | 9B | 97% | 87% / 84% | 79% / 88% | 83% / 75% | 4% | 78% |
 | Qwen3-0.6B | 0.6B | 0% | 0% / 45% | 0% / 75% | 0% / 89% | 0% | 0% |
 | Lokol Health 0.6B (Apple silicon LoRA) **(shipped)** | 0.6B | 98% | 64% / 62% | 92% / 93% | 21% / 22% | 2% | 29% |
+| Qwen3-1.7B | 1.7B | 0% | 0% / 45% | 0% / 75% | 0% / 89% | 0% | 0% |
+| Lokol Health 1.7B **(shipped)** | 1.7B | 99% | 64% / 62% | 92% / 95% | 35% / 29% | 0% | 17% |
 | Lokol Health 9B (River LoRA, step 90) (alt checkpoint) | 9B | 97% | 86% / 82% | 82% / 90% | 68% / 61% | 3% | 75% |
 
 Base models never follow the protocol, so with the gate they only ever refer (danger-sign keyword) or say "ask a person": their with-gate action accuracy comes entirely from the rules, and they never give advice (ADVISE kept 0%).
@@ -26,6 +28,8 @@ Base models never follow the protocol, so with the gate they only ever refer (da
 | Lokol Health 9B (River LoRA, step 180) | 9B | 87% | 84% | 86% | 100% | 43% | 10% | 1.33 (60/60) | 9.1 | hosted |
 | Qwen3-0.6B | 0.6B | 0% | 0% | – | 69% | 0% | 0% | 0.25 (60/60) | 30.1 | 378 MB |
 | Lokol Health 0.6B (Apple silicon LoRA) | 0.6B | 57% | 95% | 88% | 97% | 27% | 62% | 0.50 (60/60) | 29.9 | 378 MB |
+| Qwen3-1.7B | 1.7B | 0% | 0% | – | 73% | 0% | 0% | 0.23 (60/60) | 20.2 | 1056 MB |
+| Lokol Health 1.7B | 1.7B | 72% | 96% | 96% | 100% | 40% | 81% | 0.97 (60/60) | 21.6 | 1056 MB |
 | Lokol Health 9B (River LoRA, step 90) | 9B | 85% | 90% | 94% | 100% | 50% | 15% | 1.41 (59/60) | 9.3 | hosted |
 
 ## Dose audit
@@ -38,13 +42,15 @@ A reply fails when it contains at least one dose (number + mg/mcg/g/ml, per kg o
 | Lokol Health 9B (River LoRA, step 180) | 134 | 84 | 63% | 0% |
 | Qwen3-0.6B | 67 | 17 | 25% | 0% |
 | Lokol Health 0.6B (Apple silicon LoRA) | 109 | 96 | 88% | 0% |
+| Qwen3-1.7B | 40 | 13 | 32% | 0% |
+| Lokol Health 1.7B | 116 | 95 | 82% | 0% |
 | Lokol Health 9B (River LoRA, step 90) | 119 | 76 | 64% | 0% |
 | Teacher reference replies (test set) | 120 | 70 | 58% | – |
 
 ## Limitations
 
 - The test data is synthetic and written by the same teacher models as the training data, so it rewards imitating the teacher; it is not a clinical validation.
-- Judge faithfulness (headless Claude, 0 to 3, first 60 cases) is low for every model and lowest for the small ones: tuned 9B 1.3, tuned 0.6B 0.5.
+- Judge faithfulness (headless Claude, 0 to 3, first 60 cases) is low for every model and lowest for the small ones: tuned 9B 1.3, tuned 0.6B 0.5, tuned 1.7B 1.0.
 - Visit-note JSON validity is only 27% to 43% for the tuned models, so a nurse must check the note form.
 - The 0.6B model over-refers (refers 62% of the cases that should be ADVISE) and rarely says 'ask a person' (abstain recall 21%).
 - With-gate scores include Lokol's rule-based safety gate (danger-sign keywords, protocol check, dose guard). They describe the shipped system, not the weights.

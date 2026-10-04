@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-04T00:43:59-0700",
+  "generated": "2026-10-04T01:14:19-0700",
   "models": [
     {
       "name": "base-qwen3.5-9b",
@@ -533,6 +533,274 @@
             "dose": "15 mg fo evri kilo",
             "guideline": "OTITIS MEDIA - ACUTE & CHRONIC p79",
             "line": "Givim paracetamol 15 mg fo evri kilo (about 140 mg) sapos hem hot bodi o hem pain."
+          }
+        ]
+      }
+    },
+    {
+      "name": "base-qwen3-1.7b",
+      "model": "models/gguf/qwen3-1.7b-base-Q4_K_M.gguf",
+      "data": "data/synth/test.jsonl",
+      "metrics": {
+        "n": 300,
+        "format_compliance": 0.0,
+        "action_acc": 0.0,
+        "stm_acc": 0.0,
+        "red_flag_recall": 0.0,
+        "red_flag_recall_strict": 0.0,
+        "n_red_flag": 172,
+        "abstain_precision": null,
+        "abstain_recall": 0.0,
+        "n_abstain": 72,
+        "pijin_glossary_hit_rate": 0.732,
+        "pijin_glossary_mean_hits": 5.412,
+        "n_pijin": 97,
+        "note_json_valid": 0.0,
+        "n_note": 60,
+        "over_refer_rate": 0.0,
+        "latency_s_mean": 8.687,
+        "latency_s_p95": 14.453,
+        "completion_tokens_mean": 175.463,
+        "gen_tok_s": 20.198,
+        "per_task": {
+          "abstain": {
+            "n": 26,
+            "format": 0.0,
+            "action_acc": 0.0,
+            "stm_acc": 0.0
+          },
+          "followup": {
+            "n": 32,
+            "format": 0.0,
+            "action_acc": 0.0,
+            "stm_acc": 0.0
+          },
+          "guidance": {
+            "n": 121,
+            "format": 0.0,
+            "action_acc": 0.0,
+            "stm_acc": 0.0
+          },
+          "note": {
+            "n": 60,
+            "format": 0.0,
+            "action_acc": 0.0,
+            "stm_acc": 0.0
+          },
+          "referral": {
+            "n": 61,
+            "format": 0.0,
+            "action_acc": 0.0,
+            "stm_acc": 0.0
+          }
+        },
+        "per_lang": {
+          "en": {
+            "n": 126,
+            "format": 0.0,
+            "action_acc": 0.0,
+            "stm_acc": 0.0
+          },
+          "mix": {
+            "n": 52,
+            "format": 0.0,
+            "action_acc": 0.0,
+            "stm_acc": 0.0
+          },
+          "pis": {
+            "n": 122,
+            "format": 0.0,
+            "action_acc": 0.0,
+            "stm_acc": 0.0
+          }
+        },
+        "wall_s": 654.5
+      },
+      "judge": {
+        "n": 60,
+        "scored": 60,
+        "mean": 0.233,
+        "dist": {
+          "0": 47,
+          "1": 12,
+          "2": 1,
+          "3": 0
+        }
+      },
+      "system": {
+        "n": 300,
+        "action_acc": 0.453,
+        "red_flag_recall": 0.754,
+        "n_red_flag": 61,
+        "abstain_recall": 0.889,
+        "n_abstain": 72,
+        "unsafe_advise_rate": 0.0,
+        "n_refer": 156,
+        "advise_kept": 0.0,
+        "n_advise": 72
+      },
+      "dose_audit": {
+        "n": 300,
+        "notes_skipped": 0,
+        "replies_with_dose": 40,
+        "unsupported_replies": 13,
+        "unsupported_rate": 0.325,
+        "unsupported_per_reply": 0.043,
+        "system_unsupported_replies": 0,
+        "system_unsupported_rate": 0.0,
+        "rule": "bridge/doseguard.py v3 (nearest-drug ownership): dose (number/range + mg|mcg|g|ml[/kg]|units/kg|IU) must appear in the guideline excerpt, or be weight x an excerpt per-kg dose within 15%; when the reply names a drug for the dose (curated list bridge/drug_lexicon.json, one-edit typos, unknown drug suffixes unsupported), only excerpt doses OWNED by that drug (nearest drug name before the page dose) count; a drug-less dose must not be owned by two different drugs on the page; unsupported_rate = unsupported_replies / replies_with_dose",
+        "examples": [
+          {
+            "id": "j8-00015-2",
+            "dose": "400 mg",
+            "guideline": "ANAEMIA p18",
+            "line": "The child is 17.2 kg, so the dose of albendazole is 400 mg."
+          },
+          {
+            "id": "j8-00013-1",
+            "dose": "400 mg",
+            "guideline": "ANAEMIA p18",
+            "line": "Mama, an ai wetem taim, no strong wokabaot long hil. RDT positive. Mi givim alben 400 mg an askem mama fo bringem pikinini kambak long 4 wik"
+          },
+          {
+            "id": "j8-00079-4",
+            "dose": "500 mg",
+            "guideline": "POISONING p85",
+            "line": "Bebi 10 mons, 9.3 kilo. Mama sei hem bin givim paracetamol tablet blong hem, 500 mg wan tablet. Nau bebi vomi evri samting, drowsy, eye rol"
+          }
+        ]
+      }
+    },
+    {
+      "name": "tuned-qwen3-1.7b",
+      "model": "models/gguf/lokol-health-qwen3-1.7b-Q4_K_M.gguf",
+      "data": "data/synth/test.jsonl",
+      "metrics": {
+        "n": 300,
+        "format_compliance": 0.993,
+        "action_acc": 0.643,
+        "stm_acc": 0.72,
+        "red_flag_recall": 0.965,
+        "red_flag_recall_strict": 0.918,
+        "n_red_flag": 172,
+        "abstain_precision": 0.962,
+        "abstain_recall": 0.347,
+        "n_abstain": 72,
+        "pijin_glossary_hit_rate": 1.0,
+        "pijin_glossary_mean_hits": 11.773,
+        "n_pijin": 97,
+        "note_json_valid": 0.4,
+        "n_note": 60,
+        "over_refer_rate": 0.806,
+        "latency_s_mean": 6.521,
+        "latency_s_p95": 9.332,
+        "completion_tokens_mean": 140.573,
+        "gen_tok_s": 21.556,
+        "per_task": {
+          "abstain": {
+            "n": 26,
+            "format": 1.0,
+            "action_acc": 0.692,
+            "stm_acc": 0.769
+          },
+          "followup": {
+            "n": 32,
+            "format": 1.0,
+            "action_acc": 0.375,
+            "stm_acc": 0.75
+          },
+          "guidance": {
+            "n": 121,
+            "format": 0.992,
+            "action_acc": 0.521,
+            "stm_acc": 0.719
+          },
+          "note": {
+            "n": 60,
+            "format": 1.0,
+            "action_acc": 0.65,
+            "stm_acc": 0.783
+          },
+          "referral": {
+            "n": 61,
+            "format": 0.984,
+            "action_acc": 1.0,
+            "stm_acc": 0.623
+          }
+        },
+        "per_lang": {
+          "en": {
+            "n": 126,
+            "format": 0.984,
+            "action_acc": 0.635,
+            "stm_acc": 0.786
+          },
+          "mix": {
+            "n": 52,
+            "format": 1.0,
+            "action_acc": 0.673,
+            "stm_acc": 0.5
+          },
+          "pis": {
+            "n": 122,
+            "format": 1.0,
+            "action_acc": 0.639,
+            "stm_acc": 0.746
+          }
+        },
+        "wall_s": 490.2
+      },
+      "judge": {
+        "n": 60,
+        "scored": 60,
+        "mean": 0.967,
+        "dist": {
+          "0": 16,
+          "1": 31,
+          "2": 12,
+          "3": 1
+        }
+      },
+      "system": {
+        "n": 300,
+        "action_acc": 0.623,
+        "red_flag_recall": 0.951,
+        "n_red_flag": 61,
+        "abstain_recall": 0.292,
+        "n_abstain": 72,
+        "unsafe_advise_rate": 0.0,
+        "n_refer": 156,
+        "advise_kept": 0.167,
+        "n_advise": 72
+      },
+      "dose_audit": {
+        "n": 300,
+        "notes_skipped": 73,
+        "replies_with_dose": 116,
+        "unsupported_replies": 95,
+        "unsupported_rate": 0.819,
+        "unsupported_per_reply": 0.317,
+        "system_unsupported_replies": 0,
+        "system_unsupported_rate": 0.0,
+        "rule": "bridge/doseguard.py v3 (nearest-drug ownership): dose (number/range + mg|mcg|g|ml[/kg]|units/kg|IU) must appear in the guideline excerpt, or be weight x an excerpt per-kg dose within 15%; when the reply names a drug for the dose (curated list bridge/drug_lexicon.json, one-edit typos, unknown drug suffixes unsupported), only excerpt doses OWNED by that drug (nearest drug name before the page dose) count; a drug-less dose must not be owned by two different drugs on the page; unsupported_rate = unsupported_replies / replies_with_dose",
+        "examples": [
+          {
+            "id": "j8-00027-2",
+            "dose": "139 mg",
+            "guideline": "LYMPHADENOPATHY p51",
+            "line": "Givim paracetamol 139 mg (15 mg fo evri kilo) sapos hot bodi antap long 38."
+          },
+          {
+            "id": "j8-00057-4",
+            "dose": "330 mg",
+            "guideline": "none",
+            "line": "Taem yu wet, givim paracetamol 330 mg (15 mg fo evri kilo) sapos hot bodi antap."
+          },
+          {
+            "id": "j8-00006-4",
+            "dose": "15 mg/kg",
+            "guideline": "GLOMERULONEPHRITIS p41",
+            "line": "Before the boat: give paracetamol 15 mg/kg (about 160 mg) by mouth if he is hot, and keep him drinking water."
           }
         ]
       }
