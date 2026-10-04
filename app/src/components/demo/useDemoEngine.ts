@@ -52,6 +52,23 @@ export function useOnline() {
 }
 
 /** Resolves which pack to run, loads the runtime, reports per-role download progress, then warms the voice in the background. */
+// ?size=1.7b swaps the pack's language model for the tuned 1.7B (4-8 GB phones, laptops). The engine resolves it
+// Hub -> /local-models -> tuned 0.6B -> base, so the demo still runs if the bigger file is not reachable.
+export const LLM_SIZES = [
+  { key: "0.6b", label: "0.6B", detail: "400 MB, 2-3 GB phones" },
+  { key: "1.7b", label: "1.7B", detail: "1.1 GB, 4-8 GB phones" },
+] as const;
+function withLlmSize(m: Manifest, size: string | null): Manifest {
+  if (size !== "1.7b") return m;
+  const file = "lokol-health-qwen3-1.7b-Q4_K_M.gguf";
+  const llm = { id: "lokol-health-qwen3-1.7b", label: "Lokol Health 1.7B", role: "llm", tuned: true, base_model: "Qwen/Qwen3-1.7B", file,
+    url: `https://huggingface.co/VictorChenCA/lokol-health-qwen3-1.7b-gguf/resolve/main/${file}`, size_mb: 1107, license: "Apache-2.0", runtime: "wllama" };
+  const isLlm = (x: any) => x?.role === "llm" || /\.gguf$/.test(x?.file ?? "");
+  const models = [...(m.models ?? []).filter((x: any) => !isLlm(x)), llm] as any;
+  const graph = m.graph ? { ...m.graph, nodes: m.graph.nodes.map((n: any) => (n.type === "llm" ? { ...n, model: llm } : n)) } : m.graph;
+  return { ...m, models, graph } as Manifest;
+}
+
 export function useDemoEngine() {
   const location = useLocation();
   const [params] = useSearchParams();
@@ -68,13 +85,14 @@ export function useDemoEngine() {
 
   const graph = (location.state as { graph?: Graph } | null)?.graph;
   const packParam = params.get("pack");
+  const sizeParam = params.get("size");
 
   useEffect(() => {
     let alive = true;
     (async () => {
       if (graph) {
         setPackNote("Running the graph you opened from the Studio.");
-        return alive && setManifest(buildManifest(graph));
+        return alive && setManifest(withLlmSize(buildManifest(graph), sizeParam));
       }
       const url = packParam || PACK_URL;
       try {
@@ -82,23 +100,23 @@ export function useDemoEngine() {
           const { getPack } = await import("../../runtime/corpus_builder");
           const saved = await getPack(url.slice(4));
           if (!saved) throw new Error("not saved on this device");
-          if (alive) setManifest(saved.manifest as unknown as Manifest);
+          if (alive) setManifest(withLlmSize(saved.manifest as unknown as Manifest, sizeParam));
           return;
         }
         const r = await fetch(url);
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         const m = (await r.json()) as Manifest;
-        if (alive) setManifest(m);
+        if (alive) setManifest(withLlmSize(m, sizeParam));
       } catch (e) {
         if (!alive) return;
         setPackNote(`Could not open the pack at ${url} (${(e as Error).message}). Running the built-in Lokol Health pack.`);
-        setManifest(buildManifest(HEALTH_GRAPH));
+        setManifest(withLlmSize(buildManifest(HEALTH_GRAPH), sizeParam));
       }
     })();
     return () => {
       alive = false;
     };
-  }, [graph, packParam]);
+  }, [graph, packParam, sizeParam]);
 
   useEffect(() => {
     if (!manifest) return;

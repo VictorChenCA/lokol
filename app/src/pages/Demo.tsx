@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import type { Action, Chunk, Flags } from "../types";
 import { ACTION_META, SAMPLES, guessTask, type Sample, type Task } from "../components/demo/copy";
 import { ReplyCard, UserBubble, type BotMsg, type Msg, type VoiceState } from "../components/demo/ReplyCard";
 import { Composer, ConnectivityChip, FlagChips, LoadCard, ModelChip, RuntimeFooter } from "../components/demo/parts";
 import { PipelinePanel } from "../components/demo/PipelinePanel";
-import { useDemoEngine, useInstallPrompt, useOnline } from "../components/demo/useDemoEngine";
+import { LLM_SIZES, useDemoEngine, useInstallPrompt, useOnline } from "../components/demo/useDemoEngine";
 import { PIS_APPROX_NOTE, TalkBar, VOICE_IN_KEY, VoiceInPicker, type TalkPhase, type VoiceIn } from "../components/demo/TalkPanel";
 import { listenOnce, pcmToWav, type ListenHandle } from "../runtime/vad";
 
@@ -30,6 +30,7 @@ function citeChunk(stm: string | null | undefined, chunks: Chunk[]): Chunk | nul
 export default function Demo() {
   const online = useOnline();
   const { manifest, packNote, engine, source, progress, error, status, loadMs, refreshStatus, retry } = useDemoEngine();
+  const [searchParams, setSearchParams] = useSearchParams();
   const customPack = Boolean(manifest && (manifest as { corpus_inline?: unknown }).corpus_inline);
   const install = useInstallPrompt();
   const shim = source === "shim";
@@ -472,6 +473,18 @@ export default function Demo() {
           <div className="mt-3 flex flex-wrap items-center gap-1.5">
             <ConnectivityChip online={online} />
             <ModelChip llm={status?.llm} shim={shim} loading={!ready && !error} />
+            <span className="ml-1 inline-flex overflow-hidden rounded-full border border-line text-[12px]" role="group" aria-label="Model size">
+              {LLM_SIZES.map((sz) => {
+                const on = (searchParams.get("size") ?? "0.6b") === sz.key;
+                return (
+                  <button key={sz.key} type="button" title={sz.detail} aria-pressed={on} disabled={busy}
+                    onClick={() => { const next = new URLSearchParams(searchParams); if (sz.key === "0.6b") next.delete("size"); else next.set("size", sz.key); setSearchParams(next, { replace: true }); }}
+                    className={`px-2.5 py-1 font-medium transition ${on ? "bg-ink text-white" : "bg-card text-ink-2 hover:bg-sand"}`}>
+                    {sz.label}
+                  </button>
+                );
+              })}
+            </span>
           </div>
         </header>
 

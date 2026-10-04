@@ -36,6 +36,11 @@ const LLM_TUNED_08B: ModelRef[] = [
   { id: 'lokol-health-qwen3.5-0.8b', label: 'Lokol Health 0.8B', tuned: true, base_model: 'Qwen/Qwen3.5-0.8B', role: 'llm', file: 'lokol-health-0.8b-Q4_K_M.gguf', url: '/local-models/lokol-health-0.8b-Q4_K_M.gguf', size_mb: 529, license: 'Apache-2.0', runtime: 'wllama', note: 'local copy (dev server)' },
 ];
 const LLM_BASE_08B: ModelRef = { id: 'qwen3.5-0.8b-base', label: 'Qwen3.5 0.8B base (untuned)', tuned: false, base_model: 'Qwen/Qwen3.5-0.8B', role: 'llm', file: 'Qwen3.5-0.8B-Q4_0.gguf', url: `${HF}/ggml-org/Qwen3.5-0.8B-GGUF/resolve/main/Qwen3.5-0.8B-Q4_0.gguf`, size_mb: 563, license: 'Apache-2.0', runtime: 'wllama', note: 'untuned base model' };
+const TUNED_17B_FILE = 'lokol-health-qwen3-1.7b-Q4_K_M.gguf';
+const LLM_TUNED_17B: ModelRef[] = [
+  { id: 'lokol-health-qwen3-1.7b', label: 'Lokol Health 1.7B', tuned: true, base_model: 'Qwen/Qwen3-1.7B', role: 'llm', file: TUNED_17B_FILE, url: `${HF}/VictorChenCA/lokol-health-qwen3-1.7b-gguf/resolve/main/${TUNED_17B_FILE}`, size_mb: 1107, license: 'Apache-2.0', runtime: 'wllama' },
+  { id: 'lokol-health-qwen3-1.7b', label: 'Lokol Health 1.7B', tuned: true, base_model: 'Qwen/Qwen3-1.7B', role: 'llm', file: TUNED_17B_FILE, url: `/local-models/${TUNED_17B_FILE}`, size_mb: 1107, license: 'Apache-2.0', runtime: 'wllama', note: 'local copy (dev server)' },
+];
 const LLM_BASE_17B: ModelRef = { id: 'qwen3-1.7b-base', label: 'Qwen3 1.7B base (untuned)', tuned: false, base_model: 'Qwen/Qwen3-1.7B', role: 'llm', file: 'Qwen3-1.7B-Q4_K_M.gguf', url: `${HF}/ggml-org/Qwen3-1.7B-GGUF/resolve/main/Qwen3-1.7B-Q4_K_M.gguf`, size_mb: 1107, license: 'Apache-2.0', runtime: 'wllama', note: 'untuned base model' };
 const TTS_PIS: ModelRef[] = [
   { id: 'mms-tts-pis', label: 'MMS Pijin voice', role: 'tts_pis', file: 'onnx/model_quantized.onnx', url: 'VictorChenCA/lokol-mms-tts-pis-onnx', size_mb: 38, license: 'CC-BY-NC-4.0', runtime: 'transformersjs', dtype: 'q8' },
@@ -57,7 +62,8 @@ export const KNOWN_SOURCES: Record<string, ModelRef[]> = {
   'qwen3-0.6b-base': [LLM_BASE_06B],
   'lokol-health-qwen3.5-0.8b': [...LLM_TUNED_08B, LLM_BASE_08B],
   'qwen3.5-0.8b-base': [LLM_BASE_08B],
-  'lokol-health-qwen3-1.7b': [LLM_BASE_17B],
+  // tuned 1.7B (Hub, then local); if neither is reachable, the tuned 0.6B beats an untuned base model
+  'lokol-health-qwen3-1.7b': [...LLM_TUNED_17B, ...LLM_TUNED_06B, LLM_BASE_17B],
   'qwen3-1.7b-base': [LLM_BASE_17B],
   'mms-tts-pis': TTS_PIS,
 };
