@@ -18,8 +18,8 @@ export function PipelinePanel({ status, last, hits, shim, voiceLabel }: { status
       body: hits.length ? (
         <ul className="space-y-0.5">
           {hits.slice(0, 3).map((h, i) => (
-            <li key={h.id} className={`flex justify-between gap-2 ${i === 0 ? "text-ink" : "text-ink-3"}`}>
-              <span className="truncate capitalize">{h.section.toLowerCase()} p{h.page}</span>
+            <li key={h.id} className={`flex justify-between gap-2 ${i === 0 ? "text-white" : "text-white/55"}`}>
+              <span className="truncate"><span className="capitalize">{h.section.toLowerCase()}</span>, p.{h.page}</span>
               {h.score !== undefined && <span className="tabular-nums">{h.score.toFixed(1)}</span>}
             </li>
           ))}

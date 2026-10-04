@@ -68,6 +68,7 @@ export interface GateResult {
   overridden: boolean;
   reason: string | null;
   original: ParsedReply;
+  unsupported_doses?: string[]; // doses the dose guard removed (not found in the cited manual page)
 }
 
 export type Runtime = 'wllama' | 'transformersjs' | 'llama-server' | 'river' | 'python';

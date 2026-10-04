@@ -132,7 +132,12 @@ export function computeBudget(g: Graph): Budget {
   } else if (diskRatio > 0.8) {
     worst("tight");
     reasons.push(`Storage is tight: ${gb(disk_mb)} of about ${gb(storage_free_mb)} free.`);
+  } else {
+    reasons.push(`Storage: ${gb(disk_mb)} of about ${gb(storage_free_mb, 0)} likely free.`);
   }
+  const hostedRows = rows.filter((r) => r.hosted);
+  if (!internetOn(g)) reasons.push("Internet is off: every node runs on the device and nothing is sent anywhere.");
+  else if (hostedRows.length) reasons.push(`${hostedRows.map((r) => r.label).join(", ")} run${hostedRows.length === 1 ? "s" : ""} on River when there is signal, so nothing to download for ${hostedRows.length === 1 ? "it" : "them"}.`);
   const issueList = Object.values(issues);
   if (issueList.length) {
     const hard = rows.some((r) => r.issue && !/Internet is off/.test(r.issue));

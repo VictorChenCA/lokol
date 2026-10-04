@@ -4,8 +4,8 @@ import { PRESETS } from "./data/presets";
 import { NODE_META, getModel, ref } from "./models";
 import { autoLayout, COL_W, stageIndex } from "./components/studio/layout";
 
-// v2: catalog ids changed (lokol-health-qwen3-*) and the canvas moved to stage columns.
-const KEY = "lokol.studio.graph.v2";
+// v3: catalog ids changed (lokol-health-qwen3-*) and the canvas moved to stage columns.
+const KEY = "lokol.studio.graph.v3";
 
 function load(): Graph {
   try {
@@ -129,7 +129,7 @@ export const useStudio = create<StudioState>((set, get) => {
                     ? { kinds: ["pwa"], direction: "out" }
                     : {},
         online: false,
-        position: position ?? { x: stage * COL_W, y: Number.isFinite(maxY) ? maxY + 176 : 0 }
+        position: position ?? { x: stage * COL_W, y: Number.isFinite(maxY) ? maxY + 230 : 0 }
       };
       commit({ ...g, nodes: [...g.nodes, node] }, { selectedId: id, flash: { ids: [id], nonce: Date.now() } });
       return id;

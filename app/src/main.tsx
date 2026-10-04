@@ -1,3 +1,4 @@
+import "./devMute"; // dev-only: silence voice playback unless ?sound=on
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";

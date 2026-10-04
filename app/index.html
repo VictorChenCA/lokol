@@ -4,16 +4,29 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#102C3C" />
-    <meta name="description" content="Lokol Studio: build small, offline AI packs for frontline workers from a node graph, then export a deploy pack for the phone they already have." />
+    <title>Lokol Studio</title>
+    <meta name="description" content="Lokol Studio builds small offline AI from nodes that are each their own trained model, recommends what fits a phone, and deploys it as a pack. First pack: Lokol Health, Pijin and English guidance for Solomon Islands nurse aides." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Lokol Studio" />
+    <meta property="og:url" content="%VITE_PWA_URL%/" />
+    <meta property="og:title" content="Lokol Studio: build small AI that runs where the signal does not" />
+    <meta property="og:description" content="Compose offline AI from small trained models, check what fits a phone, train custom nodes, deploy as a pack. Smol AI blong iumi." />
+    <meta property="og:image" content="%VITE_PWA_URL%/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Lokol Studio" />
+    <meta name="twitter:description" content="Build small AI that runs where the signal does not. Smol AI blong iumi." />
+    <meta name="twitter:image" content="%VITE_PWA_URL%/og.png" />
     <link rel="icon" type="image/svg+xml" href="/icons/lokol.svg" />
-    <link rel="apple-touch-icon" href="/icons/lokol-192.png" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet" />
-    <title>Lokol Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   </head>
   <body>
     <div id="root"></div>
+    <noscript>Lokol Studio needs JavaScript to run the models on this device.</noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

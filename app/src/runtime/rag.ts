@@ -154,6 +154,27 @@ export function expandQuery(query: string): { tokens: string[]; expansions: Reco
 
 interface Posting { df: number; tf: Map<number, number> }
 
+// Chief-complaint priors: a nurse's message names one main problem; the manual has one section for it.
+// When the message names it, chunks of that section get a fixed boost, and a hit from it counts as
+// guideline support even when a long message dilutes concept coverage. Order = priority.
+export const SECTION_PRIORS: { re: RegExp; sections: string[]; boost: number }[] = [
+  { re: /\b(convuls\w*|seizures?|fits?|fitting|sek[- ]?sek)\b/i, sections: ['CONVULSIONS'], boost: 4 },
+  { re: /\b(diarrh\w*|sitsit|sit sit|loose stools?|watery stools?)\b/i, sections: ['DIARRHOEA'], boost: 5 },
+  { re: /\b(cough\w*|kof|kofkof|pneumonia|fast breath\w*|brit hariap)\b/i, sections: ['PNEUMONIA', 'COLDS/ URTI'], boost: 4 },
+  { re: /\b(fever|febrile|hot ?bodi|temperature|malaria|rdt|coartem|artemether|act)\b/i, sections: ['MALARIA', 'FEVER'], boost: 5 },
+  { re: /\b(burns?|scald\w*|bon long)\b/i, sections: ['BURNS AND SCALDS'], boost: 4 },
+  { re: /\b(ear|ia)\s+(pain|discharge|sore|soa|wata)\b/i, sections: ['OTITIS MEDIA - ACUTE & CHRONIC'], boost: 4 },
+  { re: /\b(sores?|rash|scabies|boils?|skin|soa)\b/i, sections: ['SKIN DISEASES'], boost: 3 },
+  { re: /\b(wasting|malnutrition|underweight|tin tumas|muac)\b/i, sections: ['MALNUTRITION'], boost: 4 },
+  { re: /\b(vaccin\w*|immunis\w*|immuniz\w*|injection schedule|nila)\b/i, sections: ['IMMUNISATION', 'SOLOMON ISLANDS IMMUNISATION SCHEDULE'], boost: 4 },
+];
+
+export function priorSections(query: string): Set<string> {
+  const out = new Set<string>();
+  for (const p of SECTION_PRIORS) if (p.re.test(query)) p.sections.forEach((s) => out.add(s));
+  return out;
+}
+
 export class BM25Index {
   readonly chunks: Chunk[];
   readonly sections: SectionInfo[];
@@ -210,7 +231,7 @@ export class BM25Index {
 
   // hits carry score; coverage = share of the message's concepts (word or Pijin phrase, or one of its
   // English expansions) that occur in the hit, so a Pijin query against the English manual still counts
-  searchDetailed(query: string, k = 5): { hits: (Chunk & { matched: string[]; coverage: number })[]; terms: string[] } {
+  searchDetailed(query: string, k = 5): { hits: (Chunk & { matched: string[]; coverage: number; prior: boolean })[]; terms: string[] } {
     const { tokens, weights, concepts } = expandQuery(query);
     if (!tokens.length) return { hits: [], terms: [] };
     const N = this.chunks.length;
@@ -228,19 +249,26 @@ export class BM25Index {
         scores[doc] += w * idf * ((tf * (this.k1 + 1)) / (tf + this.k1 * (1 - this.b + (this.b * dl) / this.avgLen)));
       }
     }
+    const priors = new Map<string, number>();
+    for (const p of SECTION_PRIORS) if (p.re.test(query)) for (const sec of p.sections) priors.set(sec, Math.max(priors.get(sec) ?? 0, p.boost));
+    if (priors.size) for (let i = 0; i < N; i++) {
+      const b = priors.get(this.chunks[i].section.toUpperCase());
+      if (b && scores[i] > 0) scores[i] += b;
+    }
     const order: number[] = [];
     for (let i = 0; i < N; i++) if (scores[i] > 0) order.push(i);
     order.sort((a, b) => scores[b] - scores[a]);
     const hits = order.slice(0, k).map((i) => {
       const matched = concepts.filter((c) => c.tokens.some((t) => this.postings.get(t)?.tf.has(i))).map((c) => c.label);
-      return { ...this.chunks[i], score: Number(scores[i].toFixed(4)), matched, coverage: concepts.length ? Number((matched.length / concepts.length).toFixed(2)) : 0 };
+      return { ...this.chunks[i], score: Number(scores[i].toFixed(4)), matched, coverage: concepts.length ? Number((matched.length / concepts.length).toFixed(2)) : 0, prior: priors.has(this.chunks[i].section.toUpperCase()) };
     });
     return { hits, terms: [...seen] };
   }
 
   // "Is the top hit real guideline support?" Used by the engine before it cites a chunk.
-  static supports(hit: { score?: number; coverage?: number } | undefined): boolean {
+  static supports(hit: { score?: number; coverage?: number; prior?: boolean } | undefined): boolean {
     if (!hit) return false;
+    if (hit.prior && (hit.score ?? 0) >= BM25Index.MIN_SCORE + 5) return true; // the section the complaint names
     return (hit.score ?? 0) >= BM25Index.MIN_SCORE && (hit.coverage ?? 1) >= BM25Index.MIN_COVERAGE;
   }
 

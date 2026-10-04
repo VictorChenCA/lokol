@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { BM25Index, expandQuery } from '../rag';
 import { RED_FLAGS, detectRedFlags, parseReply, gate, buildUserTurn, formatReply } from '../gate';
 import type { Flags } from '../types';
+import { runDoseGuardTests } from './doseguard.cases';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const corpus = JSON.parse(readFileSync(resolve(here, '../../../public/packs/health/corpus.json'), 'utf8'));
@@ -94,6 +95,9 @@ t('gate clamps to 6 lines', gate('fever', long, { flags: flagsEnNow, guideline: 
 t('buildUserTurn format', buildUserTurn(flagsPis, r1[0], 'hot bodi').startsWith('[lang=pis] [rdt=yes] [act=yes] [transport=next_boat]\n[guideline: '));
 t('buildUserTurn none', buildUserTurn(flagsPis, null, 'x').includes('[guideline: none] none'));
 t('formatReply roundtrip', parseReply(formatReply({ action: 'REFER_NOW', stm: null, body: 'go' })).action === 'REFER_NOW');
+
+// dose guard (doseguard.ts; shared cases with bridge/tests/test_doseguard.py)
+runDoseGuardTests(t);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

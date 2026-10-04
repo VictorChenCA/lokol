@@ -3,6 +3,11 @@ import { BASE_COLOR, HEADLINE, TUNED_COLOR, fmtMetric, type Group, type MetricDe
 
 /** One metric as a dumbbell: base dot, tuned dot, the gap between them. */
 function Dumbbell({ m, base, tuned }: { m: MetricDef; base?: number; tuned?: number }) {
+  const notRun = m.key === "judge_faithfulness_0_3" && !base && !tuned;
+  if (notRun) {
+    base = undefined;
+    tuned = undefined;
+  }
   const has = (v?: number) => v !== undefined && v !== null && !Number.isNaN(v);
   const b = has(base) ? (base as number) / m.max : null;
   const t = has(tuned) ? (tuned as number) / m.max : null;
@@ -46,16 +51,19 @@ function Dumbbell({ m, base, tuned }: { m: MetricDef; base?: number; tuned?: num
         )}
       </div>
       <div className="flex items-baseline justify-start gap-2 sm:justify-end">
-        <span className="text-[13px] tabular-nums text-[#8A5A08]">{fmtMetric(m, base)}</span>
-        <span className="text-ink-4" aria-hidden>
-          to
-        </span>
-        <span className="font-display text-[26px] font-bold leading-none tabular-nums text-ink">{fmtMetric(m, tuned)}</span>
+        {!notRun && (
+          <>
+            <span className="text-[13px] tabular-nums text-[#8A5A08]">{fmtMetric(m, base)}</span>
+            <span className="text-ink-4" aria-hidden>
+              to
+            </span>
+          </>
+        )}
+        <span className="font-display text-[26px] font-bold leading-none tabular-nums text-ink">{notRun ? <span className="text-[15px] font-semibold text-ink-3">judge not run</span> : fmtMetric(m, tuned)}</span>
         {pts !== null && (
           <span className={`ml-1 text-[12px] font-semibold tabular-nums ${up ? "text-reef-deep" : "text-hibiscus"}`}>
             {pts > 0 ? "+" : ""}
             {pts}
-            {m.max === 1 ? "" : ""}
           </span>
         )}
       </div>

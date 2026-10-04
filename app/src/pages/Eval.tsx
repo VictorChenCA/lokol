@@ -23,7 +23,8 @@ function Block({ id, title, pis, lede, children }: { id: string; title: string; 
 type SamplesDoc = { sample?: boolean; note?: string; samples: EvalSample[] };
 
 export default function Eval() {
-  const res = useJson<EvalResults>(["/eval/results.json", "/eval/results.sample.json"], {
+  const forceSample = typeof window !== "undefined" && new URLSearchParams(window.location.search).has("sample");
+  const res = useJson<EvalResults>(forceSample ? ["/eval/results.sample.json"] : ["/eval/results.json", "/eval/results.sample.json"], {
     validate: (j) => Array.isArray((j as EvalResults)?.rows) && (j as EvalResults).rows.length > 0
   });
   const sampleDoc = useJson<SamplesDoc>(["/eval/samples.sample.json"], { validate: (j) => Array.isArray((j as SamplesDoc)?.samples) });
@@ -209,7 +210,7 @@ export default function Eval() {
           lede="What the numbers look like as replies. The base model writes a friendly essay; the app and the safety gate need a decision, a citation and six short lines."
         >
           {gallery.length ? (
-            <Gallery samples={gallery} isSample={!realSamples} note={sampleDoc.data?.note} />
+            <Gallery samples={gallery} isSample={!realSamples} note={sampleDoc.data?.note} size={g.size} />
           ) : (
             <p className="text-[14px] text-ink-3">No example replies in results.json yet.</p>
           )}

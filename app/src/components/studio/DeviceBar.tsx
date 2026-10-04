@@ -161,9 +161,9 @@ export function DeviceBar({ onRecommend, busy }: { onRecommend: () => void; busy
       <RamBar b={b} />
       <DiskBar b={b} />
       <div className="lk-dl" title={`Mobile data at SBD ${SBD_PER_GB} per GB (${BUNDLE_SOURCE}); 3G at about 2 Mbps.`}>
-        <span className="lk-dl__k">One-time download</span>
-        <span className="lk-dl__v">
-          {gb(b.download_mb)} <em>{duration(b.minutes_3g)} on 3G, SBD {b.sbd < 1 ? b.sbd.toFixed(2) : b.sbd.toFixed(1)}</em>
+        <span className="lk-dl__v">{gb(b.download_mb)} download, once</span>
+        <span className="lk-dl__k">
+          {duration(b.minutes_3g)} on 3G, SBD {b.sbd < 1 ? b.sbd.toFixed(2) : b.sbd.toFixed(1)} of data
         </span>
       </div>
       <div className="lk-sep" />

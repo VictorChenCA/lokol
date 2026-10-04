@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { Suspense, lazy, useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { PRESETS, SECTOR_COPY } from "../data/presets";
 import { getModel } from "../models";
@@ -19,9 +19,9 @@ import {
   slug,
   totalMb
 } from "../pack";
-import { GraphView } from "../components/GraphView";
 import {
   Badge,
+  Boundary,
   Callout,
   Chip,
   CodeBlock,
@@ -36,6 +36,20 @@ import {
   toast
 } from "../components/ui";
 import type { Manifest, Sector } from "../types";
+
+
+// The graph preview is lazy and fenced, so this page still works if the canvas bundle is slow or fails.
+const GraphViewLazy = lazy(() => import("../components/GraphView").then((m) => ({ default: m.GraphView })));
+function SafeGraph({ graph, height }: { graph: import("../types").Graph; height: number }) {
+  const box = <div className="grid place-items-center rounded-xl border border-line bg-white/60 text-[13px] text-ink-3" style={{ height }}>Graph preview unavailable. Open it in Studio.</div>;
+  return (
+    <Boundary fallback={box}>
+      <Suspense fallback={<div className="animate-pulse rounded-xl border border-line bg-white/60" style={{ height }} />}>
+        <GraphViewLazy graph={graph} height={height} />
+      </Suspense>
+    </Boundary>
+  );
+}
 
 const SECTORS: Sector[] = ["health", "agriculture", "tourism"];
 
@@ -75,18 +89,19 @@ async function probeBridge(): Promise<Bridge> {
       clearTimeout(t);
     }
   };
+  // An opaque request first: one failed request when nothing is listening.
+  try {
+    await attempt({ mode: "no-cors" });
+  } catch {
+    return { state: "down" };
+  }
   try {
     const r = await attempt({});
     if (r.ok) return { state: "up", health: (await r.json()) as BridgeHealth };
   } catch {
-    /* CORS or not running: try an opaque request to tell the two apart */
+    /* listening, but the browser may not read it (CORS) */
   }
-  try {
-    await attempt({ mode: "no-cors" });
-    return { state: "reachable" };
-  } catch {
-    return { state: "down" };
-  }
+  return { state: "reachable" };
 }
 
 function useBridge() {
@@ -194,10 +209,10 @@ function Target({
   );
 }
 
-function Steps({ children }: { children: ReactNode[] }) {
+function Steps({ items }: { items: ReactNode[] }) {
   return (
     <ol className="space-y-2.5">
-      {children.map((c, i) => (
+      {items.map((c, i) => (
         <li key={i} className="flex gap-3 text-[14.5px] leading-relaxed text-ink-2">
           <span className="mt-[1px] grid h-6 w-6 shrink-0 place-items-center rounded-full border border-line bg-white text-[12px] font-semibold text-ink">{i + 1}</span>
           <span className="min-w-0">{c}</span>
@@ -227,23 +242,22 @@ function PhoneTarget({ m, qr }: { m: Manifest; qr: string }) {
       title="Phone app (offline PWA)"
       pis="Long fon, no nid signal"
       badges={<><Badge tone="palm" dot>Works offline</Badge><Badge tone="white">{mb(totalMb(m))} once</Badge></>}
-      className="lg:col-span-2"
     >
-      <div className="grid gap-6 md:grid-cols-[220px_1fr]">
+      <div className="grid gap-5 sm:grid-cols-[176px_1fr]">
         <div className="text-center">
-          <div className="mx-auto w-[200px] rounded-2xl border border-line bg-white p-2.5 shadow-card">
+          <div className="mx-auto w-[176px] rounded-2xl border border-line bg-white p-2 shadow-card">
             {qr ? <img src={qr} alt={`QR code that opens ${m.graph.name} on a phone`} className="block w-full" width={180} height={180} /> : <div className="aspect-square w-full animate-pulse rounded-lg bg-sand" />}
           </div>
           <p className="mt-2 text-[12.5px] text-ink-3">Scan with the phone camera</p>
         </div>
         <div className="min-w-0">
-          <Steps>
-            {[
+          <Steps
+            items={[
               <>Scan the code, or open the link in Chrome on Android or Safari on iPhone.</>,
               <>Wait once, with signal, while {mb(totalMb(m))} of models download. They stay cached on the phone.</>,
               <>Tap <b className="font-semibold text-ink">Add to home screen</b>. From then on it opens and answers in airplane mode.</>
             ]}
-          </Steps>
+          />
           <div className="mt-4 flex min-w-0 items-center gap-1 rounded-lg border border-line bg-white py-1 pl-3 pr-1">
             <a href={url} className="min-w-0 flex-1 truncate font-mono text-[12.5px] text-reef" title={url}>{url}</a>
             <CopyButton text={url} dark={false} />
@@ -266,15 +280,15 @@ function AndroidTarget({ m }: { m: Manifest }) {
     <Target icon="android" title="Android, native" pis="GGUF long PocketPal" badges={<><Badge tone="palm" dot>Works offline</Badge>{llm && <Badge tone="white">{mb(llm.size_mb)}</Badge>}</>}>
       {llm ? (
         <>
-          <Steps>
-            {[
+          <Steps
+            items={[
               <>Install <b className="font-semibold text-ink">PocketPal AI</b> from Google Play.</>,
               <>
                 Copy <Inline>{llm.file}</Inline> to the phone by USB or SD card, or download it inside PocketPal{repo ? <> from <a className="link" href={`https://huggingface.co/${repo}`} target="_blank" rel="noreferrer">{repo}</a></> : null}.
               </>,
               <>In <b className="font-semibold text-ink">Models</b>, add the local file and load it. Paste the system prompt below into the chat settings.</>
             ]}
-          </Steps>
+          />
           <div className="mt-4 overflow-hidden rounded-xl border border-line bg-sand/60">
             <div className="flex items-center justify-between border-b border-line-2 px-3 py-1">
               <span className="text-[12px] font-medium text-ink-3">System prompt</span>
@@ -305,7 +319,10 @@ function LaptopTarget({ m, bridge, check }: { m: Manifest; bridge: Bridge; check
       title="Laptop or clinic PC"
       pis="Long laptop blong klinik"
       badges={<><Badge tone="palm" dot>Works offline</Badge>{model && <Badge tone="white">{mb(model.size_mb)}</Badge>}</>}
+      className="lg:col-span-2"
     >
+      <div className="grid gap-5 lg:grid-cols-[1fr_340px]">
+      <div className="min-w-0">
       {big && packModel && big.id !== packModel.id && (
         <div className="mb-3">
           <Segmented
@@ -320,11 +337,13 @@ function LaptopTarget({ m, bridge, check }: { m: Manifest; bridge: Bridge; check
         </div>
       )}
       <CodeBlock code={laptopCommands(model)} title="From the Lokol repo folder" />
-      <p className="mt-3 text-[13px] leading-relaxed text-ink-3">
-        llama-server answers on port 8080; the bridge reads it for WhatsApp and Messenger, and the sidecar adds Pijin speech (Omnilingual ASR, MMS-TTS). A 16 GB laptop runs the 9B.
-      </p>
-      <div className="mt-4">
+      </div>
+      <div className="min-w-0 space-y-3">
         <BridgeStatus bridge={bridge} check={check} />
+        <p className="text-[13px] leading-relaxed text-ink-3">
+          llama-server answers on port 8080. The bridge reads it for WhatsApp and Messenger, and the sidecar adds Pijin speech (Omnilingual ASR in, MMS-TTS out). A 16 GB laptop runs the 9B; any laptop runs the phone models.
+        </p>
+      </div>
       </div>
     </Target>
   );
@@ -334,14 +353,14 @@ function WhatsAppTarget({ bridge, check }: { bridge: Bridge; check: () => void }
   const base = bridge.state === "up" && bridge.health.public_base_url ? bridge.health.public_base_url.replace(/\/$/, "") : "<PUBLIC_BASE_URL>";
   return (
     <Target icon="whatsapp" title="WhatsApp" pis="Tok long WhatsApp" badges={<><Badge tone="reef" dot>Needs signal</Badge><Badge tone="white">Twilio Sandbox</Badge></>}>
-      <Steps>
-        {[
+      <Steps
+        items={[
           <>Start the bridge on the laptop, then a tunnel: <Inline copy>cloudflared tunnel --url http://localhost:8090</Inline>. Put the https address in <code className="font-mono text-[12.5px]">.env</code> as <code className="font-mono text-[12.5px]">PUBLIC_BASE_URL</code>.</>,
           <>In WhatsApp, send your sandbox join code (<Inline>join two-words</Inline>, shown in the Twilio console) to <b className="font-semibold text-ink">{TWILIO_SANDBOX_NUMBER}</b>.</>,
           <>Twilio console, Messaging, Try it out, Sandbox settings: set <b className="font-semibold text-ink">When a message comes in</b> to <Inline copy>{`${base}/twilio/whatsapp`}</Inline> with POST.</>,
           <>Send <Inline>/help</Inline>, then a nurse message. Voice notes are transcribed by the sidecar and answered with text and a Pijin voice note.</>
         ]}
-      </Steps>
+      />
       <p className="mt-3 text-[13px] leading-relaxed text-ink-3">The sandbox only answers numbers that joined, and membership lapses after 72 hours. Messages go through the laptop's model, never a cloud LLM.</p>
       <div className="mt-auto pt-4">
         <BridgeStatus bridge={bridge} check={check} />
@@ -360,14 +379,14 @@ function MessengerTarget({ bridge }: { bridge: Bridge }) {
       pis="Tok long Messenger"
       badges={<><Badge tone="reef" dot>Needs signal</Badge>{bridge.state === "up" && <Badge tone={ready ? "palm" : "white"}>{ready ? "Page token set" : "No page token"}</Badge>}</>}
     >
-      <Steps>
-        {[
+      <Steps
+        items={[
           <>At developers.facebook.com create an app (type Business) and add the <b className="font-semibold text-ink">Messenger</b> product.</>,
           <>Messenger settings, Access tokens: add a Page you manage, generate a token, save it as <code className="font-mono text-[12.5px]">META_PAGE_TOKEN</code>.</>,
           <>Webhooks: callback URL <Inline copy>{`${base}/messenger/webhook`}</Inline>, verify token = your <code className="font-mono text-[12.5px]">META_VERIFY_TOKEN</code> (default <Inline>lokol-verify</Inline>). Subscribe the Page to <b className="font-semibold text-ink">messages</b>.</>,
           <>Message the Page from Messenger. In development mode only app admins and testers get replies.</>
         ]}
-      </Steps>
+      />
       <p className="mt-3 text-[13px] leading-relaxed text-ink-3">Messaging in Solomon Islands leans towards Messenger, so the bridge treats it as a first-class channel next to WhatsApp.</p>
     </Target>
   );
@@ -519,7 +538,7 @@ export default function Packs() {
         {view === "targets" && (
           <div className="space-y-10">
             <section aria-labelledby="t-offline">
-              <h2 id="t-offline" className="flex items-baseline gap-3 font-display text-[22px] font-bold">
+              <h2 id="t-offline" className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 font-display text-[22px] font-bold">
                 Runs with no signal <span className="text-[14px] font-normal text-ink-3" lang="pis">No nid signal</span>
               </h2>
               <div className="mt-4 grid gap-5 lg:grid-cols-2">
@@ -529,7 +548,7 @@ export default function Packs() {
               </div>
             </section>
             <section aria-labelledby="t-online">
-              <h2 id="t-online" className="flex items-baseline gap-3 font-display text-[22px] font-bold">
+              <h2 id="t-online" className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 font-display text-[22px] font-bold">
                 Chat channels <span className="text-[14px] font-normal text-ink-3">need a signal, model stays on the laptop</span>
               </h2>
               <div className="mt-4 grid gap-5 lg:grid-cols-2">
@@ -548,7 +567,7 @@ export default function Packs() {
         {view === "graph" && (
           <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
             <div className="min-w-0">
-              <GraphView graph={current.graph} height={360} />
+              <SafeGraph graph={current.graph} height={360} />
             </div>
             <div className="card min-w-0 overflow-hidden">
               <h3 className="border-b border-line-2 px-4 py-3 font-display text-[16px] font-bold">Model files</h3>

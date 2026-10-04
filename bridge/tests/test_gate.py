@@ -61,6 +61,14 @@ def test_red_flags_match(msg, expected):
         "2 year old, cough 3 days, breathing rate 52, no chest indrawing, drinking well",  # negated
         "pikinini kof, nomoa fit, hem dring gud",  # negated Pijin
         "no convulsions, not lethargic, no stiff neck, without bleeding",
+        # negated phrases from app/src/runtime/gate.ts stripNegated(): app and bridge must agree
+        "Pikinini 3 yia, hot bodi tu dei, no kaikai gud. No fit.",
+        "Visit note: no danger signs, RDT positive",
+        "pikinini hot bodi, nogat fit, hem dring gud",
+        "pikinini kof, nomoa sek-sek",
+        "fever 2 days, neva fit, no stiff neck",
+        "child 3 years, fever, no any fits, eating ok",
+        "pikinini hot bodi, nating sek-sek, no blad",
     ],
 )
 def test_red_flags_no_false_positive(msg):
@@ -70,6 +78,8 @@ def test_red_flags_no_false_positive(msg):
 
 def test_negation_does_not_mask_a_real_flag():
     assert "convulsions" in _ids("no cough but had a convulsion last night")
+    assert "convulsions" in _ids("nogat kof, hem sek-sek tude")
+    assert "bleeding" in _ids("Pikinini 3 yia, hem blad i kam aot")
     assert "breathing_danger" in _ids("not drinking well and chest indrawing present")
 
 

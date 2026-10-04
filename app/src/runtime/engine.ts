@@ -2,7 +2,7 @@
 import type { AskResult, Chunk, EngineStatus, Flags, GateResult, GenerateOptions, Graph, Lang, LiveModel, LoadProgress, Manifest, ModelRef, ModelStatus, ParsedReply } from './types';
 import { DEFAULT_FLAGS } from './types';
 import { BM25Index, excerpt, loadCorpus } from './rag';
-import { SYSTEM_PROMPT, buildUserTurn, gate as runGate, parseReply } from './gate';
+import { SYSTEM_PROMPT, buildUserTurn, gate as runGate, parseReply, stripNegated } from './gate';
 import { WllamaLLM, checkUrl, type ChatResult } from './llm';
 import { PijinTTS, EnglishTTS, toAudioBuffer, type PCM } from './tts';
 import { STT, STT_SUPPORT } from './stt';
@@ -52,7 +52,8 @@ export const DEFAULT_FALLBACKS: Record<Role, ModelRef[]> = {
 // Shared catalogue ids (app/src/models.ts) -> where the browser can actually get them. A graph from the
 // Studio carries only one URL per node; this gives it the same Hub -> local -> base chain as the pack.
 export const KNOWN_SOURCES: Record<string, ModelRef[]> = {
-  'lokol-health-qwen3-0.6b': [...LLM_TUNED_06B, LLM_BASE_06B],
+  // tuned 0.6B first; if it is not reachable, the tuned 0.8B beats an untuned base model
+  'lokol-health-qwen3-0.6b': [...LLM_TUNED_06B, ...LLM_TUNED_08B, LLM_BASE_06B],
   'qwen3-0.6b-base': [LLM_BASE_06B],
   'lokol-health-qwen3.5-0.8b': [...LLM_TUNED_08B, LLM_BASE_08B],
   'qwen3.5-0.8b-base': [LLM_BASE_08B],
@@ -132,6 +133,8 @@ function prettyLabel(ref: ModelRef): string {
   if (ref.label) return ref.label;
   return ref.id.replace(/-q4.*$/i, '').replace(/[-_]/g, ' ');
 }
+
+const PIS_VOICE_FALLBACK = 'tts_pis: Pijin voice unavailable; reading Pijin with the English voice (Kokoro)';
 
 export class Engine {
   readonly manifest: Manifest;
@@ -257,8 +260,9 @@ export class Engine {
     return this.stt!.transcribe(audio, lang);
   }
 
+  // Negated signs ("no fit") are dropped before search so they do not pull in the CONVULSIONS section.
   async retrieve(query: string, k = 3): Promise<Chunk[]> {
-    return this.index.searchDetailed(query, k).hits;
+    return this.index.searchDetailed(stripNegated(query), k).hits;
   }
 
   buildPrompt(flags: Flags, guideline: Chunk | null, message: string): { system: string; user: string } {
@@ -288,7 +292,7 @@ export class Engine {
 
   // Convenience for the Demo page: retrieve -> generate -> gate in one call.
   async ask(message: string, flags: Flags = DEFAULT_FLAGS, opts: GenerateOptions = {}): Promise<AskResult> {
-    const chunks = this.index.searchDetailed(message, 3).hits;
+    const chunks = this.index.searchDetailed(stripNegated(message), 3).hits;
     const top = chunks[0];
     const guideline = BM25Index.supports(top as any) ? top : null;
     const { user } = this.buildPrompt(flags, guideline, message);
@@ -305,8 +309,11 @@ export class Engine {
 
   async speakPCM(text: string, lang: Lang = 'pis', onProgress?: ProgressCb): Promise<PCM> {
     if (lang === 'pis') {
-      if (!this.ttsPis) await this.loadModel('tts_pis', onProgress);
-      return this.ttsPis!.speak(text);
+      if (!this.ttsPis && !this.errors.has('tts_pis')) await this.loadModel('tts_pis', onProgress).catch(() => null);
+      if (this.ttsPis) return this.ttsPis.speak(text);
+      // Pijin voice unavailable (e.g. the ONNX export is not on the Hub yet): Pijin is English-lexified,
+      // so the English voice reading the Pijin text is understandable. Said in status notes.
+      if (!this.notes.includes(PIS_VOICE_FALLBACK)) this.notes.push(PIS_VOICE_FALLBACK);
     }
     if (!this.ttsEn) await this.loadModel('tts_en', onProgress);
     return this.ttsEn!.speak(text);

@@ -6,6 +6,7 @@ import { useStudio } from "../store";
 import { useTrace } from "./studio/trace";
 import { NodeIcon, Icon } from "./studio/icons";
 import { TracePreview } from "./studio/TracePreview";
+import { stageIndex } from "./studio/layout";
 import "./studio/studio.css";
 
 export type LokolNodeData = {
@@ -158,17 +159,19 @@ function NodeCardInner({ data, selected }: NodeProps<LokolNode>) {
           <NodeIcon type={node.type} size={17} />
         </span>
         <div className="lk-head__text">
-          <div className="lk-type">
-            {meta.name} <span>{meta.pijin}</span>
+          <div className="lk-head__row">
+            <span className="lk-type">
+              {meta.name} <span>{meta.pijin}</span>
+            </span>
+            <span className={`lk-net ${hosted ? "is-hosted" : online ? "is-online" : "is-offline"}`} title={hosted ? "Hosted on River: needs a signal" : online ? "May use the internet when there is a signal" : "Runs on the device"}>
+              <span className="lk-net__dot" />
+              {hosted ? "River" : online ? "Online" : "Offline"}
+            </span>
           </div>
           <div className="lk-title" title={node.label}>
             {node.label}
           </div>
         </div>
-        <span className={`lk-net ${hosted ? "is-hosted" : online ? "is-online" : "is-offline"}`} title={hosted ? "Hosted on River: needs a signal" : online ? "May use the internet when there is a signal" : "Runs on the device"}>
-          <span className="lk-net__dot" />
-          {hosted ? "River" : online ? "Online" : "Offline"}
-        </span>
       </header>
       <div className="lk-body">
         <Body node={node} />
@@ -198,7 +201,7 @@ function NodeCardInner({ data, selected }: NodeProps<LokolNode>) {
           )}
         </div>
       )}
-      {openPreview === node.id && step?.detail && <TracePreview nodeId={node.id} />}
+      {openPreview === node.id && step?.detail && <TracePreview nodeId={node.id} side={stageIndex(node) >= 3 ? "left" : "right"} />}
     </div>
   );
 }

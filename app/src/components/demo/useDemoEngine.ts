@@ -111,7 +111,9 @@ export function useDemoEngine() {
         const rt = await getRuntime();
         if (!alive) return;
         setSource(rt.source);
-        const eng = (await (rt.loadPack as any)(manifest, onProgress, { excerpt_tokens: 220 })) as RichEngine;
+        // ?threads=N pins the wllama thread count (default: cores - 1, max 6; fewer is faster on a busy machine)
+        const threads = Number(new URLSearchParams(location.search).get("threads")) || undefined;
+        const eng = (await (rt.loadPack as any)(manifest, onProgress, { excerpt_tokens: 220, llm: threads ? { n_threads: threads } : undefined })) as RichEngine;
         if (!alive) return;
         setLoadMs(Math.round(performance.now() - startedAt.current));
         (window as any).__lokolEngine = eng; // debugging hook: inspect status() / notes from the console

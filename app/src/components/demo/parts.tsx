@@ -119,6 +119,10 @@ export function Composer({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    if (!value) {
+      el.style.height = "46px";
+      return;
+    }
     el.style.height = "0px";
     el.style.height = `${Math.min(140, Math.max(46, el.scrollHeight))}px`;
   }, [value]);
@@ -157,7 +161,7 @@ export function Composer({
             }
           }}
           disabled={!ready || recording}
-          placeholder={recording ? "" : !ready ? "Loading the pack" : pis ? "Raetem long Pijin o English" : "Describe the child: age, signs, how long"}
+          placeholder={recording ? "" : !ready ? "Loading the pack" : pis ? "Raetem long Pijin o English" : "Age, signs, how long"}
           aria-label="Message"
           className="block w-full resize-none rounded-[22px] border border-line bg-white px-4 py-[11px] text-[16px] leading-snug text-ink placeholder:text-ink-3 focus:border-reef focus:outline-none focus:ring-2 focus:ring-reef/20 disabled:bg-white/70"
         />
@@ -187,7 +191,9 @@ const ORDER = ["corpus", "llm", "tts_pis", "tts_en", "stt"];
 
 export function LoadCard({ progress, error, onRetry, shim, sizes }: { progress: Record<string, Progress>; error: string | null; onRetry: () => void; shim: boolean; sizes: Record<string, number> }) {
   const rows = Object.entries(progress).sort((a, b) => ORDER.indexOf(a[0]) - ORDER.indexOf(b[0]));
-  const totalMb = Object.values(sizes).reduce((s, n) => s + n, 0);
+  // prefer what is actually downloading (a fallback model can differ from the pack's first choice)
+  const live = ["llm", "tts_pis"].map((k) => progress[k]?.total_mb || sizes[k] || 0);
+  const totalMb = live.reduce((s, n) => s + n, 0);
   return (
     <section className="rounded-2xl border border-line bg-white p-4 shadow-card" aria-live="polite">
       <div className="flex items-start gap-3">

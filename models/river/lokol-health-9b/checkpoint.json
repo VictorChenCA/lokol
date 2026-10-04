@@ -57,6 +57,48 @@
         "secs": 10.2
       },
       "loss": 0.6034816863227895
+    },
+    {
+      "step": 120,
+      "inference": "river://a1fa006b-60ca-4457-b809-5fcbd9d63264/sampler_weights/lokol-health-9b-s120-inf",
+      "training": "river://a1fa006b-60ca-4457-b809-5fcbd9d63264/weights/lokol-health-9b-s120-train",
+      "val": {
+        "n": 40,
+        "format": 0.975,
+        "action_acc": 0.925,
+        "stm_acc": 0.9,
+        "exact": 0.825,
+        "secs": 9.1
+      },
+      "loss": 0.6407663822174072
+    },
+    {
+      "step": 150,
+      "inference": "river://a1fa006b-60ca-4457-b809-5fcbd9d63264/sampler_weights/lokol-health-9b-s150-inf",
+      "training": "river://a1fa006b-60ca-4457-b809-5fcbd9d63264/weights/lokol-health-9b-s150-train",
+      "val": {
+        "n": 40,
+        "format": 0.925,
+        "action_acc": 0.875,
+        "stm_acc": 0.925,
+        "exact": 0.825,
+        "secs": 11.5
+      },
+      "loss": 0.6854642629623413
+    },
+    {
+      "step": 180,
+      "inference": "river://a1fa006b-60ca-4457-b809-5fcbd9d63264/sampler_weights/lokol-health-9b-s180-inf",
+      "training": "river://a1fa006b-60ca-4457-b809-5fcbd9d63264/weights/lokol-health-9b-s180-train",
+      "val": {
+        "n": 40,
+        "format": 1.0,
+        "action_acc": 0.825,
+        "stm_acc": 0.9,
+        "exact": 0.75,
+        "secs": 9.1
+      },
+      "loss": 0.4415128827095032
     }
   ],
   "data": "data/synth/train.jsonl",

@@ -131,7 +131,7 @@ export const CATALOG: CatalogModel[] = [
     file: "lokol-health-qwen3.5-9b-Q4_K_M.gguf",
     url: `${HF}/VictorChenCA/lokol-health-qwen3.5-9b-gguf/resolve/main/lokol-health-qwen3.5-9b-Q4_K_M.gguf`,
     hf_repo: "VictorChenCA/lokol-health-qwen3.5-9b-gguf",
-    size_mb: 5500,
+    size_mb: 5632,
     ram_mb: 6100,
     license: "Apache-2.0",
     runtime: "llama-server",

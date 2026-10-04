@@ -14,7 +14,8 @@ export function LossChart({
   color = "#0F7B88",
   height = 180,
   compact = false,
-  label = "Training loss"
+  label = "Training loss",
+  best
 }: {
   loss: LossPoint[];
   valLoss?: LossPoint[];
@@ -25,6 +26,8 @@ export function LossChart({
   height?: number;
   compact?: boolean;
   label?: string;
+  /** Step of the best checkpoint; its label is drawn bold. */
+  best?: number;
 }) {
   const uid = useId().replace(/:/g, "");
   const W = compact ? 340 : 640;
@@ -117,7 +120,14 @@ export function LossChart({
           <g key={`v${v.step}`}>
             <line x1={x(v.step)} x2={x(v.step)} y1={pad.t} y2={pad.t + ih} stroke="#E9A93A" strokeDasharray="3 4" strokeOpacity="0.8" />
             {!compact && v.exact !== undefined && (
-              <text x={x(v.step) + 4} y={pad.t + 10} fontSize="10.5" fill="#8A5A08">
+              <text
+                x={x(v.step) > W - pad.r - 40 ? x(v.step) - 4 : x(v.step) + 4}
+                textAnchor={x(v.step) > W - pad.r - 40 ? "end" : "start"}
+                y={pad.t + 10}
+                fontSize="10.5"
+                fill="#8A5A08"
+                fontWeight={best === v.step ? 700 : 400}
+              >
                 {i === 0 ? "ACTION+STM " : ""}{Math.round((v.exact ?? 0) * 100)}%
               </text>
             )}

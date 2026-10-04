@@ -1,58 +1,58 @@
 {
-  "generated": "2026-10-03T22:10:30",
+  "generated": "2026-10-03T23:48:17-0700",
   "models": [
     {
-      "name": "base-0.8b-stub",
-      "model": "models/gguf/qwen3.5-0.8b-base-Q4_K_M.gguf",
-      "data": "data/stub/val.jsonl,data/stub/test.jsonl",
+      "name": "base-qwen3.5-9b",
+      "model": "base",
+      "data": "data/synth/test.jsonl",
       "metrics": {
-        "n": 20,
+        "n": 300,
         "format_compliance": 0.0,
         "action_acc": 0.0,
         "stm_acc": 0.0,
         "red_flag_recall": 0.0,
         "red_flag_recall_strict": 0.0,
-        "n_red_flag": 7,
+        "n_red_flag": 172,
         "abstain_precision": null,
         "abstain_recall": 0.0,
-        "n_abstain": 2,
-        "pijin_glossary_hit_rate": 0.222,
-        "pijin_glossary_mean_hits": 1.667,
-        "n_pijin": 9,
+        "n_abstain": 72,
+        "pijin_glossary_hit_rate": 0.454,
+        "pijin_glossary_mean_hits": 2.711,
+        "n_pijin": 97,
         "note_json_valid": 0.0,
-        "n_note": 2,
+        "n_note": 60,
         "over_refer_rate": 0.0,
-        "latency_s_mean": 7.743,
-        "latency_s_p95": 12.137,
-        "completion_tokens_mean": 181,
-        "gen_tok_s": 23.377,
+        "latency_s_mean": 12.005,
+        "latency_s_p95": 29.349,
+        "completion_tokens_mean": 216.167,
+        "gen_tok_s": 18.006,
         "per_task": {
           "abstain": {
-            "n": 2,
+            "n": 26,
             "format": 0.0,
             "action_acc": 0.0,
             "stm_acc": 0.0
           },
           "followup": {
-            "n": 2,
+            "n": 32,
             "format": 0.0,
             "action_acc": 0.0,
             "stm_acc": 0.0
           },
           "guidance": {
-            "n": 8,
+            "n": 121,
             "format": 0.0,
             "action_acc": 0.0,
             "stm_acc": 0.0
           },
           "note": {
-            "n": 2,
+            "n": 60,
             "format": 0.0,
             "action_acc": 0.0,
             "stm_acc": 0.0
           },
           "referral": {
-            "n": 6,
+            "n": 61,
             "format": 0.0,
             "action_acc": 0.0,
             "stm_acc": 0.0
@@ -60,106 +60,616 @@
         },
         "per_lang": {
           "en": {
-            "n": 9,
+            "n": 126,
+            "format": 0.0,
+            "action_acc": 0.0,
+            "stm_acc": 0.0
+          },
+          "mix": {
+            "n": 52,
             "format": 0.0,
             "action_acc": 0.0,
             "stm_acc": 0.0
           },
           "pis": {
-            "n": 11,
+            "n": 122,
             "format": 0.0,
             "action_acc": 0.0,
             "stm_acc": 0.0
           }
         },
-        "wall_s": 39.3
+        "wall_s": 467.7
       },
-      "judge": null
+      "judge": {
+        "n": 60,
+        "scored": 41,
+        "mean": 1.049,
+        "dist": {
+          "0": 4,
+          "1": 31,
+          "2": 6,
+          "3": 0
+        }
+      },
+      "system": {
+        "n": 300,
+        "action_acc": 0.453,
+        "red_flag_recall": 0.754,
+        "n_red_flag": 61,
+        "abstain_recall": 0.889,
+        "n_abstain": 72,
+        "unsafe_advise_rate": 0.0,
+        "n_refer": 156,
+        "advise_kept": 0.0,
+        "n_advise": 72
+      },
+      "dose_audit": {
+        "n": 300,
+        "notes_skipped": 0,
+        "replies_with_dose": 63,
+        "unsupported_replies": 28,
+        "unsupported_rate": 0.444,
+        "unsupported_per_reply": 0.093,
+        "system_unsupported_replies": 0,
+        "system_unsupported_rate": 0.0,
+        "rule": "bridge/doseguard.py: dose (number/range + mg|mcg|g|ml[/kg]|units/kg|IU) must appear in the guideline excerpt, or be weight x an excerpt per-kg dose within 15%; unsupported_rate = unsupported_replies / replies_with_dose",
+        "examples": [
+          {
+            "id": "j8-00032-0",
+            "dose": "4ml",
+            "guideline": "BURNS AND SCALDS p27",
+            "line": "*   **Extra Fluid Needed:** 4ml for every 1% of burn."
+          },
+          {
+            "id": "j8-00009-3",
+            "dose": "10 mg/kg",
+            "guideline": "CONJUNCTIVITIS, ORBITAL CELLULITIS (PRE-SEPTAL & SEPTAL) p32",
+            "line": "*   **Dose**: 10 mg/kg of Artemether and 20 mg/kg of Lumefantrine."
+          },
+          {
+            "id": "j8-00015-2",
+            "dose": "10ml",
+            "guideline": "ANAEMIA p18",
+            "line": "*   **Frequency:** Give this dose twice daily (total 10ml/day) for 3 months."
+          }
+        ]
+      }
     },
     {
-      "name": "tuned-0.8b-stub30",
-      "model": "models/gguf/lokol-health-0.8b-Q4_K_M.gguf",
-      "data": "data/stub/val.jsonl,data/stub/test.jsonl",
+      "name": "tuned-qwen3.5-9b-s180",
+      "model": "river://a1fa006b-60ca-4457-b809-5fcbd9d63264/sampler_weights/lokol-health-9b-s180-inf",
+      "data": "data/synth/test.jsonl",
       "metrics": {
-        "n": 20,
-        "format_compliance": 0.9,
-        "action_acc": 0.6,
-        "stm_acc": 0.9,
-        "red_flag_recall": 0.429,
-        "red_flag_recall_strict": 0.333,
-        "n_red_flag": 7,
-        "abstain_precision": null,
-        "abstain_recall": 0.0,
-        "n_abstain": 2,
-        "pijin_glossary_hit_rate": 0.222,
-        "pijin_glossary_mean_hits": 1.333,
-        "n_pijin": 9,
-        "note_json_valid": 0.0,
-        "n_note": 2,
-        "over_refer_rate": 0.0,
-        "latency_s_mean": 4.947,
-        "latency_s_p95": 16.083,
-        "completion_tokens_mean": 56.45,
-        "gen_tok_s": 11.412,
+        "n": 300,
+        "format_compliance": 0.97,
+        "action_acc": 0.87,
+        "stm_acc": 0.87,
+        "red_flag_recall": 0.837,
+        "red_flag_recall_strict": 0.787,
+        "n_red_flag": 172,
+        "abstain_precision": 0.857,
+        "abstain_recall": 0.833,
+        "n_abstain": 72,
+        "pijin_glossary_hit_rate": 1.0,
+        "pijin_glossary_mean_hits": 13.979,
+        "n_pijin": 97,
+        "note_json_valid": 0.433,
+        "n_note": 60,
+        "over_refer_rate": 0.097,
+        "latency_s_mean": 15.753,
+        "latency_s_p95": 58.746,
+        "completion_tokens_mean": 143.68,
+        "gen_tok_s": 9.121,
         "per_task": {
           "abstain": {
-            "n": 2,
+            "n": 26,
             "format": 1.0,
-            "action_acc": 0.0,
+            "action_acc": 1.0,
             "stm_acc": 1.0
           },
           "followup": {
-            "n": 2,
+            "n": 32,
             "format": 1.0,
-            "action_acc": 1.0,
-            "stm_acc": 1.0
+            "action_acc": 0.812,
+            "stm_acc": 0.812
           },
           "guidance": {
-            "n": 8,
-            "format": 1.0,
-            "action_acc": 1.0,
-            "stm_acc": 0.875
+            "n": 121,
+            "format": 0.95,
+            "action_acc": 0.81,
+            "stm_acc": 0.884
           },
           "note": {
-            "n": 2,
-            "format": 1.0,
-            "action_acc": 0.5,
-            "stm_acc": 1.0
+            "n": 60,
+            "format": 0.967,
+            "action_acc": 0.867,
+            "stm_acc": 0.9
           },
           "referral": {
-            "n": 6,
-            "format": 0.667,
-            "action_acc": 0.167,
-            "stm_acc": 0.833
+            "n": 61,
+            "format": 0.984,
+            "action_acc": 0.967,
+            "stm_acc": 0.787
           }
         },
         "per_lang": {
           "en": {
-            "n": 9,
-            "format": 0.889,
-            "action_acc": 0.556,
-            "stm_acc": 0.778
+            "n": 126,
+            "format": 0.937,
+            "action_acc": 0.833,
+            "stm_acc": 0.873
+          },
+          "mix": {
+            "n": 52,
+            "format": 1.0,
+            "action_acc": 0.923,
+            "stm_acc": 0.827
           },
           "pis": {
-            "n": 11,
-            "format": 0.909,
-            "action_acc": 0.636,
-            "stm_acc": 1.0
+            "n": 122,
+            "format": 0.992,
+            "action_acc": 0.885,
+            "stm_acc": 0.885
           }
         },
-        "wall_s": 52.0
+        "wall_s": 593.2
       },
-      "judge": null
-    }
-  ],
-  "bench": {
-    "base-0.8B": {
-      "pp256": 493.23,
-      "tg64": 45.94
+      "judge": {
+        "n": 60,
+        "scored": 60,
+        "mean": 1.333,
+        "dist": {
+          "0": 1,
+          "1": 42,
+          "2": 13,
+          "3": 4
+        }
+      },
+      "system": {
+        "n": 300,
+        "action_acc": 0.837,
+        "red_flag_recall": 0.885,
+        "n_red_flag": 61,
+        "abstain_recall": 0.75,
+        "n_abstain": 72,
+        "unsafe_advise_rate": 0.045,
+        "n_refer": 156,
+        "advise_kept": 0.778,
+        "n_advise": 72
+      },
+      "dose_audit": {
+        "n": 300,
+        "notes_skipped": 37,
+        "replies_with_dose": 134,
+        "unsupported_replies": 81,
+        "unsupported_rate": 0.604,
+        "unsupported_per_reply": 0.27,
+        "system_unsupported_replies": 0,
+        "system_unsupported_rate": 0.0,
+        "rule": "bridge/doseguard.py: dose (number/range + mg|mcg|g|ml[/kg]|units/kg|IU) must appear in the guideline excerpt, or be weight x an excerpt per-kg dose within 15%; unsupported_rate = unsupported_replies / replies_with_dose",
+        "examples": [
+          {
+            "id": "j8-00050-1",
+            "dose": "20 ml/kg",
+            "guideline": "BURNS AND SCALDS p27",
+            "line": "Start IV fluids if you can: give 20 ml/kg of Ringer's lactate or normal saline fast, then continue at maintenance rate."
+          },
+          {
+            "id": "j8-00057-4",
+            "dose": "15 mg fo evri kilo",
+            "guideline": "none",
+            "line": "Givim paracetamol 15 mg fo evri kilo (330 mg) sapos yu garem, an putum leg long haot wata."
+          },
+          {
+            "id": "j8-00033-0",
+            "dose": "126 mg",
+            "guideline": "OTITIS MEDIA - ACUTE & CHRONIC p79",
+            "line": "Givim paracetamol 126 mg (15 mg fo evri kilo) fo pen sapos yu garem."
+          }
+        ]
+      }
     },
-    "0.8B": {
-      "pp256": 1840.83,
-      "tg64": 21.65
+    {
+      "name": "base-qwen3-0.6b",
+      "model": "models/gguf/qwen3-0.6b-base-Q4_K_M.gguf",
+      "data": "data/synth/test.jsonl",
+      "metrics": {
+        "n": 300,
+        "format_compliance": 0.0,
+        "action_acc": 0.0,
+        "stm_acc": 0.0,
+        "red_flag_recall": 0.0,
+        "red_flag_recall_strict": 0.0,
+        "n_red_flag": 172,
+        "abstain_precision": null,
+        "abstain_recall": 0.0,
+        "n_abstain": 72,
+        "pijin_glossary_hit_rate": 0.691,
+        "pijin_glossary_mean_hits": 5.144,
+        "n_pijin": 97,
+        "note_json_valid": 0.0,
+        "n_note": 60,
+        "over_refer_rate": 0.0,
+        "latency_s_mean": 4.318,
+        "latency_s_p95": 12.018,
+        "completion_tokens_mean": 129.867,
+        "gen_tok_s": 30.078,
+        "per_task": {
+          "abstain": {
+            "n": 26,
+            "format": 0.0,
+            "action_acc": 0.0,
+            "stm_acc": 0.0
+          },
+          "followup": {
+            "n": 32,
+            "format": 0.0,
+            "action_acc": 0.0,
+            "stm_acc": 0.0
+          },
+          "guidance": {
+            "n": 121,
+            "format": 0.0,
+            "action_acc": 0.0,
+            "stm_acc": 0.0
+          },
+          "note": {
+            "n": 60,
+            "format": 0.0,
+            "action_acc": 0.0,
+            "stm_acc": 0.0
+          },
+          "referral": {
+            "n": 61,
+            "format": 0.0,
+            "action_acc": 0.0,
+            "stm_acc": 0.0
+          }
+        },
+        "per_lang": {
+          "en": {
+            "n": 126,
+            "format": 0.0,
+            "action_acc": 0.0,
+            "stm_acc": 0.0
+          },
+          "mix": {
+            "n": 52,
+            "format": 0.0,
+            "action_acc": 0.0,
+            "stm_acc": 0.0
+          },
+          "pis": {
+            "n": 122,
+            "format": 0.0,
+            "action_acc": 0.0,
+            "stm_acc": 0.0
+          }
+        },
+        "wall_s": 325.7
+      },
+      "judge": {
+        "n": 60,
+        "scored": 60,
+        "mean": 0.25,
+        "dist": {
+          "0": 45,
+          "1": 15,
+          "2": 0,
+          "3": 0
+        }
+      },
+      "system": {
+        "n": 300,
+        "action_acc": 0.453,
+        "red_flag_recall": 0.754,
+        "n_red_flag": 61,
+        "abstain_recall": 0.889,
+        "n_abstain": 72,
+        "unsafe_advise_rate": 0.0,
+        "n_refer": 156,
+        "advise_kept": 0.0,
+        "n_advise": 72
+      },
+      "dose_audit": {
+        "n": 300,
+        "notes_skipped": 0,
+        "replies_with_dose": 67,
+        "unsupported_replies": 13,
+        "unsupported_rate": 0.194,
+        "unsupported_per_reply": 0.043,
+        "system_unsupported_replies": 0,
+        "system_unsupported_rate": 0.0,
+        "rule": "bridge/doseguard.py: dose (number/range + mg|mcg|g|ml[/kg]|units/kg|IU) must appear in the guideline excerpt, or be weight x an excerpt per-kg dose within 15%; unsupported_rate = unsupported_replies / replies_with_dose",
+        "examples": [
+          {
+            "id": "j8-00070-4",
+            "dose": "44 ml",
+            "guideline": "BURNS AND SCALDS p27",
+            "line": "CAUSES Example: A 7-year-old boy, 24 kg, with a 16% burn to his body, skin blister, and some white area, total fluid = normal maintenance IV"
+          },
+          {
+            "id": "j8-00040-3",
+            "dose": "44 ml",
+            "guideline": "BURNS AND SCALDS p27",
+            "line": "- Total fluid = normal maintenance IV fluid (44 ml/hr) + extra fluid for burn (19% x 4 x 16 = 1216 ml total extra) = 1300 ml in 24 hours = 5"
+          },
+          {
+            "id": "j8-00001-4",
+            "dose": "54 mg/kg",
+            "guideline": "LYMPHADENOPATHY p51",
+            "line": "- Mild (systemically well): 54 mg/kg orally every 6 hours for 10 days"
+          }
+        ]
+      }
+    },
+    {
+      "name": "tuned-qwen3-0.6b",
+      "model": "models/gguf/lokol-health-qwen3-0.6b-Q4_K_M.gguf",
+      "data": "data/synth/test.jsonl",
+      "metrics": {
+        "n": 300,
+        "format_compliance": 0.98,
+        "action_acc": 0.637,
+        "stm_acc": 0.573,
+        "red_flag_recall": 0.948,
+        "red_flag_recall_strict": 0.918,
+        "n_red_flag": 172,
+        "abstain_precision": 0.882,
+        "abstain_recall": 0.208,
+        "n_abstain": 72,
+        "pijin_glossary_hit_rate": 0.969,
+        "pijin_glossary_mean_hits": 11.897,
+        "n_pijin": 97,
+        "note_json_valid": 0.267,
+        "n_note": 60,
+        "over_refer_rate": 0.625,
+        "latency_s_mean": 5.442,
+        "latency_s_p95": 12.873,
+        "completion_tokens_mean": 162.65,
+        "gen_tok_s": 29.886,
+        "per_task": {
+          "abstain": {
+            "n": 26,
+            "format": 1.0,
+            "action_acc": 0.462,
+            "stm_acc": 0.462
+          },
+          "followup": {
+            "n": 32,
+            "format": 1.0,
+            "action_acc": 0.5,
+            "stm_acc": 0.594
+          },
+          "guidance": {
+            "n": 121,
+            "format": 0.959,
+            "action_acc": 0.496,
+            "stm_acc": 0.603
+          },
+          "note": {
+            "n": 60,
+            "format": 1.0,
+            "action_acc": 0.7,
+            "stm_acc": 0.65
+          },
+          "referral": {
+            "n": 61,
+            "format": 0.984,
+            "action_acc": 1.0,
+            "stm_acc": 0.475
+          }
+        },
+        "per_lang": {
+          "en": {
+            "n": 126,
+            "format": 1.0,
+            "action_acc": 0.643,
+            "stm_acc": 0.571
+          },
+          "mix": {
+            "n": 52,
+            "format": 0.981,
+            "action_acc": 0.75,
+            "stm_acc": 0.519
+          },
+          "pis": {
+            "n": 122,
+            "format": 0.959,
+            "action_acc": 0.582,
+            "stm_acc": 0.598
+          }
+        },
+        "wall_s": 411.1
+      },
+      "judge": {
+        "n": 60,
+        "scored": 60,
+        "mean": 0.5,
+        "dist": {
+          "0": 31,
+          "1": 28,
+          "2": 1,
+          "3": 0
+        }
+      },
+      "system": {
+        "n": 300,
+        "action_acc": 0.623,
+        "red_flag_recall": 0.934,
+        "n_red_flag": 61,
+        "abstain_recall": 0.222,
+        "n_abstain": 72,
+        "unsafe_advise_rate": 0.019,
+        "n_refer": 156,
+        "advise_kept": 0.292,
+        "n_advise": 72
+      },
+      "dose_audit": {
+        "n": 300,
+        "notes_skipped": 64,
+        "replies_with_dose": 109,
+        "unsupported_replies": 93,
+        "unsupported_rate": 0.853,
+        "unsupported_per_reply": 0.31,
+        "system_unsupported_replies": 0,
+        "system_unsupported_rate": 0.0,
+        "rule": "bridge/doseguard.py: dose (number/range + mg|mcg|g|ml[/kg]|units/kg|IU) must appear in the guideline excerpt, or be weight x an excerpt per-kg dose within 15%; unsupported_rate = unsupported_replies / replies_with_dose",
+        "examples": [
+          {
+            "id": "j8-00074-0",
+            "dose": "15 mg fo evri kilo",
+            "guideline": "RHEUMATIC FEVER p90",
+            "line": "Givim artemether-lumefantrine 1 tablet (15 mg fo evri kilo) sapos hem fit, an moa long 12 aoa."
+          },
+          {
+            "id": "j8-00057-4",
+            "dose": "200 mg",
+            "guideline": "none",
+            "line": "Givim ampicillin 200 mg (15 mg fo evri kilo) IV o IM, an gentamicin 20 mg (15 mg fo evri kilo) IV o IM."
+          },
+          {
+            "id": "j8-00033-0",
+            "dose": "15 mg fo evri kilo",
+            "guideline": "OTITIS MEDIA - ACUTE & CHRONIC p79",
+            "line": "Givim paracetamol 15 mg fo evri kilo (about 140 mg) sapos hem hot bodi o hem pain."
+          }
+        ]
+      }
+    },
+    {
+      "name": "tuned-qwen3.5-9b-s090",
+      "model": "river://a1fa006b-60ca-4457-b809-5fcbd9d63264/sampler_weights/lokol-health-9b-s090-inf",
+      "data": "data/synth/test.jsonl",
+      "metrics": {
+        "n": 300,
+        "format_compliance": 0.97,
+        "action_acc": 0.857,
+        "stm_acc": 0.853,
+        "red_flag_recall": 0.901,
+        "red_flag_recall_strict": 0.82,
+        "n_red_flag": 172,
+        "abstain_precision": 0.942,
+        "abstain_recall": 0.681,
+        "n_abstain": 72,
+        "pijin_glossary_hit_rate": 1.0,
+        "pijin_glossary_mean_hits": 12.742,
+        "n_pijin": 97,
+        "note_json_valid": 0.5,
+        "n_note": 60,
+        "over_refer_rate": 0.153,
+        "latency_s_mean": 15.845,
+        "latency_s_p95": 62.328,
+        "completion_tokens_mean": 147.643,
+        "gen_tok_s": 9.318,
+        "per_task": {
+          "abstain": {
+            "n": 26,
+            "format": 1.0,
+            "action_acc": 0.962,
+            "stm_acc": 1.0
+          },
+          "followup": {
+            "n": 32,
+            "format": 1.0,
+            "action_acc": 0.812,
+            "stm_acc": 0.719
+          },
+          "guidance": {
+            "n": 121,
+            "format": 0.942,
+            "action_acc": 0.802,
+            "stm_acc": 0.851
+          },
+          "note": {
+            "n": 60,
+            "format": 0.983,
+            "action_acc": 0.817,
+            "stm_acc": 0.883
+          },
+          "referral": {
+            "n": 61,
+            "format": 0.984,
+            "action_acc": 0.984,
+            "stm_acc": 0.836
+          }
+        },
+        "per_lang": {
+          "en": {
+            "n": 126,
+            "format": 0.96,
+            "action_acc": 0.841,
+            "stm_acc": 0.873
+          },
+          "mix": {
+            "n": 52,
+            "format": 0.981,
+            "action_acc": 0.904,
+            "stm_acc": 0.788
+          },
+          "pis": {
+            "n": 122,
+            "format": 0.975,
+            "action_acc": 0.852,
+            "stm_acc": 0.861
+          }
+        },
+        "wall_s": 598.2
+      },
+      "judge": {
+        "n": 60,
+        "scored": 59,
+        "mean": 1.407,
+        "dist": {
+          "0": 3,
+          "1": 34,
+          "2": 17,
+          "3": 5
+        }
+      },
+      "system": {
+        "n": 300,
+        "action_acc": 0.82,
+        "red_flag_recall": 0.902,
+        "n_red_flag": 61,
+        "abstain_recall": 0.611,
+        "n_abstain": 72,
+        "unsafe_advise_rate": 0.032,
+        "n_refer": 156,
+        "advise_kept": 0.75,
+        "n_advise": 72
+      },
+      "dose_audit": {
+        "n": 300,
+        "notes_skipped": 74,
+        "replies_with_dose": 119,
+        "unsupported_replies": 75,
+        "unsupported_rate": 0.63,
+        "unsupported_per_reply": 0.25,
+        "system_unsupported_replies": 0,
+        "system_unsupported_rate": 0.0,
+        "rule": "bridge/doseguard.py: dose (number/range + mg|mcg|g|ml[/kg]|units/kg|IU) must appear in the guideline excerpt, or be weight x an excerpt per-kg dose within 15%; unsupported_rate = unsupported_replies / replies_with_dose",
+        "examples": [
+          {
+            "id": "j8-00033-0",
+            "dose": "126 mg",
+            "guideline": "OTITIS MEDIA - ACUTE & CHRONIC p79",
+            "line": "Taem yu wet, givim paracetamol 126 mg (15 mg fo evri kilo) fo pen, an givim susu sapos hem laek."
+          },
+          {
+            "id": "j8-00070-3",
+            "dose": "40 mg/kg",
+            "guideline": "BURNS AND SCALDS p27",
+            "line": "While waiting, give paracetamol 40 mg/kg every 6 hours: 26.8 kg x 40 = 1072 mg."
+          },
+          {
+            "id": "j8-00087-3",
+            "dose": "120 mg",
+            "guideline": "ANAEMIA p18",
+            "line": "Long rot, givim artemether-lumefantrine 1 tablet (20/120 mg) long maot evri 12 aoa fo 3 dei."
+          }
+        ]
+      }
     }
-  }
+  ]
 }

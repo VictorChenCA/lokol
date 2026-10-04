@@ -14,8 +14,9 @@ function partial(raw: string): { action: Action | null; body: string } {
   const a = /ACTION\s*:\s*([A-Z_]+)\s*\n/i.exec(raw);
   const action = a && ACTIONS.includes(a[1].toUpperCase() as Action) ? (a[1].toUpperCase() as Action) : null;
   const i = raw.indexOf("---");
-  const body = i >= 0 ? raw.slice(i + 3).replace(/^-+/, "").trimStart() : "";
-  return { action, body: body.startsWith("{") ? "" : body };
+  // Before the separator arrives (or when an untuned model ignores the format) show what it writes, minus protocol lines.
+  const body = i >= 0 ? raw.slice(i + 3).replace(/^-+/, "").trimStart() : raw.replace(/^\s*(ACTION|STM)\s*:[^\n]*\n?/gim, "").trimStart();
+  return { action, body: body.startsWith("{") ? "Writing the visit record" : body };
 }
 
 function citeChunk(stm: string | null | undefined, chunks: Chunk[]): Chunk | null {
@@ -45,7 +46,7 @@ export default function Demo() {
   const endRef = useRef<HTMLDivElement>(null);
   const recRef = useRef<MediaRecorder | null>(null);
   const timerRef = useRef<number | null>(null);
-  const audioRef = useRef<{ ctx: AudioContext; src: AudioBufferSourceNode | null } | null>(null);
+  const audioRef = useRef<{ ctx: AudioContext; srcs: AudioBufferSourceNode[]; gen: number } | null>(null);
 
   const ready = !!engine;
   const pis = flags.lang === "pis";
@@ -132,43 +133,67 @@ export default function Demo() {
   /* ---------- voice out ---------- */
 
   const stopVoice = () => {
-    try {
-      audioRef.current?.src?.stop();
-    } catch {
-      /* already stopped */
+    const a = audioRef.current;
+    if (a) {
+      a.gen++;
+      a.srcs.forEach((src) => {
+        try {
+          src.stop();
+        } catch {
+          /* already stopped */
+        }
+      });
+      a.srcs = [];
     }
     setVoice({ id: null, phase: "idle" });
   };
 
+  // Sentence by sentence: the first sentence plays while the next ones are synthesised, so the nurse
+  // hears the action within a couple of seconds instead of waiting for the whole reply.
   const play = async (m: BotMsg) => {
     if (!engine || voice.phase !== "idle") return;
     // Create the AudioContext inside the tap so mobile browsers allow playback.
     const Ctx = (window.AudioContext || (window as any).webkitAudioContext) as typeof AudioContext;
-    if (!audioRef.current) audioRef.current = { ctx: new Ctx(), src: null };
-    const ctx = audioRef.current.ctx;
+    if (!audioRef.current) audioRef.current = { ctx: new Ctx(), srcs: [], gen: 0 };
+    const a = audioRef.current;
+    const ctx = a.ctx;
     void ctx.resume();
+    const gen = ++a.gen;
     const meta = ACTION_META[m.action ?? "ASK_PERSON"];
-    const say = `${m.lang === "pis" ? meta.pis : meta.en}. ${m.text}`.replace(/\n+/g, ". ").replace(/\.\s*\./g, ".");
+    const say = `${m.lang === "pis" ? meta.pis : meta.en}.\n${m.text}`;
+    const parts = say
+      .split(/\n+|(?<=[.!?])\s+/)
+      .map((x) => x.trim())
+      .filter((x) => /[a-z0-9]/i.test(x));
     setVoice({ id: m.id, phase: "speaking" });
+    let at = 0;
+    let last: AudioBufferSourceNode | null = null;
     try {
-      let buf: AudioBuffer;
-      if (engine.speakPCM) {
-        const pcm = await engine.speakPCM(say, m.lang, (p) => {
-          if (p.stage === "download") setVoice({ id: m.id, phase: "loading", loaded_mb: p.loaded_mb, total_mb: p.total_mb });
-          else if (p.stage === "ready") setVoice({ id: m.id, phase: "speaking" });
-        });
-        buf = ctx.createBuffer(1, pcm.audio.length, pcm.sampling_rate);
-        buf.copyToChannel(pcm.audio as any, 0);
-      } else {
-        buf = await engine.speak(say, m.lang);
+      for (const part of parts) {
+        if (a.gen !== gen) return;
+        let buf: AudioBuffer;
+        if (engine.speakPCM) {
+          const pcm = await engine.speakPCM(part, m.lang, (p) => {
+            if (p.stage === "download") setVoice({ id: m.id, phase: "loading", loaded_mb: p.loaded_mb, total_mb: p.total_mb });
+          });
+          buf = ctx.createBuffer(1, pcm.audio.length, pcm.sampling_rate);
+          buf.copyToChannel(pcm.audio as any, 0);
+        } else {
+          buf = await engine.speak(part, m.lang);
+        }
+        if (a.gen !== gen) return;
+        const src = ctx.createBufferSource();
+        src.buffer = buf;
+        src.connect(ctx.destination);
+        at = Math.max(at, ctx.currentTime + 0.05);
+        src.start(at);
+        at += buf.duration + 0.18;
+        a.srcs.push(src);
+        last = src;
+        setVoice({ id: m.id, phase: "playing" });
       }
-      const src = ctx.createBufferSource();
-      src.buffer = buf;
-      src.connect(ctx.destination);
-      src.onended = () => setVoice((v) => (v.id === m.id ? { id: null, phase: "idle" } : v));
-      audioRef.current.src = src;
-      src.start();
-      setVoice({ id: m.id, phase: "playing" });
+      if (last) last.onended = () => a.gen === gen && setVoice((v) => (v.id === m.id ? { id: null, phase: "idle" } : v));
+      else setVoice({ id: null, phase: "idle" });
       refreshStatus();
     } catch (e) {
       setVoice({ id: null, phase: "idle" });

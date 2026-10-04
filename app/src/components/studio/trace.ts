@@ -2,6 +2,8 @@ import { create } from "zustand";
 import type { Chunk, Engine, Flags, GateResult, Graph, GraphNode, Lang, LoadProgress, ParsedReply } from "../../types";
 import { buildManifest } from "../../pack";
 import { getRuntime, type RuntimeSource } from "../../runtime-loader";
+import { ACTION_COPY } from "../ui";
+import { presetEngine } from "./presetEngine";
 
 export type StepState = "queued" | "active" | "done" | "skipped" | "error";
 
@@ -82,7 +84,9 @@ async function getEngine(g: Graph): Promise<{ engine: Engine; source: RuntimeSou
   if (cached && cached.key === key) return cached;
   const t = useTrace.getState();
   t.set({ status: "loading", progress: null });
-  const rt = await getRuntime();
+  // ?runtime=shim forces the canned runtime (UI checks, a deterministic demo take)
+  const forceShim = typeof location !== "undefined" && new URLSearchParams(location.search).get("runtime") === "shim";
+  const rt = forceShim ? { loadPack: (await import("../../runtime-shim")).loadPack, source: "shim" as RuntimeSource } : await getRuntime();
   const manifest = buildManifest(g);
   const engine = await rt.loadPack(manifest, (p) => useTrace.getState().set({ progress: p }));
   cached = { key, engine, source: rt.source };
@@ -126,9 +130,6 @@ export async function runTrace({ graph, text, audio, flags }: RunInput): Promise
   const nodes = graph.nodes;
   const byType = (t: GraphNode["type"]) => nodes.filter((n) => n.type === t);
   const has = (a: string, b: string) => graph.edges.some((e) => e.from === a && e.to === b);
-  const queued: Record<string, StepRun> = {};
-  nodes.forEach((n) => (queued[n.id] = { state: "queued" }));
-  useTrace.setState({ steps: queued });
 
   const travel = async (from: string | undefined, to: string | undefined) => {
     if (!from || !to || !has(from, to)) return;
@@ -150,9 +151,14 @@ export async function runTrace({ graph, text, audio, flags }: RunInput): Promise
   const skip = (id: string, note: string) => useTrace.getState().step(id, { state: "skipped", peek: note, note });
 
   try {
-    const { engine, source } = await getEngine(graph);
+    const loaded = await getEngine(graph);
     if (!alive()) return;
-    useTrace.setState({ status: "running", runtime: source, progress: null });
+    const source = loaded.source;
+    // Farm and Host have placeholder corpora: answer lookup, model and gate from their sample set.
+    const engine = graph.sector === "health" ? loaded.engine : presetEngine(loaded.engine, graph.sector);
+    const queued: Record<string, StepRun> = {};
+    nodes.forEach((n) => (queued[n.id] = { state: "queued" }));
+    useTrace.setState({ status: "running", runtime: source, progress: null, steps: queued });
     const t0 = performance.now();
 
     const chIn = byType("channel").find((n) => n.params?.direction !== "out") ?? byType("channel")[0];
@@ -199,7 +205,7 @@ export async function runTrace({ graph, text, audio, flags }: RunInput): Promise
     if (rag) {
       await travel(lastId, rag.id);
       const chunks = await visit(rag.id, () => engine.retrieve(message), (cs) => ({
-        peek: cs[0] ? `${cs[0].section} · p${cs[0].page}` : "No matching section",
+        peek: cs[0] ? `${cs[0].section}, page ${cs[0].page}` : "No matching section",
         detail: { kind: "rag", chunks: cs.slice(0, 3) }
       }));
       if (!alive()) return;
@@ -219,7 +225,7 @@ export async function runTrace({ graph, text, audio, flags }: RunInput): Promise
             raw += tok;
             if (alive()) useTrace.getState().step(llm.id, { detail: { kind: "llm", raw } });
           }),
-        (r) => ({ peek: `ACTION: ${r.action ?? "?"}`, detail: { kind: "llm", raw: r.raw || raw, reply: r } })
+        (r) => ({ peek: `ACTION: ${r.action ?? "?"}${r.stm && r.stm !== "NONE" ? `, STM: ${r.stm}` : ""}`, detail: { kind: "llm", raw: r.raw || raw, reply: r } })
       );
       if (!alive()) return;
       lastId = llm.id;
@@ -230,7 +236,7 @@ export async function runTrace({ graph, text, audio, flags }: RunInput): Promise
     if (gate && reply) {
       await travel(lastId, gate.id);
       g = await visit(gate.id, async () => engine.gate(message, reply!), (r) => ({
-        peek: r.overridden ? `Overrode to ${r.action}` : r.red_flags.length ? `${r.action} · ${(r.red_flag_labels ?? r.red_flags).join(", ")}` : `Passed: ${r.action}`,
+        peek: r.overridden ? `Overrode the model: ${ACTION_COPY[r.action].label}` : r.red_flags.length ? `${ACTION_COPY[r.action].label}: ${(r.red_flag_labels ?? r.red_flags).join(", ")}` : `Passed: ${ACTION_COPY[r.action].label}`,
         detail: { kind: "gate", gate: r }
       }));
       if (!alive()) return;

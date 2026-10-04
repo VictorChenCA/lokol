@@ -34,6 +34,7 @@ const HERO_NODES: HeroNode[] = [
 
 function HeroGraph({ vertical }: { vertical: boolean }) {
   const reduced = useReducedMotion();
+  const uid = vertical ? "hv" : "hh";
   const W = vertical ? 214 : 184;
   const H = 70;
   const pos = vertical
@@ -66,11 +67,11 @@ function HeroGraph({ vertical }: { vertical: boolean }) {
     <svg viewBox={`0 0 ${vbW} ${vbH}`} className="h-auto w-full" role="img" aria-label="A nurse aide's Pijin message passes through guideline lookup, a 0.6B model, the safety gate and Pijin voice, all on the phone with no signal">
       <defs>
         {HERO_NODES.map((n) => (
-          <filter key={n.type} id={`glow-${n.type}`} x="-30%" y="-40%" width="160%" height="180%">
+          <filter key={n.type} id={`${uid}-glow-${n.type}`} x="-30%" y="-40%" width="160%" height="180%">
             <feDropShadow dx="0" dy="0" stdDeviation="9" floodColor={NODE_GLOW[n.type]} floodOpacity="0.45" />
           </filter>
         ))}
-        <radialGradient id="pulse" r="0.5">
+        <radialGradient id={`${uid}-pulse`} r="0.5">
           <stop offset="0" stopColor="#FFFFFF" />
           <stop offset="0.45" stopColor="#2EC4D3" />
           <stop offset="1" stopColor="#2EC4D3" stopOpacity="0" />
@@ -83,7 +84,7 @@ function HeroGraph({ vertical }: { vertical: boolean }) {
         </g>
       ))}
       {!reduced && (
-        <circle r="9" fill="url(#pulse)">
+        <circle r="9" fill={`url(#${uid}-pulse)`}>
           <animateMotion dur="5.5s" repeatCount="indefinite" path={travel} keyPoints="0;1" keyTimes="0;1" calcMode="linear" />
         </circle>
       )}
@@ -92,7 +93,7 @@ function HeroGraph({ vertical }: { vertical: boolean }) {
         const c = NODE_GLOW[n.type];
         return (
           <g key={n.type} transform={`translate(${P.x},${P.y})`}>
-            <rect width={W} height={H} rx="13" fill="#F8FBFA" filter={`url(#glow-${n.type})`} />
+            <rect width={W} height={H} rx="13" fill="#F8FBFA" filter={`url(#${uid}-glow-${n.type})`} />
             <rect x="0.5" y="0.5" width={W - 1} height={H - 1} rx="12.5" fill="none" stroke="#FFFFFF" strokeOpacity="0.7" />
             <rect x="0" y="12" width="5" height={H - 24} rx="2.5" fill={c} />
             <text x="18" y="21" fontFamily="'Instrument Sans', system-ui, sans-serif" fontSize="11.5" fontWeight="600" fill="#5C7482">
@@ -212,16 +213,21 @@ const FACTS = [
 ];
 
 const STEPS = [
-  { to: "/recommend", t: "Pick a sector", pis: "Wanem waka", b: "Health, farm or host. Each pack is a graph of nodes, and every node is its own small model or rule block." },
-  { to: "/recommend", t: "Recommend for the phone", pis: "Lukim fon", b: "Name the phone (82 Pacific models listed) and the signal. Studio picks model sizes per node and lists what will not fit." },
-  { to: "/train", t: "Train custom nodes", pis: "Trenem", b: "Fine-tune the language node on your guideline: a 9B on River for clinic laptops, Apple-silicon LoRA for phone tiers." },
-  { to: "/deploy", t: "Deploy offline or to WhatsApp", pis: "Putum long fon", b: "A QR for the offline phone app, a GGUF for PocketPal, commands for a clinic laptop, or a WhatsApp and Messenger bridge." }
+  { to: "/recommend", t: "Check the phone", pis: "Lukim fon", cta: "Check a phone", b: "Name the phone (82 Pacific models listed) and the signal. Studio picks a model size for every node and says what will not fit." },
+  { to: "/studio?preset=health", t: "Compose in Studio", pis: "Wokples", cta: "Open Studio", b: "Each pack is a graph of nodes, and every node is its own small model or rule block. Swap sizes, switch internet per node, run a trace." },
+  { to: "/train", t: "Train custom nodes", pis: "Trenem", cta: "See training runs", b: "Fine-tune the language node on your guideline: a 9B on River for clinic laptops, Apple-silicon LoRA for phone tiers." },
+  { to: "/eval", t: "Prove it works", pis: "Testem", cta: "See base vs tuned", b: "Held-out test cases score base and tuned models on the right action, refusals and citations, before anything ships." },
+  { to: "/deploy", t: "Deploy offline or to WhatsApp", pis: "Putum long fon", cta: "Deploy a pack", b: "A QR for the offline phone app, a GGUF for PocketPal, commands for a clinic laptop, or a WhatsApp and Messenger bridge." },
+  { to: "/demo", t: "Try it with no signal", pis: "Traem", cta: "Try Lokol Health", b: "Type or speak a case in Pijin or English and watch every node answer on this device, with the safety gate last." }
 ];
+
+/** One tone per step, following the node colours along the pipeline. */
+const STEP_TONES = ["#7FB3C8", "#2EC4D3", "#F2B84B", "#5CC48A", "#B394F0", "#0F7B88"];
 
 const WILL_NOT = [
   { t: "No diagnosis", pis: "No talem sik", b: "It applies the Standard Treatment Manual and cites the page it used. It never reads images and never names a disease on its own authority." },
   { t: "A person decides", pis: "Nes nao disaedem", b: "Every reply is advice to the nurse aide. Referral, treatment and what to tell the family stay her call." },
-  { t: "Mi no sua, askem nes", pis: "Not sure, ask a person", b: "No matching section, an adult patient, a dose outside the manual: it says so and names who to ask, instead of guessing." },
+  { t: "Not sure, ask a person", pis: "Mi no sua, askem nes", b: "No matching section, an adult patient, a dose outside the manual: it says so and names who to ask, instead of guessing." },
   { t: "Data stays on the phone", pis: "Stap long fon nomoa", b: "Notes live on the device behind a PIN. Nothing leaves unless a node is switched online and the nurse taps send." }
 ];
 
@@ -233,7 +239,7 @@ export default function Home() {
       {/* Hero */}
       <section className="page pt-10 sm:pt-16">
         <h1
-          className="max-w-[16ch] font-display text-d-xl font-bold text-ink"
+          className="max-w-[16ch] font-display text-d-xl font-bold text-ink [text-wrap:balance]"
           style={{ fontVariationSettings: '"wdth" 82, "opsz" 96' }}
         >
           Build small AI that runs where the signal does not.
@@ -290,16 +296,15 @@ export default function Home() {
       {/* How it works */}
       <section className="page mt-20 sm:mt-28" aria-labelledby="how">
         <h2 id="how" className="font-display text-d-md font-bold">How it works</h2>
-        <ol className="relative mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
-          <span className="pointer-events-none absolute left-[18px] right-[18px] top-[18px] hidden h-0.5 bg-gradient-to-r from-glow-channel via-glow-llm to-glow-tts lg:block" aria-hidden />
+        <ol className="mt-8 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
           {STEPS.map((s, i) => (
-            <li key={s.t} className="relative">
-              <span className="relative z-10 grid h-9 w-9 place-items-center rounded-full bg-ink font-display text-[15px] font-bold text-white ring-4 ring-paper">{i + 1}</span>
+            <li key={s.t} className="relative border-t-2 pt-5" style={{ borderColor: STEP_TONES[i] }}>
+              <span className="grid h-9 w-9 place-items-center rounded-full bg-ink font-display text-[15px] font-bold text-white">{i + 1}</span>
               <h3 className="mt-4 font-display text-[20px] font-bold leading-tight">{s.t}</h3>
               <p className="text-[13px] text-ink-3" lang="pis">{s.pis}</p>
-              <p className="mt-2 text-[15px] leading-relaxed text-ink-2">{s.b}</p>
+              <p className="mt-2 max-w-[44ch] text-[15px] leading-relaxed text-ink-2">{s.b}</p>
               <Link to={s.to} className="link mt-3 inline-block text-[14px]">
-                {i === 0 ? "Start the wizard" : i === 1 ? "Check a phone" : i === 2 ? "See training runs" : "Deploy a pack"}
+                {s.cta}
               </Link>
             </li>
           ))}

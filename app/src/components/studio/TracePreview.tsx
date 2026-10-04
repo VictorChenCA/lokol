@@ -3,13 +3,13 @@ import { ACTION_COPY } from "../ui";
 import { Icon } from "./icons";
 
 /** Expanded output of one node after a trace run. Rendered under the card, above the canvas. */
-export function TracePreview({ nodeId }: { nodeId: string }) {
+export function TracePreview({ nodeId, side = "right" }: { nodeId: string; side?: "left" | "right" }) {
   const step = useTrace((s) => s.steps[nodeId]);
   const audio = useTrace((s) => s.audio);
   const d = step?.detail;
   if (!d) return null;
   return (
-    <div className="lk-preview nodrag nopan nowheel" onClick={(e) => e.stopPropagation()}>
+    <div className={`lk-preview lk-preview--${side} nodrag nopan nowheel`} onClick={(e) => e.stopPropagation()}>
       {d.kind === "message" && (
         <>
           <h4>{d.via === "voice" ? "Voice note" : "Typed message"}</h4>

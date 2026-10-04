@@ -112,6 +112,9 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,svg,png,json,woff2,wasm}"],
+        // onnxruntime-web wasm (21-27 MB each, pulled in by transformers.js / kokoro-js) is too big to
+        // precache on a phone; the runtime "lokol-models" rule below caches it on first voice use instead.
+        globIgnores: ["**/ort-wasm-*.wasm"],
         maximumFileSizeToCacheInBytes: 12 * 1024 * 1024,
         navigateFallbackDenylist: [/^\/local-models\//],
         runtimeCaching: [

@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-10-03T22:33:54-07:00",
+ "generated_at": "2026-10-03T23:44:41-07:00",
  "sample": false,
  "runs": [
   {
@@ -11,9 +11,9 @@
    "where": "River (hosted GPUs)",
    "base_model": "Qwen/Qwen3.5-9B",
    "smoke": false,
-   "status": "running",
-   "started_at": "2026-10-03T22:11:14-07:00",
-   "updated_at": "2026-10-03T22:33:51-07:00",
+   "status": "done",
+   "started_at": "2026-10-03T22:11:39-07:00",
+   "updated_at": "2026-10-03T22:48:51-07:00",
    "config": {
     "steps": 180,
     "batch": 32,
@@ -24,10 +24,10 @@
     "max_seq": 2048,
     "data": "data/synth/train.jsonl"
    },
-   "steps_done": 93,
+   "steps_done": 180,
    "steps_total": 180,
-   "elapsed_s": 1357.2,
-   "eta_s": 1508,
+   "elapsed_s": 2231.5,
+   "eta_s": null,
    "loss": [
     {
      "step": 1,
@@ -400,6 +400,354 @@
     {
      "step": 93,
      "loss": 0.6244
+    },
+    {
+     "step": 94,
+     "loss": 0.7186
+    },
+    {
+     "step": 95,
+     "loss": 0.6861
+    },
+    {
+     "step": 96,
+     "loss": 0.6434
+    },
+    {
+     "step": 97,
+     "loss": 0.677
+    },
+    {
+     "step": 98,
+     "loss": 0.625
+    },
+    {
+     "step": 99,
+     "loss": 0.6356
+    },
+    {
+     "step": 100,
+     "loss": 0.6774
+    },
+    {
+     "step": 101,
+     "loss": 0.6023
+    },
+    {
+     "step": 102,
+     "loss": 0.6432
+    },
+    {
+     "step": 103,
+     "loss": 0.6052
+    },
+    {
+     "step": 104,
+     "loss": 0.596
+    },
+    {
+     "step": 105,
+     "loss": 0.6037
+    },
+    {
+     "step": 106,
+     "loss": 0.6714
+    },
+    {
+     "step": 107,
+     "loss": 0.6811
+    },
+    {
+     "step": 108,
+     "loss": 0.6784
+    },
+    {
+     "step": 109,
+     "loss": 0.6749
+    },
+    {
+     "step": 110,
+     "loss": 0.6246
+    },
+    {
+     "step": 111,
+     "loss": 0.654
+    },
+    {
+     "step": 112,
+     "loss": 0.6563
+    },
+    {
+     "step": 113,
+     "loss": 0.6083
+    },
+    {
+     "step": 114,
+     "loss": 0.7197
+    },
+    {
+     "step": 115,
+     "loss": 0.7048
+    },
+    {
+     "step": 116,
+     "loss": 0.6826
+    },
+    {
+     "step": 117,
+     "loss": 0.6061
+    },
+    {
+     "step": 118,
+     "loss": 0.6601
+    },
+    {
+     "step": 119,
+     "loss": 0.5635
+    },
+    {
+     "step": 120,
+     "loss": 0.6408
+    },
+    {
+     "step": 121,
+     "loss": 0.6793
+    },
+    {
+     "step": 122,
+     "loss": 0.7385
+    },
+    {
+     "step": 123,
+     "loss": 0.6644
+    },
+    {
+     "step": 124,
+     "loss": 0.5684
+    },
+    {
+     "step": 125,
+     "loss": 0.6868
+    },
+    {
+     "step": 126,
+     "loss": 0.6994
+    },
+    {
+     "step": 127,
+     "loss": 0.6977
+    },
+    {
+     "step": 128,
+     "loss": 0.5464
+    },
+    {
+     "step": 129,
+     "loss": 0.6
+    },
+    {
+     "step": 130,
+     "loss": 0.6282
+    },
+    {
+     "step": 131,
+     "loss": 0.5463
+    },
+    {
+     "step": 132,
+     "loss": 0.5558
+    },
+    {
+     "step": 133,
+     "loss": 0.5571
+    },
+    {
+     "step": 134,
+     "loss": 0.6637
+    },
+    {
+     "step": 135,
+     "loss": 0.6068
+    },
+    {
+     "step": 136,
+     "loss": 0.6011
+    },
+    {
+     "step": 137,
+     "loss": 0.5712
+    },
+    {
+     "step": 138,
+     "loss": 0.558
+    },
+    {
+     "step": 139,
+     "loss": 0.6165
+    },
+    {
+     "step": 140,
+     "loss": 0.5128
+    },
+    {
+     "step": 141,
+     "loss": 0.5887
+    },
+    {
+     "step": 142,
+     "loss": 0.6595
+    },
+    {
+     "step": 143,
+     "loss": 0.6336
+    },
+    {
+     "step": 144,
+     "loss": 0.6001
+    },
+    {
+     "step": 145,
+     "loss": 0.6595
+    },
+    {
+     "step": 146,
+     "loss": 0.5689
+    },
+    {
+     "step": 147,
+     "loss": 0.6522
+    },
+    {
+     "step": 148,
+     "loss": 0.636
+    },
+    {
+     "step": 149,
+     "loss": 0.6471
+    },
+    {
+     "step": 150,
+     "loss": 0.6855
+    },
+    {
+     "step": 151,
+     "loss": 0.63
+    },
+    {
+     "step": 152,
+     "loss": 0.6004
+    },
+    {
+     "step": 153,
+     "loss": 0.6193
+    },
+    {
+     "step": 154,
+     "loss": 0.657
+    },
+    {
+     "step": 155,
+     "loss": 0.5806
+    },
+    {
+     "step": 156,
+     "loss": 0.7177
+    },
+    {
+     "step": 157,
+     "loss": 0.6311
+    },
+    {
+     "step": 158,
+     "loss": 0.6433
+    },
+    {
+     "step": 159,
+     "loss": 0.5762
+    },
+    {
+     "step": 160,
+     "loss": 0.5854
+    },
+    {
+     "step": 161,
+     "loss": 0.6397
+    },
+    {
+     "step": 162,
+     "loss": 0.6994
+    },
+    {
+     "step": 163,
+     "loss": 0.629
+    },
+    {
+     "step": 164,
+     "loss": 0.5878
+    },
+    {
+     "step": 165,
+     "loss": 0.6653
+    },
+    {
+     "step": 166,
+     "loss": 0.6212
+    },
+    {
+     "step": 167,
+     "loss": 0.6331
+    },
+    {
+     "step": 168,
+     "loss": 0.6798
+    },
+    {
+     "step": 169,
+     "loss": 0.4583
+    },
+    {
+     "step": 170,
+     "loss": 0.5481
+    },
+    {
+     "step": 171,
+     "loss": 0.4597
+    },
+    {
+     "step": 172,
+     "loss": 0.4162
+    },
+    {
+     "step": 173,
+     "loss": 0.4321
+    },
+    {
+     "step": 174,
+     "loss": 0.4426
+    },
+    {
+     "step": 175,
+     "loss": 0.4792
+    },
+    {
+     "step": 176,
+     "loss": 0.4098
+    },
+    {
+     "step": 177,
+     "loss": 0.4867
+    },
+    {
+     "step": 178,
+     "loss": 0.4359
+    },
+    {
+     "step": 179,
+     "loss": 0.446
+    },
+    {
+     "step": 180,
+     "loss": 0.4415
     }
    ],
    "val_loss": [],
@@ -430,6 +778,33 @@
      "stm_acc": 0.9,
      "exact": 0.85,
      "secs": 10.2
+    },
+    {
+     "step": 120,
+     "n": 40,
+     "format": 0.975,
+     "action_acc": 0.925,
+     "stm_acc": 0.9,
+     "exact": 0.825,
+     "secs": 9.1
+    },
+    {
+     "step": 150,
+     "n": 40,
+     "format": 0.925,
+     "action_acc": 0.875,
+     "stm_acc": 0.925,
+     "exact": 0.825,
+     "secs": 11.5
+    },
+    {
+     "step": 180,
+     "n": 40,
+     "format": 1.0,
+     "action_acc": 0.825,
+     "stm_acc": 0.9,
+     "exact": 0.75,
+     "secs": 9.1
     }
    ],
    "checkpoints": [
@@ -462,6 +837,36 @@
      "step": 90,
      "id": "river://a1fa006b-60ca-4457-b809-5fcbd9d63264/weights/lokol-health-9b-s090-train",
      "kind": "training"
+    },
+    {
+     "step": 120,
+     "id": "river://a1fa006b-60ca-4457-b809-5fcbd9d63264/sampler_weights/lokol-health-9b-s120-inf",
+     "kind": "inference"
+    },
+    {
+     "step": 120,
+     "id": "river://a1fa006b-60ca-4457-b809-5fcbd9d63264/weights/lokol-health-9b-s120-train",
+     "kind": "training"
+    },
+    {
+     "step": 150,
+     "id": "river://a1fa006b-60ca-4457-b809-5fcbd9d63264/sampler_weights/lokol-health-9b-s150-inf",
+     "kind": "inference"
+    },
+    {
+     "step": 150,
+     "id": "river://a1fa006b-60ca-4457-b809-5fcbd9d63264/weights/lokol-health-9b-s150-train",
+     "kind": "training"
+    },
+    {
+     "step": 180,
+     "id": "river://a1fa006b-60ca-4457-b809-5fcbd9d63264/sampler_weights/lokol-health-9b-s180-inf",
+     "kind": "inference"
+    },
+    {
+     "step": 180,
+     "id": "river://a1fa006b-60ca-4457-b809-5fcbd9d63264/weights/lokol-health-9b-s180-train",
+     "kind": "training"
     }
    ],
    "best": {
@@ -478,9 +883,9 @@
     },
     "loss": 0.6034816863227895
    },
-   "trained_tokens": 1605254,
-   "cost_usd_est": 2.41,
-   "cost_note": "Estimate: 1.6M tokens processed x an assumed $1.50/M; the River console has the billed amount.",
+   "trained_tokens": 3106944,
+   "cost_usd_est": 4.66,
+   "cost_note": "Estimate: 3.1M tokens processed x an assumed $1.50/M; the River console has the billed amount.",
    "artifact": "river:// LoRA adapter (r16), exported to GGUF Q4_K_M for laptops",
    "log": "models/river/lokol-health-9b/steps.jsonl",
    "note": "LoRA on Qwen3.5-9B with the River renderer; validation samples 40 val prompts greedily every 30 steps."
@@ -514,8 +919,41 @@
    "checkpoints": [],
    "cost_usd_est": 0,
    "cost_note": "Local Apple silicon; no cloud cost.",
-   "attempts": 0,
+   "attempts": 2,
    "note": "Everyday-phone tier (3 to 5 GB RAM); same data and recipe as 0.6B.",
+   "log": null
+  },
+  {
+   "id": "mlx-0.8B",
+   "name": "Lokol Health 0.8B",
+   "catalog_id": "lokol-health-qwen3.5-0.8b",
+   "tier": "A",
+   "backend": "mlx",
+   "where": "This Mac (Apple M1 Max, mlx-lm)",
+   "base_model": "mlx-community/Qwen3.5-0.8B-MLX-bf16",
+   "smoke": false,
+   "status": "queued",
+   "started_at": null,
+   "updated_at": null,
+   "config": {
+    "steps": 700,
+    "batch": 4,
+    "lr": 0.0002,
+    "layers": 1,
+    "data": "data/mlx/0.8B"
+   },
+   "steps_done": 0,
+   "steps_total": 700,
+   "elapsed_s": 0,
+   "eta_s": null,
+   "loss": [],
+   "val_loss": [],
+   "val": [],
+   "checkpoints": [],
+   "cost_usd_est": 0,
+   "cost_note": "Local Apple silicon; no cloud cost.",
+   "attempts": 6,
+   "note": "Qwen3.5 mixes linear-attention blocks; mlx-lm trains them through a slow per-token loop that macOS aborted ('Impacting Interactivity'). LoRA on the top full-attention layer only keeps it on the fused kernel. 6 earlier attempts logged.",
    "log": null
   },
   {
@@ -527,9 +965,9 @@
    "where": "This Mac (Apple M1 Max, mlx-lm)",
    "base_model": "mlx-community/Qwen3-0.6B-bf16",
    "smoke": false,
-   "status": "running",
+   "status": "stopped",
    "started_at": "2026-10-03T22:15:41-07:00",
-   "updated_at": "2026-10-03T22:33:03-07:00",
+   "updated_at": "2026-10-03T22:57:59-07:00",
    "config": {
     "steps": 700,
     "batch": 4,
@@ -542,11 +980,11 @@
     "trainable_m": 5.046,
     "total_m": 596.05
    },
-   "steps_done": 210,
+   "steps_done": 450,
    "steps_total": 700,
-   "elapsed_s": 1042,
-   "eta_s": 2431,
-   "tokens_per_s": 141,
+   "elapsed_s": 2539,
+   "eta_s": null,
+   "tokens_per_s": 128,
    "loss": [
     {
      "step": 10,
@@ -631,6 +1069,102 @@
     {
      "step": 210,
      "loss": 1.657
+    },
+    {
+     "step": 220,
+     "loss": 1.532
+    },
+    {
+     "step": 230,
+     "loss": 1.697
+    },
+    {
+     "step": 240,
+     "loss": 1.561
+    },
+    {
+     "step": 250,
+     "loss": 1.457
+    },
+    {
+     "step": 260,
+     "loss": 1.494
+    },
+    {
+     "step": 270,
+     "loss": 1.526
+    },
+    {
+     "step": 280,
+     "loss": 1.541
+    },
+    {
+     "step": 290,
+     "loss": 1.394
+    },
+    {
+     "step": 300,
+     "loss": 1.461
+    },
+    {
+     "step": 310,
+     "loss": 1.39
+    },
+    {
+     "step": 320,
+     "loss": 1.487
+    },
+    {
+     "step": 330,
+     "loss": 1.339
+    },
+    {
+     "step": 340,
+     "loss": 1.413
+    },
+    {
+     "step": 350,
+     "loss": 1.361
+    },
+    {
+     "step": 360,
+     "loss": 1.326
+    },
+    {
+     "step": 370,
+     "loss": 1.52
+    },
+    {
+     "step": 380,
+     "loss": 1.385
+    },
+    {
+     "step": 390,
+     "loss": 1.361
+    },
+    {
+     "step": 400,
+     "loss": 1.302
+    },
+    {
+     "step": 410,
+     "loss": 1.279
+    },
+    {
+     "step": 420,
+     "loss": 1.408
+    },
+    {
+     "step": 430,
+     "loss": 1.391
+    },
+    {
+     "step": 440,
+     "loss": 1.401
+    },
+    {
+     "step": 450,
+     "loss": 1.24
     }
    ],
    "val_loss": [
@@ -645,6 +1179,14 @@
     {
      "step": 200,
      "loss": 1.589
+    },
+    {
+     "step": 300,
+     "loss": 1.314
+    },
+    {
+     "step": 400,
+     "loss": 1.419
     }
    ],
    "val": [],
@@ -658,6 +1200,16 @@
      "step": 200,
      "id": "models/adapters/qwen3-0.6b/0000200_adapters.safetensors",
      "kind": "adapter"
+    },
+    {
+     "step": 300,
+     "id": "models/adapters/qwen3-0.6b/0000300_adapters.safetensors",
+     "kind": "adapter"
+    },
+    {
+     "step": 400,
+     "id": "models/adapters/qwen3-0.6b/0000400_adapters.safetensors",
+     "kind": "adapter"
     }
    ],
    "gguf": null,
@@ -667,39 +1219,6 @@
    "error": null,
    "log": "models/logs/train_mlx_qwen3-0.6b_221541.log",
    "note": "Standard attention, so all 28 layers get LoRA; the default phone-tier model because wllama runs Qwen3 in the browser."
-  },
-  {
-   "id": "mlx-0.8B",
-   "name": "Lokol Health 0.8B",
-   "catalog_id": "lokol-health-qwen3.5-0.8b",
-   "tier": "A",
-   "backend": "mlx",
-   "where": "This Mac (Apple M1 Max, mlx-lm)",
-   "base_model": "mlx-community/Qwen3.5-0.8B-MLX-bf16",
-   "smoke": false,
-   "status": "queued",
-   "started_at": null,
-   "updated_at": null,
-   "config": {
-    "steps": 700,
-    "batch": 4,
-    "lr": 0.0002,
-    "layers": 1,
-    "data": "data/mlx/0.8B"
-   },
-   "steps_done": 0,
-   "steps_total": 700,
-   "elapsed_s": 0,
-   "eta_s": null,
-   "loss": [],
-   "val_loss": [],
-   "val": [],
-   "checkpoints": [],
-   "cost_usd_est": 0,
-   "cost_note": "Local Apple silicon; no cloud cost.",
-   "attempts": 6,
-   "note": "Qwen3.5 mixes linear-attention blocks; mlx-lm trains them through a slow per-token loop that macOS aborted ('Impacting Interactivity'). LoRA on the top full-attention layer only keeps it on the fused kernel. 6 earlier attempts logged.",
-   "log": null
   },
   {
    "id": "river-smoke",

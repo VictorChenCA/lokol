@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 
@@ -36,6 +37,14 @@ class Settings:
     def reload(self) -> None:
         e = os.environ
         self.mock = e.get("LOKOL_MOCK", "0").lower() in _TRUE
+        # Which model answers: "llama" (OpenAI-compatible LLM_URL, default) or "river" (the
+        # River-hosted tuned 9B; WhatsApp/Messenger are online channels anyway). River falls back
+        # to LLM_URL when reachable, else to a canned ASK_PERSON reply.
+        self.llm_backend = (e.get("LLM_BACKEND", "llama").strip().lower() or "llama")
+        self.river_base = e.get("RIVER_BASE", "Qwen/Qwen3.5-9B")
+        self.river_checkpoint = e.get("RIVER_CHECKPOINT", "").strip() or default_river_checkpoint()
+        self.river_timeout = float(e.get("RIVER_TIMEOUT", "25"))
+        self.river_max_tokens = int(e.get("RIVER_MAX_TOKENS", "260"))
         # LLM (OpenAI-compatible llama-server)
         self.llm_url = e.get("LLM_URL", "http://127.0.0.1:8080/v1/chat/completions")
         self.llm_model = e.get("LLM_MODEL", "lokol-health")
@@ -45,8 +54,9 @@ class Settings:
         # Speech sidecar
         self.sidecar_url = e.get("SIDECAR_URL", "http://127.0.0.1:8091").rstrip("/")
         self.sidecar_timeout = float(e.get("SIDECAR_TIMEOUT", "60"))
-        # Public URL (cloudflared) used for Twilio signature checks and media links
-        self.public_base_url = e.get("PUBLIC_BASE_URL", "http://localhost:8090").rstrip("/")
+        # Public URL (cloudflared) used for Twilio signature checks and media links. Falls back to
+        # bridge/.state/public_url, which bridge/run_local.sh writes once the tunnel is up.
+        self.public_base_url = (e.get("PUBLIC_BASE_URL") or _read_public_url_file() or "http://localhost:8090").rstrip("/")
         # Twilio
         self.twilio_account_sid = e.get("TWILIO_ACCOUNT_SID", "")
         self.twilio_auth_token = e.get("TWILIO_AUTH_TOKEN", "")
@@ -74,6 +84,31 @@ class Settings:
         self.state_file = Path(e.get("LOKOL_STATE_FILE", str(BRIDGE_DIR / ".state" / "users.json")))
         self.log_file = Path(e.get("LOKOL_LOG_FILE", str(BRIDGE_DIR / ".state" / "messages.jsonl")))
         self.ffmpeg = e.get("FFMPEG", "ffmpeg")
+
+
+PUBLIC_URL_FILE = BRIDGE_DIR / ".state" / "public_url"
+RIVER_CHECKPOINT_JSON = ROOT / "models" / "river" / "lokol-health-9b" / "checkpoint.json"
+# Step 180 scored best on the full held-out test (val picked step 90 on 40 items).
+PREFERRED_RIVER_STEP = 180
+
+
+def _read_public_url_file() -> str:
+    try:
+        return PUBLIC_URL_FILE.read_text(encoding="utf-8").strip()
+    except Exception:
+        return ""
+
+
+def default_river_checkpoint(path: Path = RIVER_CHECKPOINT_JSON) -> str:
+    """The step-180 inference checkpoint from checkpoint.json, else its `best`, else ''."""
+    try:
+        meta = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return ""
+    for c in meta.get("checkpoints") or []:
+        if c.get("step") == PREFERRED_RIVER_STEP and c.get("inference"):
+            return c["inference"]
+    return (meta.get("best") or {}).get("inference", "")
 
 
 settings = Settings()

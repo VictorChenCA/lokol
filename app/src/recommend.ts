@@ -93,7 +93,7 @@ export function recommend(input: RecommendInput): Recommendation {
   const online = input.connectivity !== "none";
   const health = input.sector === "health";
 
-  reasons.push(`${input.deviceName || "This device"} has about ${input.ram_gb} GB of RAM: ${TIER_LABEL[tier]}. About ${(usable / 1024).toFixed(1)} GB is free for Lokol after the system.`);
+  reasons.push(`${input.deviceName || "This device"} has about ${input.ram_gb} GB of RAM, so it is ${TIER_LABEL[tier].replace(/^Tier (\w): /, "tier $1, a ")}. About ${(usable / 1024).toFixed(1)} GB is free for Lokol after the system.`);
 
   // Speech and lookup first: they are small and decide how much room the language model has.
   type Optional = { key: string; model: ModelRef; type: "stt" | "tts"; lang: "en" | "pis"; drop: string };

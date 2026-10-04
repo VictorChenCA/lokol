@@ -1,0 +1,251 @@
+[
+ {
+  "name": "midazolam 20 mg/kg rectally not in page -> replaced",
+  "body": "Give midazolam 20 mg/kg rectally now.\nRefer to hospital now.",
+  "excerpt": "If seizure > 5-10 min Give Midazolam IV/IO/IM 0.15mg/kg (max 10mg) Buccal/intranasal 0.3mg/kg (max 10mg) If Midazolam is not available then give Diazepam IV 0.2mg/kg (max 10mg) OR PR 0.3mg/kg (max 10mg)",
+  "message": "2 year old fitting for 10 minutes, 12 kg",
+  "page": 34,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 34 before giving it. I could not find this dose in the page I used.\nRefer to hospital now.",
+  "expect_unsupported": [
+   "20 mg/kg"
+  ]
+ },
+ {
+  "name": "paracetamol 15 mg/kg in page -> kept",
+  "body": "Give paracetamol 15 mg/kg every 6 hours.\nReturn in 2 days.",
+  "excerpt": "Consider giving paracetamol if fever above 38ºC AND the child is irritable o Dose: 15mg/kg (max 1g) every 4 to 6 hours (maximum 4 doses in 24 hours) o Do not use aspirin in children for fever",
+  "message": "3 year old, fever 2 days",
+  "page": 40,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "195 mg = 15 mg/kg x 13 kg -> kept",
+  "body": "Give paracetamol 195 mg every 6 hours.",
+  "excerpt": "Consider giving paracetamol if fever above 38ºC AND the child is irritable o Dose: 15mg/kg (max 1g) every 4 to 6 hours (maximum 4 doses in 24 hours) o Do not use aspirin in children for fever",
+  "message": "Pikinini 3 yia, 13 kg, hot bodi",
+  "page": 40,
+  "lang": "pis",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "250 mg in weight-band table -> kept",
+  "body": "Give penicillin V 250 mg orally every 12 hours for 10 days.",
+  "excerpt": "Child weighs < 20kg give 450mg (0.6 mega units) - Child weighs > 20kg give 900mg (1.2 mega units) OR - Penicillin V - Child < 10 years give 250mg orally every 12 hours for 10 days - Child > 10 years give 500mg orally every 12 hours for 10 days",
+  "message": "5 year old sore throat",
+  "page": 31,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "no excerpt -> ask-person dose line (en)",
+  "body": "Give paracetamol 15 mg/kg.\nGive extra fluids.",
+  "excerpt": null,
+  "message": "child fever",
+  "page": null,
+  "lang": "en",
+  "expect_body": "Dose: ask the nurse in charge or the doctor.\nGive extra fluids.",
+  "expect_unsupported": [
+   "15 mg/kg"
+  ]
+ },
+ {
+  "name": "no excerpt -> ask-person dose line (pis)",
+  "body": "Givim paracetamol 195 mg.",
+  "excerpt": null,
+  "message": "pikinini 13 kg hot bodi",
+  "page": null,
+  "lang": "pis",
+  "expect_body": "Dos: askem nes long jaj o dokta.",
+  "expect_unsupported": [
+   "195 mg"
+  ]
+ },
+ {
+  "name": "Pijin dose not in page -> Pijin page line",
+  "body": "Givim midazolam 20 mg/kg long botom.\nSendem go long hospitol nao.",
+  "excerpt": "If seizure > 5-10 min Give Midazolam IV/IO/IM 0.15mg/kg (max 10mg) Buccal/intranasal 0.3mg/kg (max 10mg) If Midazolam is not available then give Diazepam IV 0.2mg/kg (max 10mg) OR PR 0.3mg/kg (max 10mg)",
+  "message": "pikinini hem sek-sek, 12 kilo",
+  "page": 34,
+  "lang": "pis",
+  "expect_body": "Dos: lukim buk STM pej 34 fastaem. Mi no faendem dos ya long pej mi iusim.\nSendem go long hospitol nao.",
+  "expect_unsupported": [
+   "20 mg/kg"
+  ]
+ },
+ {
+  "name": "non-dose numbers untouched",
+  "body": "Fever 3 days, 2 years old, temperature 38.5 C.\nSee p53. Weight 12 kg.\nReturn in 2 days.",
+  "excerpt": "Consider giving paracetamol if fever above 38ºC AND the child is irritable o Dose: 15mg/kg (max 1g) every 4 to 6 hours (maximum 4 doses in 24 hours) o Do not use aspirin in children for fever",
+  "message": "2 year old 12 kg",
+  "page": 40,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "route words alone are not checked",
+  "body": "Give paracetamol IV/IM.",
+  "excerpt": "Consider giving paracetamol if fever above 38ºC AND the child is irritable o Dose: 15mg/kg (max 1g) every 4 to 6 hours (maximum 4 doses in 24 hours) o Do not use aspirin in children for fever",
+  "message": "child fever",
+  "page": 40,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "duplicate safe lines collapse to one",
+  "body": "Give diazepam 5 mg/kg.\nThen give 40 mg/kg phenobarbitone.\nRefer now.",
+  "excerpt": "If seizure > 5-10 min Give Midazolam IV/IO/IM 0.15mg/kg (max 10mg) Buccal/intranasal 0.3mg/kg (max 10mg) If Midazolam is not available then give Diazepam IV 0.2mg/kg (max 10mg) OR PR 0.3mg/kg (max 10mg)",
+  "message": "fitting",
+  "page": 34,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 34 before giving it. I could not find this dose in the page I used.\nRefer now.",
+  "expect_unsupported": [
+   "5 mg/kg",
+   "40 mg/kg"
+  ]
+ },
+ {
+  "name": "range matches when one endpoint is in page",
+  "body": "Give 10-15 mg/kg paracetamol.",
+  "excerpt": "Consider giving paracetamol if fever above 38ºC AND the child is irritable o Dose: 15mg/kg (max 1g) every 4 to 6 hours (maximum 4 doses in 24 hours) o Do not use aspirin in children for fever",
+  "message": "fever",
+  "page": 40,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "range with no endpoint in page -> replaced",
+  "body": "Give 20-30 mg/kg paracetamol.",
+  "excerpt": "Consider giving paracetamol if fever above 38ºC AND the child is irritable o Dose: 15mg/kg (max 1g) every 4 to 6 hours (maximum 4 doses in 24 hours) o Do not use aspirin in children for fever",
+  "message": "fever",
+  "page": 40,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 40 before giving it. I could not find this dose in the page I used.",
+  "expect_unsupported": [
+   "20-30 mg/kg"
+  ]
+ },
+ {
+  "name": "'mg per kg' normalises to mg/kg",
+  "body": "Give 15 mg per kg paracetamol.",
+  "excerpt": "Consider giving paracetamol if fever above 38ºC AND the child is irritable o Dose: 15mg/kg (max 1g) every 4 to 6 hours (maximum 4 doses in 24 hours) o Do not use aspirin in children for fever",
+  "message": "fever",
+  "page": 40,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "weight-based amount off by more than 15% -> replaced",
+  "body": "Give paracetamol 400 mg.",
+  "excerpt": "Consider giving paracetamol if fever above 38ºC AND the child is irritable o Dose: 15mg/kg (max 1g) every 4 to 6 hours (maximum 4 doses in 24 hours) o Do not use aspirin in children for fever",
+  "message": "13 kg, fever",
+  "page": 40,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 40 before giving it. I could not find this dose in the page I used.",
+  "expect_unsupported": [
+   "400 mg"
+  ]
+ },
+ {
+  "name": "per-kg and computed amount on one line -> kept",
+  "body": "Givim cloxacillin 25 mg/kg = 232 mg long maot evri 6 aoa.",
+  "excerpt": "Mild (& systemically well) - Cloxacillin 25mg/kg (max 500mg) orally every 6 hours for 10 days - Mod-severe (or systemically unwell) - Cloxacillin 50mg/kg (max 2g) IV every 6 hours for 10 days",
+  "message": "Pikinini 1 yia, 9.3 kilo, swolen long nek",
+  "page": 51,
+  "lang": "pis",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "'weight 13' gives the weight",
+  "body": "Give paracetamol 195 mg.",
+  "excerpt": "Consider giving paracetamol if fever above 38ºC AND the child is irritable o Dose: 15mg/kg (max 1g) every 4 to 6 hours (maximum 4 doses in 24 hours) o Do not use aspirin in children for fever",
+  "message": "fever 2 days, weight 13",
+  "page": 40,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "absolute amount with no weight and not in page -> replaced",
+  "body": "Give paracetamol 195 mg.",
+  "excerpt": "Consider giving paracetamol if fever above 38ºC AND the child is irritable o Dose: 15mg/kg (max 1g) every 4 to 6 hours (maximum 4 doses in 24 hours) o Do not use aspirin in children for fever",
+  "message": "fever 2 days",
+  "page": 40,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 40 before giving it. I could not find this dose in the page I used.",
+  "expect_unsupported": [
+   "195 mg"
+  ]
+ },
+ {
+  "name": "ml and mL match",
+  "body": "Give 5 mL after each loose stool.",
+  "excerpt": "Give ORS 5 ml/kg per hour, or 5 ml after each loose stool",
+  "message": "diarrhoea",
+  "page": 60,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "micrograms/kg normalises to mcg/kg",
+  "body": "Give adrenaline 10 micrograms/kg IM.",
+  "excerpt": "Adrenaline 10mcg/kg IM (max 500mcg)",
+  "message": "anaphylaxis",
+  "page": 20,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "max cap amount in page -> kept",
+  "body": "Do not give more than 500 mg each time.",
+  "excerpt": "Mild (& systemically well) - Cloxacillin 25mg/kg (max 500mg) orally every 6 hours for 10 days - Mod-severe (or systemically unwell) - Cloxacillin 50mg/kg (max 2g) IV every 6 hours for 10 days",
+  "message": "9.3 kg",
+  "page": 51,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "Pijin 'fo evri kilo' is per-kg; computed amount by weight -> kept",
+  "body": "Givim paracetamol 15 mg fo evri kilo (about 140 mg) sapos hem hot bodi.",
+  "excerpt": "Consider giving paracetamol if fever above 38ºC AND the child is irritable o Dose: 15mg/kg (max 1g) every 4 to 6 hours (maximum 4 doses in 24 hours) o Do not use aspirin in children for fever",
+  "message": "pikinini 2 yia, 9.3 kilo, hot bodi",
+  "page": 40,
+  "lang": "pis",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "Pijin per-kg dose not in page -> replaced",
+  "body": "Givim paracetamol 30 mg long wan kilo.\nKambak long 2 dei.",
+  "excerpt": "Consider giving paracetamol if fever above 38ºC AND the child is irritable o Dose: 15mg/kg (max 1g) every 4 to 6 hours (maximum 4 doses in 24 hours) o Do not use aspirin in children for fever",
+  "message": "pikinini 9.3 kilo",
+  "page": 40,
+  "lang": "pis",
+  "expect_body": "Dos: lukim buk STM pej 40 fastaem. Mi no faendem dos ya long pej mi iusim.\nKambak long 2 dei.",
+  "expect_unsupported": [
+   "30 mg long wan kilo"
+  ]
+ },
+ {
+  "name": "'1 g' matches 'maximum 1 gram'; 205 mg = 50 mg/kg x 4.1 kg -> kept",
+  "body": "Give ceftriaxone 205 mg IM (50 mg/kg, max 1 g) before transfer.",
+  "excerpt": "Ceftriaxone 50 mg/kg (maximum 1 gram) IV or IM as a single dose",
+  "message": "baby 4.1 kg, swollen red eye",
+  "page": 32,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
+ }
+]

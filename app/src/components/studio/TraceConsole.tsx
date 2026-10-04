@@ -14,6 +14,15 @@ interface Sample {
   expect: string;
 }
 
+const FARM_SAMPLES: Sample[] = [
+  { label: "Taro lif i yelo", text: "Lif blong taro blong mi hem yelo an garem olketa hol.", flags: { lang: "pis", rdt: "unknown", act: "unknown", transport: "next_boat" }, expect: "Advise" },
+  { label: "Safe spray for cabbage", text: "Which spray is safe for cabbage moth near the village well?", flags: { lang: "en", rdt: "unknown", act: "unknown", transport: "now" }, expect: "Ask a person" }
+];
+const HOST_SAMPLES: Sample[] = [
+  { label: "Bot go long Gizo", text: "Wanem taem nao bot i go long Gizo long Fraede?", flags: { lang: "pis", rdt: "unknown", act: "unknown", transport: "now" }, expect: "Advise" },
+  { label: "Room for two", text: "Do you have a room for two people this Friday, and how much is it?", flags: { lang: "en", rdt: "unknown", act: "unknown", transport: "now" }, expect: "Ask a person" }
+];
+
 const SAMPLES: Sample[] = [
   { label: "Hot bodi, no RDT", text: "Pikinini blong mi hem hot bodi tu dei, no RDT long klinik.", flags: { lang: "pis", rdt: "no", act: "yes", transport: "next_boat" }, expect: "Advise" },
   { label: "Sek-sek, no save dring", text: "Bebi hem sek-sek an no save dring susu.", flags: { lang: "pis", rdt: "unknown", act: "yes", transport: "next_boat" }, expect: "Refer" },
@@ -42,6 +51,7 @@ function Tri({ label, value, onChange }: { label: string; value: YesNoUnknown; o
 
 export function TraceConsole() {
   const graph = useStudio((s) => s.graph);
+  const samples = graph.sector === "agriculture" ? FARM_SAMPLES : graph.sector === "tourism" ? HOST_SAMPLES : SAMPLES;
   const t = useTrace();
   const [text, setText] = useState(SAMPLES[0].text);
   const [flags, setFlags] = useState<Flags>({ lang: "pis", rdt: "no", act: "yes", transport: "next_boat" });
@@ -53,6 +63,19 @@ export function TraceConsole() {
   useEffect(() => {
     if (t.status !== "idle") setOpen(true);
   }, [t.status]);
+
+  // A new sector preset brings its own first sample, so a Farm trace never starts with a child-health question.
+  const sector = graph.sector;
+  const lastSector = useRef(sector);
+  useEffect(() => {
+    if (lastSector.current !== sector) {
+      lastSector.current = sector;
+      stopTrace();
+    }
+    const first = (sector === "agriculture" ? FARM_SAMPLES : sector === "tourism" ? HOST_SAMPLES : SAMPLES)[0];
+    setText(first.text);
+    setFlags((f) => ({ ...f, ...first.flags }) as Flags);
+  }, [sector]);
 
   const busy = t.status === "loading" || t.status === "running";
   const run = (msg = text, audio: Blob | null = null, f = flags) => {
@@ -130,7 +153,7 @@ export function TraceConsole() {
       </div>
       <div className="lk-console__samples">
         <span className="lk-console__k">Try</span>
-        {SAMPLES.map((s) => (
+        {samples.map((s) => (
           <button
             key={s.label}
             type="button"
@@ -144,11 +167,11 @@ export function TraceConsole() {
             }}
             title={s.text}
           >
-            <span className="lk-sample__lang">{s.flags.lang === "pis" ? "PIS" : "EN"}</span>
+            <span className="lk-sample__lang">{s.flags.lang === "pis" ? "Pijin" : "English"}</span>
             {s.label}
           </button>
         ))}
-        <span className="lk-console__flags">
+        {graph.sector === "health" && <span className="lk-console__flags">
           <Tri label="RDT kit" value={flags.rdt} onChange={(v) => setFlags({ ...flags, rdt: v })} />
           <Tri label="Coartem" value={flags.act} onChange={(v) => setFlags({ ...flags, act: v })} />
           <label className="lk-tri">
@@ -159,7 +182,7 @@ export function TraceConsole() {
               <option value="none">none</option>
             </select>
           </label>
-        </span>
+        </span>}
       </div>
       {micErr && <p className="lk-console__err">{micErr}</p>}
       {open && (
@@ -180,14 +203,14 @@ export function TraceConsole() {
           )}
           {(t.status === "running" || t.status === "done" || t.status === "error") && (
             <div className="lk-console__grid">
-              <ol className="lk-steps" aria-label="Steps">
+              <ol className="lk-timeline" aria-label="Stages and timings">
                 {visited.map((n) => {
                   const s = t.steps[n.id];
                   return (
                     <li key={n.id} className={`lk-step is-${s.state}`} style={{ ["--c" as string]: NODE_META[n.type]?.color }}>
-                      <button type="button" onClick={() => useTrace.getState().set({ openPreview: t.openPreview === n.id ? null : n.id })} disabled={!s.detail}>
-                        <NodeIcon type={n.type} size={14} />
-                        <span className="lk-step__name">{n.label}</span>
+                      <button type="button" onClick={() => useTrace.getState().set({ openPreview: t.openPreview === n.id ? null : n.id })} disabled={!s.detail} title={s.peek ?? s.note ?? n.label}>
+                        <NodeIcon type={n.type} size={13} />
+                        <span className="lk-step__name">{NODE_META[n.type]?.name ?? n.label}</span>
                         <span className="lk-step__ms">{s.state === "done" && s.ms !== undefined ? (s.ms < 1000 ? `${s.ms} ms` : `${(s.ms / 1000).toFixed(1)} s`) : s.state === "active" ? "…" : s.state === "skipped" ? "skipped" : s.state === "error" ? "error" : ""}</span>
                       </button>
                     </li>
@@ -200,14 +223,28 @@ export function TraceConsole() {
                     <Icon.warn size={15} /> {t.error}
                   </div>
                 )}
-                {t.status === "running" && !res && <p className="lk-console__empty">Working through the graph…</p>}
+                {t.status === "running" && !res && (() => {
+                  const active = ordered.find((n) => t.steps[n.id]?.state === "active");
+                  const llmNode = graph.nodes.find((n) => n.type === "llm");
+                  const d = llmNode ? t.steps[llmNode.id]?.detail : undefined;
+                  const raw = d && d.kind === "llm" ? d.raw : "";
+                  return (
+                    <>
+                      <div className="lk-final__livehead">
+                        <span className="lk-peek__dot is-active" />
+                        {active ? `${active.label}: working` : "Moving to the next stage"}
+                      </div>
+                      {raw ? <pre className="lk-final__live">{raw}</pre> : <p className="lk-console__empty" style={{ color: "#5c7482", marginTop: 6 }}>The model's raw reply streams here, in the Lokol protocol: ACTION, STM section, then the reply.</p>}
+                    </>
+                  );
+                })()}
                 {res && (
                   <>
                     <div className="lk-final__top">
                       <ActionBadge action={res.gate?.action ?? res.reply?.action ?? "ASK_PERSON"} big />
                       {(res.gate?.stm ?? res.reply?.stm) && (res.gate?.stm ?? res.reply?.stm) !== "NONE" && (
                         <span className="lk-final__stm">
-                          STM: {res.gate?.stm ?? res.reply?.stm}
+                          {graph.sector === "health" ? "STM" : "Guide"}: {res.gate?.stm ?? res.reply?.stm}
                           {res.chunk ? `, page ${res.chunk.page}` : ""}
                         </span>
                       )}
@@ -220,7 +257,13 @@ export function TraceConsole() {
                           <Icon.play size={13} /> Play voice ({t.audio.duration.toFixed(1)} s)
                         </button>
                       )}
-                      <span className="lk-runtime">{t.runtime === "shim" ? "Shim runtime: canned replies for UI testing" : "Real engine: generated on this device"}</span>
+                      <span className="lk-runtime">
+                        {graph.sector !== "health"
+                          ? "Preset pack: sample guide and replies until this sector has its own corpus and tuned model"
+                          : t.runtime === "shim"
+                            ? "Shim runtime: canned replies for UI testing"
+                            : "Real engine: generated on this device"}
+                      </span>
                     </div>
                   </>
                 )}

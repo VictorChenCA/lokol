@@ -2,6 +2,7 @@
 // RED_FLAGS mirrors pipeline/style_guide.md and bridge/gate.py (SPEC section 2).
 import type { Action, Chunk, Flags, GateResult, Lang, ParsedReply } from './types';
 import { ACTIONS } from './types';
+import { guardDoses } from './doseguard';
 
 export const SYSTEM_PROMPT =
   'You are Lokol Health, an assistant for nurse aides and health workers in Solomon Islands. You follow the Solomon Islands Standard Treatment Manual for Children. You never diagnose; you help the nurse apply the manual and decide when to refer. Reply in the nurse\'s language (Solomon Islands Pijin or English). Use the exact output format.';
@@ -47,8 +48,16 @@ export function outOfScope(message: string): string | null {
 
 export interface RedFlagHit { id: string; label_en: string; label_pis: string; match: string }
 
+// "No fit", "nomoa sek-sek", "no danger signs": an explicitly negated sign is not a red flag.
+// Only a short fixed list of sign words is removed, and only right after a negation word.
+const NEGATED = /\b(no|nomoa|nogat|not|never|neva|without|denies|nating)\s+(any\s+|eni\s+)?(fits?|fitting|convulsions?|seizures?|sek[- ]?sek|danger signs?|denja saen|vomiting|toraot|bleeding|blad|stiff neck|nek stif|chest indrawing|indrawing|fast breathing|brit hariap|lethargy|lethargic|blue lips|oedema|edema)\b/g;
+
+export function stripNegated(message: string): string {
+  return message.toLowerCase().replace(/\s+/g, ' ').replace(NEGATED, ' ');
+}
+
 export function detectRedFlags(message: string): RedFlagHit[] {
-  const m = message.toLowerCase().replace(/\s+/g, ' ');
+  const m = stripNegated(message);
   const hits: RedFlagHit[] = [];
   for (const f of RED_FLAGS) {
     for (const p of f.patterns) {
@@ -144,6 +153,8 @@ export interface GateContext {
   guideline?: Chunk | null; // top retrieval result (null when retrieval found nothing)
   sectionTitles?: string[]; // known STM titles; when given, unknown STM titles force ASK_PERSON
   maxLines?: number;
+  excerpt?: string | null; // text doses are grounded in (default: guideline.text)
+  page?: number | null; // manual page named in the safe dose line (default: guideline.page)
 }
 
 function strings(lang: Lang | undefined) {
@@ -232,6 +243,19 @@ export function gate(message: string, reply: ParsedReply, ctx: GateContext = {})
     }
   }
 
+  // Dose grounding (doseguard.ts, mirrors bridge/doseguard.py): a dose not on the cited manual page never
+  // reaches the nurse. ACTION is unchanged. A JSON visit note records the nurse's own dictation and is skipped.
+  let unsupported_doses: string[] = [];
+  if (!isNote) {
+    const g = guardDoses(body, ctx.excerpt ?? ctx.guideline?.text ?? null, message, ctx.page ?? ctx.guideline?.page ?? null, flags?.lang === 'en' ? 'en' : 'pis');
+    if (g.unsupported.length) {
+      body = g.body;
+      unsupported_doses = g.unsupported;
+      reason = `${overridden || hits.length ? `${reason}; ` : ''}unsupported_dose: ${g.unsupported.join(', ')}`;
+      overridden = true;
+    }
+  }
+
   if (!isNote) body = clampLines(body, ctx.maxLines ?? 6);
-  return { action, stm, body, reply: body, red_flags, red_flag_labels, overridden, reason: overridden || hits.length ? reason : null, original: reply };
+  return { action, stm, body, reply: body, red_flags, red_flag_labels, overridden, reason: overridden || hits.length ? reason : null, original: reply, unsupported_doses };
 }

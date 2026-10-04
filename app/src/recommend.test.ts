@@ -31,11 +31,13 @@ describe("recommend", () => {
     });
     expect(r.tier).toBe("A");
     const llm = r.graph.nodes.find((n) => n.type === "llm")!;
-    expect(llm.model?.id).toBe("lokol-health-0.8b");
+    expect(llm.model?.id).toBe("lokol-health-qwen3-0.6b");
     expect(r.graph.nodes.every((n) => n.online === false)).toBe(true);
     expect(r.willNotWork.join(" ")).toMatch(/Pijin voice-in/);
-    expect(r.graph.nodes.filter((n) => n.type === "stt").map((n) => n.model?.id)).toEqual(["moonshine-tiny"]);
-    expect(r.graph.nodes.filter((n) => n.type === "tts").length).toBe(2);
+    // a 2 GB phone keeps Pijin voice-out and drops the bigger English voices to fit memory
+    expect(r.graph.nodes.filter((n) => n.type === "tts").map((n) => n.model?.id)).toEqual(["mms-tts-pis"]);
+    expect(r.willNotWork.join(" ")).toMatch(/English voice-out/);
+    expect(r.ramMb).toBeLessThanOrEqual(r.usableRamMb);
     expect(r.graph.edges.length).toBeGreaterThan(5);
   });
 
@@ -52,7 +54,7 @@ describe("recommend", () => {
     });
     expect(r.tier).toBe("C");
     const llm = r.graph.nodes.find((n) => n.type === "llm")!;
-    expect(llm.model?.id).toBe("lokol-health-4b");
+    expect(llm.model?.id).toBe("lokol-health-qwen3-1.7b");
     expect(llm.online).toBe(true);
     expect(r.graph.nodes.find((n) => n.type === "channel")?.online).toBe(true);
     expect(r.willNotWork.some((w) => /Pijin voice-in/.test(w))).toBe(false);
@@ -71,8 +73,8 @@ describe("recommend", () => {
       isLaptop: true
     });
     expect(r.tier).toBe("D");
-    expect(r.graph.nodes.find((n) => n.type === "llm")?.model?.id).toBe("lokol-health-9b");
-    expect(r.graph.nodes.some((n) => n.model?.id === "omnilingual-asr-ctc-300m")).toBe(true);
+    expect(r.graph.nodes.find((n) => n.type === "llm")?.model?.id).toBe("lokol-health-qwen3.5-9b");
+    expect(r.graph.nodes.some((n) => n.model?.id === "omnilingual-ctc-300m-pis")).toBe(true);
   });
 
   it("steps the model down when storage is tight", () => {
@@ -86,7 +88,7 @@ describe("recommend", () => {
       ram_gb: 6,
       storage_gb: 4
     });
-    expect(r.graph.nodes.find((n) => n.type === "llm")?.model?.id).toBe("lokol-health-0.8b");
+    expect(r.graph.nodes.find((n) => n.type === "llm")?.model?.id).toBe("lokol-health-qwen3-0.6b");
     expect(r.reasons.join(" ")).toMatch(/steps down/);
   });
 
@@ -102,6 +104,32 @@ describe("recommend", () => {
       storage_gb: 64
     });
     expect(r.willNotWork.join(" ")).toMatch(/no tuned model/);
+    expect(r.graph.nodes.find((n) => n.type === "llm")?.model?.id).toMatch(/-base$/);
+  });
+
+  it("3 GB phone steps the 1.7B down to 0.6B to fit memory", () => {
+    const r = recommend({
+      sector: "health",
+      languages: ["pis", "en"],
+      voiceIn: true,
+      voiceOut: true,
+      connectivity: "none",
+      deviceName: "Samsung Galaxy A12",
+      ram_gb: 3,
+      storage_gb: 32
+    });
+    expect(r.tier).toBe("B");
+    expect(r.graph.nodes.find((n) => n.type === "llm")?.model?.id).toBe("lokol-health-qwen3-0.6b");
+    expect(r.reasons.join(" ")).toMatch(/Memory is tight/);
+  });
+
+  it("lays nodes out in stage columns", () => {
+    const r = recommend({ sector: "health", languages: ["en"], voiceIn: true, voiceOut: true, connectivity: "none", deviceName: "x", ram_gb: 8, storage_gb: 128 });
+    const x = (t: string) => r.graph.nodes.find((n) => n.type === t)!.position.x;
+    expect(x("stt")).toBeLessThan(x("rag"));
+    expect(x("rag")).toBeLessThan(x("llm"));
+    expect(x("llm")).toBeLessThan(x("gate"));
+    expect(x("gate")).toBeLessThan(x("tts"));
   });
 });
 

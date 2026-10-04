@@ -68,6 +68,7 @@ function Fact({ k, v, sub }: { k: string; v: string; sub?: string }) {
 }
 
 function Checkpoints({ run }: { run: TrainRun }) {
+  const bestId = run.best?.inference;
   const [copied, setCopied] = useState<string | null>(null);
   const list = run.checkpoints.filter((c) => c.kind !== "training");
   if (!list.length) return <p className="text-[12.5px] text-ink-3">No checkpoint saved yet. {run.backend === "river" ? "River saves one every 30 steps." : "mlx saves adapters every 100 iterations."}</p>;
@@ -77,7 +78,9 @@ function Checkpoints({ run }: { run: TrainRun }) {
         <li key={c.id}>
           <button
             type="button"
-            className="group inline-flex max-w-full items-center gap-1.5 whitespace-nowrap rounded-md border border-line-2 bg-white px-2 py-1 font-mono text-[11.5px] text-ink-2 hover:border-ink-4"
+            className={`group inline-flex max-w-full items-center gap-1.5 whitespace-nowrap rounded-md border px-2 py-1 font-mono text-[11.5px] text-ink-2 hover:border-ink-4 ${
+              c.id === bestId ? "border-reef bg-reef-pale" : "border-line-2 bg-white"
+            }`}
             title={`Copy ${c.id}`}
             onClick={async () => {
               if (await copyText(c.id)) {
@@ -88,6 +91,7 @@ function Checkpoints({ run }: { run: TrainRun }) {
           >
             <span className="font-sans font-semibold text-ink">{c.step}</span>
             <span className="truncate">{shortCkpt(c.id)}</span>
+            {c.id === bestId && <span className="font-sans text-[11px] font-semibold text-reef-deep">best</span>}
             <span className="font-sans text-[11px] text-reef">{copied === c.id ? "Copied" : "Copy"}</span>
           </button>
         </li>
@@ -118,7 +122,7 @@ export function FeaturedRun({ run }: { run: TrainRun }) {
             {run.config.epochs} epochs. Also callable online through River when a node's internet toggle is on.
           </p>
           <div className="mt-5">
-            <LossChart loss={run.loss} val={run.val} total={run.steps_total} running={run.status === "running"} height={210} />
+            <LossChart loss={run.loss} val={run.val} total={run.steps_total} running={run.status === "running"} height={210} best={run.best?.step} />
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-[12.5px] text-ink-3">
             <span className="flex items-center gap-1.5">
@@ -134,15 +138,21 @@ export function FeaturedRun({ run }: { run: TrainRun }) {
           <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-4">
             <Fact k="Loss" v={last !== undefined ? last.toFixed(2) : "n/a"} sub={first !== undefined ? `from ${first.toFixed(2)} at step 1` : undefined} />
             <Fact k="Elapsed" v={duration(run.elapsed_s)} sub={run.started_at ? `started ${new Date(run.started_at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}` : undefined} />
-            <Fact k={run.status === "running" ? "Time left" : "Status"} v={run.status === "running" ? `~${duration(run.eta_s)}` : STATUS[run.status].label} sub={STATUS[run.status].pis} />
-            <Fact k="Cost" v={run.cost_usd_est !== undefined ? `~$${run.cost_usd_est.toFixed(2)}` : "n/a"} sub={run.trained_tokens ? `${(run.trained_tokens / 1e6).toFixed(1)}M tokens so far` : undefined} />
-            {lastVal && (
+            <Fact k={run.status === "running" ? "Time left, est." : "Status"} v={run.status === "running" ? duration(run.eta_s) : STATUS[run.status].label} sub={STATUS[run.status].pis} />
+            <Fact k="Cost, est." v={run.cost_usd_est !== undefined ? `$${run.cost_usd_est.toFixed(2)}` : "n/a"} sub={run.trained_tokens ? `${(run.trained_tokens / 1e6).toFixed(1)}M tokens${run.status === "running" ? " so far" : ""}` : undefined} />
+            {run.best?.val ? (
+              <Fact
+                k={`Best checkpoint, step ${run.best.step}`}
+                v={`${Math.round((run.best.val.exact ?? 0) * 100)}%`}
+                sub={`ACTION+STM both right on ${run.best.val.n ?? 40} val prompts; action ${Math.round((run.best.val.action_acc ?? 0) * 100)}%, format ${Math.round((run.best.val.format ?? 0) * 100)}%`}
+              />
+            ) : lastVal ? (
               <Fact
                 k={`Val at step ${lastVal.step}`}
                 v={`${Math.round((lastVal.exact ?? 0) * 100)}%`}
                 sub={`ACTION+STM exact; format ${Math.round((lastVal.format ?? 0) * 100)}%`}
               />
-            )}
+            ) : null}
           </dl>
           <div className="mt-5">
             <h4 className="text-[12px] font-medium text-ink-3">Checkpoints</h4>
@@ -186,7 +196,7 @@ export function RunCard({ run }: { run: TrainRun }) {
       </div>
       <dl className="mt-4 grid grid-cols-3 gap-3">
         <Fact k="Loss" v={last !== undefined ? last.toFixed(2) : "n/a"} />
-        <Fact k={run.status === "running" ? "Time left" : "Elapsed"} v={run.status === "running" ? `~${duration(run.eta_s)}` : run.status === "queued" ? "n/a" : duration(run.elapsed_s)} />
+        <Fact k={run.status === "running" ? "Est. left" : "Elapsed"} v={run.status === "running" ? duration(run.eta_s) : run.status === "queued" ? "n/a" : duration(run.elapsed_s)} />
         <Fact k="Cost" v="$0" sub="local" />
       </dl>
       {run.note && <p className="mt-4 border-t border-line-2 pt-3 text-[12.5px] leading-relaxed text-ink-3">{run.note}</p>}

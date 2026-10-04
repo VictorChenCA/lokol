@@ -4,7 +4,6 @@ import {
   ReactFlow,
   Background,
   BackgroundVariant,
-  Controls,
   MiniMap,
   useNodesState,
   useEdgesState,
@@ -23,7 +22,7 @@ import { Inspector } from "../components/studio/Inspector";
 import { TraceConsole } from "../components/studio/TraceConsole";
 import { NodeIcon, Icon } from "../components/studio/icons";
 import { computeBudget, internetOn, isComputer } from "../components/studio/budget";
-import { edgeHandles, CARD_W } from "../components/studio/layout";
+import { edgeHandles, CARD_W, estimateHeight } from "../components/studio/layout";
 import { useTrace } from "../components/studio/trace";
 import { NODE_META, getModel } from "../models";
 import { recommend, type Recommendation } from "../recommend";
@@ -32,7 +31,42 @@ import type { Graph, NodeType, Sector } from "../types";
 import "../components/studio/studio.css";
 
 const NODE_ORDER: NodeType[] = ["channel", "stt", "rag", "llm", "gate", "tts", "note", "router"];
-const FIT = { padding: { top: "92px", right: "48px", bottom: "40px", left: "48px" }, minZoom: 0.5, maxZoom: 1 } as const;
+const FIT_DESK = { padding: { top: "84px", right: "36px", bottom: "64px", left: "36px" }, minZoom: 0.5, maxZoom: 1 } as const;
+const FIT_PHONE = { padding: { top: "40px", right: "12px", bottom: "56px", left: "12px" }, minZoom: 0.15, maxZoom: 1 } as const;
+const fitOpts = () => (typeof window !== "undefined" && window.innerWidth < 768 ? FIT_PHONE : FIT_DESK);
+
+/**
+ * Fit the stage lanes (not just the cards) into the canvas. On a desktop the zoom never drops below
+ * 0.62 so card text stays readable; if the canvas is short (trace console open) the graph is centred
+ * and the outer rows may run past the edge. A phone always shows the whole pipeline.
+ */
+function useSmartFit(box: React.RefObject<HTMLDivElement>) {
+  const { setViewport } = useReactFlow();
+  return useCallback(
+    (duration = 0) => {
+      const el = box.current;
+      const nodes = useStudio.getState().graph.nodes;
+      if (!el || !nodes.length) return;
+      const W = el.clientWidth;
+      const H = el.clientHeight;
+      const phone = window.innerWidth < 768;
+      const pad = phone ? { t: 10, r: 10, b: 54, l: 10 } : { t: 14, r: 28, b: 58, l: 28 };
+      const x0 = Math.min(...nodes.map((n) => n.position.x)) - 22;
+      const x1 = Math.max(...nodes.map((n) => n.position.x)) + CARD_W + 22;
+      const y0 = Math.min(...nodes.map((n) => n.position.y)) - 74;
+      const y1 = Math.max(...nodes.map((n) => n.position.y + estimateHeight(n))) + 30;
+      const bw = x1 - x0;
+      const bh = y1 - y0;
+      const aw = Math.max(50, W - pad.l - pad.r);
+      const ah = Math.max(50, H - pad.t - pad.b);
+      const zoom = Math.max(phone ? 0.15 : 0.62, Math.min(1, aw / bw, ah / bh));
+      const x = pad.l + (aw - bw * zoom) / 2 - x0 * zoom;
+      const y = bh * zoom <= ah ? pad.t + (ah - bh * zoom) / 2 - y0 * zoom : pad.t + Math.min(0, (ah - bh * zoom) / 2) - y0 * zoom;
+      void setViewport({ x, y, zoom }, duration ? { duration } : undefined);
+    },
+    [box, setViewport]
+  );
+}
 
 const SECTORS: { s: Sector; name: string; pis: string }[] = [
   { s: "health", name: "Lokol Health", pis: "Helt" },
@@ -177,7 +211,9 @@ function Canvas({ onReady }: { onReady: () => void }) {
   const addNode = useStudio((s) => s.addNode);
   const tidy = useStudio((s) => s.tidy);
   const openPreview = useTrace((s) => s.openPreview);
-  const { screenToFlowPosition, fitView } = useReactFlow();
+  const { screenToFlowPosition, zoomIn, zoomOut } = useReactFlow();
+  const boxRef = useRef<HTMLDivElement>(null);
+  const smartFit = useSmartFit(boxRef);
   const budget = useMemo(() => computeBudget(graph), [graph]);
   const net = internetOn(graph);
 
@@ -218,26 +254,50 @@ function Canvas({ onReady }: { onReady: () => void }) {
   useEffect(() => setEdges(flowEdges), [flowEdges, setEdges]);
 
   useEffect(() => {
-    const t1 = setTimeout(() => fitView(FIT), 60);
+    const t1 = setTimeout(() => smartFit(), 60);
     const t2 = setTimeout(() => {
-      fitView(FIT);
+      smartFit();
       onReady();
     }, 420);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
     };
-  }, [fitView, onReady]);
+  }, [smartFit, onReady]);
+
+  // Refit when the canvas changes size (trace console opens, inspector on mobile, window resize).
+  const [tall, setTall] = useState(true);
+  useEffect(() => {
+    const el = boxRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    let last = { w: el.clientWidth, h: el.clientHeight };
+    let t: ReturnType<typeof setTimeout> | undefined;
+    const ro = new ResizeObserver(() => {
+      const w = el.clientWidth;
+      const h = el.clientHeight;
+      setTall(h > 520);
+      if (Math.abs(w - last.w) > 40 || Math.abs(h - last.h) > 40) {
+        last = { w, h };
+        clearTimeout(t);
+        t = setTimeout(() => smartFit(280), 80);
+      }
+    });
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      clearTimeout(t);
+    };
+  }, [smartFit]);
 
   const structure = graph.nodes.map((n) => n.id).join(",") + "|" + graph.name;
   const structRef = useRef(structure);
   useEffect(() => {
     if (structRef.current !== structure) {
       structRef.current = structure;
-      const t = setTimeout(() => fitView({ ...FIT, duration: 450 }), 60);
+      const t = setTimeout(() => smartFit(450), 60);
       return () => clearTimeout(t);
     }
-  }, [structure, fitView]);
+  }, [structure, smartFit]);
 
   const onNodesChange = useCallback(
     (changes: NodeChange<LokolNode>[]) => {
@@ -275,6 +335,7 @@ function Canvas({ onReady }: { onReady: () => void }) {
 
   return (
     <div
+      ref={boxRef}
       className="lk-canvas"
       onDrop={onDrop}
       onDragOver={(e) => {
@@ -296,7 +357,8 @@ function Canvas({ onReady }: { onReady: () => void }) {
         }}
         onNodeDragStop={(_, n) => moveNode(n.id, n.position)}
         fitView
-        fitViewOptions={FIT}
+        fitViewOptions={fitOpts()}
+        onInit={() => smartFit()}
         deleteKeyCode={["Backspace", "Delete"]}
         proOptions={{ hideAttribution: true }}
         minZoom={0.3}
@@ -305,8 +367,7 @@ function Canvas({ onReady }: { onReady: () => void }) {
       >
         <StageLanes nodes={graph.nodes} />
         <Background variant={BackgroundVariant.Dots} gap={22} size={1.3} color="rgba(178, 222, 222, 0.16)" />
-        <Controls showInteractive={false} position="bottom-left" />
-        <MiniMap
+        {tall && <MiniMap
           pannable
           zoomable
           position="bottom-right"
@@ -315,16 +376,25 @@ function Canvas({ onReady }: { onReady: () => void }) {
           nodeBorderRadius={6}
           maskColor="rgba(6, 22, 30, 0.72)"
           bgColor="#0B202A"
-        />
+          style={{ width: 150, height: 92 }}
+        />}
       </ReactFlow>
       <div className="lk-tools">
         <AddNodeMenu />
         <button type="button" className="lk-tool" onClick={() => tidy()} title="Put every node back in its stage column">
           <Icon.grid size={14} /> Tidy
         </button>
-        <button type="button" className="lk-tool" onClick={() => fitView({ ...FIT, duration: 300 })}>
-          Fit
-        </button>
+        <span className="lk-tools__group">
+          <button type="button" className="lk-tool lk-tool--icon" onClick={() => zoomOut({ duration: 200 })} aria-label="Zoom out">
+            <Icon.minus size={14} />
+          </button>
+          <button type="button" className="lk-tool lk-tool--icon" onClick={() => zoomIn({ duration: 200 })} aria-label="Zoom in">
+            <Icon.plus size={14} />
+          </button>
+          <button type="button" className="lk-tool" onClick={() => smartFit(300)}>
+            Fit
+          </button>
+        </span>
       </div>
       {graph.nodes.length === 0 && (
         <div className="lk-empty">
@@ -380,10 +450,10 @@ function StudioHeader() {
       </div>
       <div className="lk-header__actions">
         {toast && <span className="lk-header__toast">{toast}</span>}
-        <button type="button" className="btn-ghost btn-sm" onClick={exportPack} disabled={busy}>
+        <button type="button" className="btn-on-dark btn-sm" onClick={exportPack} disabled={busy}>
           <Icon.download size={14} /> {busy ? "Exporting…" : "Export pack"}
         </button>
-        <button type="button" className="btn-ink btn-sm" onClick={() => navigate("/demo", { state: { graph } })}>
+        <button type="button" className="btn-glow btn-sm" onClick={() => navigate("/demo", { state: { graph } })}>
           Open in Demo
         </button>
       </div>

@@ -1,4 +1,4 @@
-import { lazy, Suspense, type ComponentType } from "react";
+import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import { Shell } from "./components/Shell";
 import Home from "./pages/Home";
@@ -11,22 +11,7 @@ const Demo = lazy(() => import("./pages/Demo"));
 const Deploy = lazy(() => import("./pages/Packs"));
 const Eval = lazy(() => import("./pages/Eval"));
 
-// Train page is owned by the TRAIN+EVAL lane; resolve it if present so this file builds either way.
-const trainPage = import.meta.glob<{ default: ComponentType }>("./pages/Train.tsx");
-const Train = lazy(async () => {
-  const load = trainPage["./pages/Train.tsx"];
-  if (load) return load();
-  return { default: TrainPending };
-});
-
-function TrainPending() {
-  return (
-    <div className="page py-16">
-      <h1 className="font-display text-d-md font-bold">Train</h1>
-      <p className="lede mt-3">Training runs and the dataset card load here.</p>
-    </div>
-  );
-}
+const Train = lazy(() => import("./pages/Train"));
 
 function PageLoading() {
   return (

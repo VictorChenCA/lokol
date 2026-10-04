@@ -3,6 +3,15 @@
 // convert to AudioBuffer and play.
 import { env, AutoTokenizer, VitsModel } from '@huggingface/transformers';
 
+// Speech models are small; keep onnxruntime-web single-threaded so it never competes with (or waits on)
+// the wllama thread pool on a phone. Multi-threaded ORT next to a busy wllama pool stalled in testing.
+try {
+  const wasm = (env as any).backends?.onnx?.wasm;
+  if (wasm) wasm.numThreads = 1;
+} catch {
+  /* older transformers.js */
+}
+
 export interface PCM {
   audio: Float32Array;
   sampling_rate: number;

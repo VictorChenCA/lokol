@@ -11,6 +11,8 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
+from .doseguard import guard_doses
+
 ACTIONS = ("ADVISE", "REFER_NOW", "REFER_NEXT_TRANSPORT", "ASK_PERSON")
 
 # Each entry: id, label, English patterns, Pijin patterns (regex, case-insensitive).
@@ -71,7 +73,7 @@ RED_FLAGS: list[dict] = [
         "id": "bleeding",
         "label": "bleeding",
         "en": [r"\bbleed", r"blood (coming|from|in) ", r"h(a)?emorrhag", r"coughing (up )?blood", r"blood in (the )?stool", r"bloody (stool|diarrhoea|vomit)", r"vomit(ing|s)? blood", r"nose ?bleed"],
-        "pis": [r"blad (hem )?(kam|ran|kamaot)", r"blad long", r"ran blad", r"sitsit blad", r"toraot blad", r"blad kamaot", r"kof(em)? blad"],
+        "pis": [r"blad (hem |i )?(kam|ran|kamaot)", r"blad long", r"ran blad", r"sitsit blad", r"toraot blad", r"blad kamaot", r"kof(em)? blad"],
     },
     {
         "id": "cyanosis",
@@ -100,7 +102,8 @@ _AGE_UNDER_2M = [
 _FEVER = [r"\bfever", r"\bfebrile", r"hot bodi", r"hot body", r"bodi hot", r"temperature", r"\btemp\b", r"hot skin", r"\bhot tumas", r"skin hot", r"\bhot\b", r"\bfiva\b", r"\bwarm\b"]
 
 
-_NEGATION = re.compile(r"(\bno\b|\bnot\b|\bwithout\b|\bnomoa\b|\bno gat\b|\bno garem\b|\bdenies\b|\bisn'?t\b|\bnever\b)\s*(\w+\s+){0,2}$", re.I)
+# Negation words mirror app/src/runtime/gate.ts NEGATED (no, nomoa, nogat, not, never, neva, without, denies, nating).
+_NEGATION = re.compile(r"(\bno\b|\bnot\b|\bwithout\b|\bnomoa\b|\bno ?gat\b|\bno garem\b|\bdenies\b|\bisn'?t\b|\bnever\b|\bneva\b|\bnating\b)\s*(\w+\s+){0,2}$", re.I)
 
 
 def _negated(text: str, start: int) -> bool:
@@ -369,7 +372,11 @@ def apply_gate(
     chunk_section: str | None,
     lang: str,
     section_titles: list[str],
+    excerpt: str | None = None,
+    page: int | None = None,
 ) -> GateResult:
+    """`excerpt`/`page`: the retrieved chunk text and page; every dose in the reply must be grounded in it
+    (bridge/doseguard.py). Without an excerpt any dose line becomes "ask the nurse in charge"."""
     lang = "pis" if lang == "pis" else "en"
     reasons: list[str] = []
     red = match_red_flags(message)
@@ -422,6 +429,13 @@ def apply_gate(
     if action is None:
         action = "ASK_PERSON"
         body = body or CANNED["ask_person"][lang]
+
+    # Dose grounding: a dose not on the cited manual page never reaches the nurse. ACTION is unchanged.
+    if not body.lstrip().startswith("{"):  # a JSON visit note records the nurse's own dictation
+        body, bad_doses = guard_doses(body, excerpt, message, page, lang)
+        if bad_doses:
+            reasons += [f"unsupported_dose:{d}" for d in bad_doses]
+            overridden = True
     return GateResult(
         action=action,
         stm=stm,

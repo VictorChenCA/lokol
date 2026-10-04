@@ -14,14 +14,14 @@ export function SpeedPanel({ rows }: { rows: EvalRow[] }) {
   const maxT = Math.max(...list.map((r) => r.metrics.tokens_per_s ?? 0), 1);
   const maxR = Math.max(...list.map((r) => r.metrics.ram_mb ?? 0), 1);
   return (
-    <ul className="space-y-3">
+    <ul className="space-y-3.5">
       {list.map((r) => {
         const tier = tierOf(r, r.size);
         const ram = r.metrics.ram_mb ?? 0;
         const fit = ram ? (ram < 1000 ? "fits a 2 GB phone" : ram < 2000 ? "4 GB phone and up" : ram < 4500 ? "6 to 8 GB phone" : "laptop or clinic PC") : "";
         return (
-          <li key={r.model + r.variant} className="grid grid-cols-1 gap-x-5 gap-y-1.5 sm:grid-cols-[minmax(0,13rem)_1fr_1fr]">
-            <div className="min-w-0">
+          <li key={r.model + r.variant} className="grid grid-cols-2 gap-x-5 gap-y-2 border-t border-line-2 pt-3 first:border-t-0 first:pt-0">
+            <div className="col-span-2 min-w-0">
               <p className="truncate text-[14px] font-semibold text-ink">{r.model}</p>
               <p className="text-[12px] text-ink-3">
                 {r.variant === "tuned" ? "Tuned" : "Base"}, tier {tier} ({TIER_NAME[tier].toLowerCase()}), {r.runtime}
@@ -38,12 +38,13 @@ export function SpeedPanel({ rows }: { rows: EvalRow[] }) {
             </div>
             <div>
               <div className="flex items-baseline justify-between text-[12px] text-ink-3">
-                <span>Memory {fit && <span className="text-ink-4">({fit})</span>}</span>
+                <span>Memory</span>
                 <span className="font-semibold tabular-nums text-ink">{ram ? (ram >= 1024 ? `${(ram / 1024).toFixed(1)} GB` : `${Math.round(ram)} MB`) : "n/a"}</span>
               </div>
               <div className="mt-1 h-2 rounded-full bg-line-2">
                 <div className="h-full rounded-full bg-ink-3" style={{ width: `${(ram / maxR) * 100}%` }} />
               </div>
+              {fit && <p className="mt-1 text-[11.5px] text-ink-3">{fit}</p>}
             </div>
           </li>
         );
@@ -104,12 +105,14 @@ function sampleTitle(s: EvalSample) {
   return "Guidance";
 }
 
-export function Gallery({ samples, isSample, note }: { samples: EvalSample[]; isSample: boolean; note?: string }) {
+export function Gallery({ samples, isSample, note, size }: { samples: EvalSample[]; isSample: boolean; note?: string; size?: string }) {
   const [i, setI] = useState(0);
   const s = samples[Math.min(i, samples.length - 1)];
   if (!s) return null;
-  const base = s.outputs.find((o) => o.variant === "base");
-  const tuned = s.outputs.find((o) => o.variant === "tuned") ?? s.outputs.find((o) => o.variant === "reference");
+  const pick = (v: EvalSampleOutput["variant"]) =>
+    s.outputs.find((o) => o.variant === v && (!size || !o.size || o.size.toUpperCase() === size.toUpperCase())) ?? s.outputs.find((o) => o.variant === v);
+  const base = pick("base");
+  const tuned = pick("tuned") ?? pick("reference");
   return (
     <div>
       {isSample && note && <p className="mb-4 rounded-lg bg-frangipani-tint px-3 py-2 text-[13px] leading-relaxed text-frangipani-deep">{note}</p>}

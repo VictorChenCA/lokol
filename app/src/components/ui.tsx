@@ -5,7 +5,7 @@
  * Toaster/toast, Kbd, Tooltip, Spinner, SignalBars, StatusDot, CopyButton, CodeBlock, Pair,
  * Callout, NODE_GLOW, ACTION_COLOR.
  */
-import { useEffect, useId, useState, type ButtonHTMLAttributes, type CSSProperties, type ReactNode } from "react";
+import { Component, useEffect, useId, useState, type ButtonHTMLAttributes, type CSSProperties, type ReactNode } from "react";
 import { create } from "zustand";
 import type { Action, NodeType, Tier } from "../types";
 
@@ -399,10 +399,10 @@ export function Kbd({ children, dark = false }: { children: ReactNode; dark?: bo
 }
 
 /** CSS tooltip on hover and keyboard focus. Wrap a focusable child. */
-export function Tooltip({ content, children, side = "top" }: { content: ReactNode; children: ReactNode; side?: "top" | "bottom" }) {
+export function Tooltip({ content, children, side = "top", align = "center" }: { content: ReactNode; children: ReactNode; side?: "top" | "bottom"; align?: "start" | "center" | "end" }) {
   const id = useId();
   return (
-    <span className="tip" data-side={side} aria-describedby={id}>
+    <span className="tip" data-side={side} data-align={align} aria-describedby={id}>
       {children}
       <span role="tooltip" id={id}>{content}</span>
     </span>
@@ -518,6 +518,20 @@ export function CodeBlock({ code, title, className = "" }: { code: string; title
 
 /* ------------------------------------------------------------------ misc */
 
+/** Local error boundary: renders `fallback` if a child (or a lazy chunk) fails, instead of taking down the page. */
+export class Boundary extends Component<{ children: ReactNode; fallback: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  componentDidCatch(error: Error) {
+    console.warn("Lokol boundary caught", error.message);
+  }
+  render() {
+    return this.state.failed ? this.props.fallback : this.props.children;
+  }
+}
+
 /** A coloured type swatch for a node type. */
 export function NodeSwatch({ type, size = 10, style }: { type: NodeType; size?: number; style?: CSSProperties }) {
   return <span className="inline-block shrink-0 rounded-[3px]" style={{ width: size, height: size, background: NODE_GLOW[type], ...style }} aria-hidden />;
@@ -525,5 +539,6 @@ export function NodeSwatch({ type, size = 10, style }: { type: NodeType; size?: 
 
 export function mb(n: number): string {
   if (n >= 1024) return `${(n / 1024).toFixed(1)} GB`;
+  if (n > 0 && n < 1) return `${n.toFixed(1)} MB`;
   return `${Math.round(n)} MB`;
 }

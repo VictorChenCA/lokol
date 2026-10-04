@@ -1,17 +1,15 @@
 import { ViewportPortal } from "@xyflow/react";
 import type { GraphNode } from "../../types";
-import { STAGES, COL_W, CARD_W, stageIndex } from "./layout";
+import { STAGES, COL_W, CARD_W, stageIndex, estimateHeight } from "./layout";
 import { useTrace } from "./trace";
-
-const CARD_H = 172;
 
 /** Faint stage columns drawn in flow space behind the cards, with numbered stage names on top. */
 export function StageLanes({ nodes }: { nodes: GraphNode[] }) {
   const steps = useTrace((s) => s.steps);
   if (!nodes.length) return null;
   const ys = nodes.map((n) => n.position.y);
-  const top = Math.min(...ys) - 78;
-  const bottom = Math.max(...ys) + CARD_H + 36;
+  const top = Math.min(...ys) - 72;
+  const bottom = Math.max(...nodes.map((n) => n.position.y + estimateHeight(n))) + 28;
   const activeStage = (() => {
     const active = nodes.find((n) => steps[n.id]?.state === "active");
     return active ? stageIndex(active) : -1;

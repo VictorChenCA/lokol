@@ -75,11 +75,11 @@ export function TrainYourOwn() {
     let train = "data/synth/train.jsonl";
     let val = "data/synth/val.jsonl";
     if (src === "pdf") {
-      L.push("# 1. Guideline PDF -> text -> section chunks (the lookup node uses the same chunks)");
+      L.push("# Guideline PDF -> text -> section chunks (the lookup node uses the same chunks)");
       L.push(`pdftotext -layout my-guideline.pdf data/raw/${slug}.txt`);
       L.push(".venv/bin/python pipeline/corpus.py            # set SRC at the top to data/raw/" + slug + ".txt");
       L.push("");
-      L.push("# 2. Teacher models on River write ~3,600 protocol cases, then 11 checks + judge");
+      L.push("# Teacher models on River write ~3,600 protocol cases, then 11 checks + judge");
       L.push("set -a; . ./.env; set +a");
       L.push(".venv/bin/python pipeline/synth.py --target 3600 --workers 24 --kimi-share 0.5");
       L.push(".venv/bin/python pipeline/validate.py --val 300 --test 300");
@@ -99,8 +99,8 @@ export function TrainYourOwn() {
       L.push("");
     }
     if (backend === "river") {
-      L.push(`# LoRA on River: ${recipe.river}, rank 16, ~180 steps (about 1 h, a few dollars)`);
-      L.push("set -a; . ./.env; set +a");
+      L.push(`# LoRA on River: ${recipe.river}, rank 16, 180 steps (about 45 min, a few dollars)`);
+      if (src !== "pdf") L.push("set -a; . ./.env; set +a");
       L.push(".venv/bin/python pipeline/train_river.py \\");
       L.push(`  --data ${train} --val ${val} \\`);
       L.push(`  --base ${recipe.river} --steps 180 --batch 32 --lr 2e-4 --rank 16 \\`);
@@ -124,7 +124,7 @@ export function TrainYourOwn() {
     }
     L.push("");
     L.push("# Base vs tuned on the held-out test set -> Eval page");
-    L.push(`.venv/bin/python pipeline/eval.py --model ${backend === "river" ? `"$(jq -r .best.inference models/river/${slug}/checkpoint.json)"` : `models/gguf/${slug}-Q4_K_M.gguf`} --name tuned-${base?.size_label.toLowerCase() ?? "custom"}-${slug} --data data/synth/test.jsonl --out eval/${slug}.json --judge 60`);
+    L.push(`.venv/bin/python pipeline/eval.py --model ${backend === "river" ? `"$(jq -r .best.inference models/river/${slug}/checkpoint.json)" --base ${recipe.river}` : `models/gguf/${slug}-Q4_K_M.gguf`} --name tuned-${base?.size_label.toLowerCase() ?? "custom"}-${slug} --data data/synth/test.jsonl --out eval/${slug}.json --judge 60`);
     return L.join("\n");
   }, [src, slug, langs, backend, recipe, upload, base]);
 

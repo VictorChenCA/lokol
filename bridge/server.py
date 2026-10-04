@@ -5,18 +5,21 @@ Routes
   POST /twilio/whatsapp     Twilio WhatsApp webhook (form-encoded, TwiML reply)
   GET  /messenger/webhook   Meta verify (hub.challenge)
   POST /messenger/webhook   Meta messages -> Send API
-  GET  /health              status of corpus, llama-server, sidecar
+  GET  /health              status of corpus, LLM backend, sidecar, channels (CORS + PNA open)
   GET  /static/...          generated voice notes
 
-Run:  .venv/bin/python -m bridge.server [--mock] [--port 8090]
+Run:  .venv/bin/python -m bridge.server [--mock] [--port 8090] [--backend llama|river]
+      bridge/run_local.sh    bridge + optional sidecar + cloudflared tunnel, prints the webhook URL
 """
 
 from __future__ import annotations
 
 import argparse
+import asyncio
 import base64
 import hashlib
 import hmac
+import inspect
 import json
 import logging
 import os
@@ -27,15 +30,17 @@ from xml.sax.saxutils import escape
 
 import httpx
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, PlainTextResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from . import __version__
+from . import llm
 from .config import settings
 from .corpus import Chunk, load_corpus
 from .gate import RED_FLAG_SECTIONS, apply_gate, detect_lang, format_for_channel, match_red_flags, norm_title, parse_reply
-from .llm import build_messages, chat, llm_ready, mock_reply
+from .llm import mock_reply
 from .retrieval import BM25, guideline_line
 from .speech import download_media, sidecar_ready, synthesize, transcribe
 from .state import StateStore, handle_command
@@ -85,10 +90,45 @@ async def lifespan(app: FastAPI):
     settings.reload()
     engine.load()
     settings.static_dir.mkdir(parents=True, exist_ok=True)
+    log.info("llm backend=%s%s", settings.llm_backend, f" checkpoint={settings.river_checkpoint}" if settings.llm_backend == "river" else "")
+    warm = None
+    if settings.llm_backend == "river" and not settings.mock:
+        # open the River client/session in the background so the first message is not slower
+        warm = asyncio.create_task(asyncio.to_thread(llm.RIVER.warm))
     yield
+    if warm is not None and not warm.done():
+        warm.cancel()
+
+
+class PrivateNetworkAccess:
+    """Chrome Private Network Access: an https page (the Studio on Vercel) may only read
+    http://127.0.0.1:8090 if the preflight answers `Access-Control-Allow-Private-Network: true`.
+    Sits outside CORSMiddleware so the header lands on its preflight responses too."""
+
+    def __init__(self, app) -> None:
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            return await self.app(scope, receive, send)
+
+        async def send_with_pna(message):
+            if message["type"] == "http.response.start":
+                headers = list(message.get("headers") or [])
+                if not any(k.lower() == b"access-control-allow-private-network" for k, _ in headers):
+                    headers.append((b"access-control-allow-private-network", b"true"))
+                    message = {**message, "headers": headers}
+            await send(message)
+
+        return await self.app(scope, receive, send_with_pna)
 
 
 app = FastAPI(title="Lokol bridge", version=__version__, lifespan=lifespan)
+_cors = dict(allow_origins=["*"], allow_methods=["GET", "POST", "OPTIONS"], allow_headers=["*"])
+if "allow_private_network" in inspect.signature(CORSMiddleware.__init__).parameters:
+    _cors["allow_private_network"] = True  # Starlette >= 0.39 refuses PNA preflights (400) without it
+app.add_middleware(CORSMiddleware, **_cors)
+app.add_middleware(PrivateNetworkAccess)  # added last = outermost
 settings.static_dir.mkdir(parents=True, exist_ok=True)
 app.mount("/static", StaticFiles(directory=str(settings.static_dir)), name="static")
 
@@ -143,22 +183,21 @@ async def handle_text(
     preferred = [s for r in match_red_flags(text) for s in RED_FLAG_SECTIONS.get(r["id"], [])]
     chunk, hits = engine.retrieve(text, preferred or None)
     gline = guideline_line(chunk)
-    messages = build_messages(flags, gline, text)
 
-    model = "mock"
+    model = backend = "mock"
     error = None
+    llm_secs = None
     if settings.mock:
         raw = mock_reply(lang, chunk.section if chunk else None, text)
     else:
-        try:
-            raw = await chat(messages)
-            model = settings.llm_model
-        except Exception as e:  # llama-server down: fail safe
-            log.warning("llm error: %s", e)
-            error = str(e)[:200]
-            raw = ""
+        t_llm = time.time()
+        gen = await llm.generate(flags, gline, text, lang)  # never raises; falls back to a canned ASK_PERSON
+        raw, backend, model, error = gen.raw, gen.backend, gen.model, gen.error
+        llm_secs = round(time.time() - t_llm, 2)
+        log.info("turn answered by backend=%s model=%s in %.2fs%s", backend, model, llm_secs, f" (after: {error})" if error else "")
     parsed = parse_reply(raw)
-    result = apply_gate(text, parsed, flags, chunk.section if chunk else None, lang, engine.sections)
+    result = apply_gate(text, parsed, flags, chunk.section if chunk else None, lang, engine.sections,
+                        excerpt=chunk.text if chunk else None, page=chunk.page if chunk else None)
     page = chunk.page if (chunk and result.stm and result.stm == chunk.section) else (chunk.page if chunk and result.stm else None)
     reply_text = format_for_channel(result, lang, page)
 
@@ -186,13 +225,15 @@ async def handle_text(
         "audio_url": audio_url,
         "raw": parsed.raw,
         "model": model,
+        "backend": backend,
         "error": error,
+        "llm_secs": llm_secs,
         "latency_ms": latency,
         "command": False,
     }
     _log_turn({"ts": time.time(), "channel": channel, "user": _hash_user(user_id), "lang": lang, "action": result.action,
                "stm": result.stm, "red_flags": [r["id"] for r in result.red_flags], "overridden": result.overridden,
-               "reasons": result.reasons, "latency_ms": latency, "model": model})
+               "reasons": result.reasons, "latency_ms": latency, "model": model, "backend": backend})
     return out
 
 
@@ -229,18 +270,33 @@ async def message(msg: MessageIn) -> JSONResponse:
     return JSONResponse(out)
 
 
+def _public_url() -> str | None:
+    u = settings.public_base_url
+    return u if u.startswith("https://") else None
+
+
 @app.get("/health")
 async def health() -> dict:
+    """Read by the Studio Deploy page (CORS + PNA). Reports whether credentials are configured,
+    never their values."""
+    if settings.mock:
+        llm_status = {"backend": "mock", "model": "mock", "reachable": True}
+    else:
+        llm_status = await llm.backend_status()
+    sidecar_up = await sidecar_ready()
+    twilio_configured = bool(settings.twilio_account_sid and settings.twilio_auth_token)
     return {
         "ok": True,
+        "mode": "mock" if settings.mock else settings.llm_backend,
         "version": __version__,
         "mock": settings.mock,
         "corpus": {"chunks": len(engine.chunks), "sections": len(engine.sections), "source": engine.source},
-        "llm": {"url": settings.llm_url, "ready": settings.mock or await llm_ready()},
-        "sidecar": {"url": settings.sidecar_url, "ready": await sidecar_ready()},
-        "public_base_url": settings.public_base_url,
-        "twilio": {"signature_check": bool(settings.twilio_auth_token), "async": settings.twilio_async, "from": settings.twilio_whatsapp_from},
-        "messenger": {"send_configured": bool(settings.meta_page_token)},
+        "llm": {**llm_status, "ready": bool(llm_status.get("reachable"))},
+        "sidecar": {"url": settings.sidecar_url, "reachable": sidecar_up, "ready": sidecar_up},
+        "public_base_url": _public_url(),
+        "twilio": {"configured": twilio_configured, "signature_check": bool(settings.twilio_auth_token),
+                   "async": bool(settings.twilio_async and twilio_configured)},
+        "messenger": {"configured": bool(settings.meta_page_token), "send_configured": bool(settings.meta_page_token)},
         "users": len(engine.store.all()),
     }
 
@@ -301,12 +357,18 @@ def build_twiml(body: str, media_url: str | None = None) -> str:
     return f'<?xml version="1.0" encoding="UTF-8"?><Response><Message><Body>{escape(body)}</Body>{media}</Message></Response>'
 
 
+# Tests swap in an httpx.MockTransport here so the REST path runs without the network.
+_twilio_transport: httpx.AsyncBaseTransport | None = None
+
+
 async def send_twilio_message(to: str, body: str, media_url: str | None = None) -> dict:
+    """Twilio REST: POST /2010-04-01/Accounts/{SID}/Messages.json (Basic auth SID:token)."""
     url = f"https://api.twilio.com/2010-04-01/Accounts/{settings.twilio_account_sid}/Messages.json"
-    data = {"From": settings.twilio_whatsapp_from, "To": to, "Body": body}
+    data = {"From": settings.twilio_whatsapp_from, "To": to, "Body": body[:1600]}
     if media_url:
         data["MediaUrl"] = media_url
-    async with httpx.AsyncClient(timeout=30, auth=(settings.twilio_account_sid, settings.twilio_auth_token)) as client:
+    async with httpx.AsyncClient(timeout=30, auth=(settings.twilio_account_sid, settings.twilio_auth_token),
+                                 transport=_twilio_transport) as client:
         r = await client.post(url, data=data)
         try:
             return {"status": r.status_code, "json": r.json()}
@@ -340,19 +402,31 @@ async def _twilio_process(params: dict[str, str]) -> dict[str, Any]:
     return await handle_text("whatsapp", from_, body, want_voice=voice_in, voice_fmt="ogg")
 
 
+async def _twilio_reply_later(params: dict[str, str]) -> None:
+    to = params.get("From", "")
+    try:
+        out = await _twilio_process(params)
+        res = await send_twilio_message(to, out["reply_text"], out.get("audio_url"))
+        status = res.get("status")
+        if not (isinstance(status, int) and 200 <= status < 300):
+            err = (res.get("json") or {}).get("message") if isinstance(res.get("json"), dict) else res.get("text")
+            log.warning("twilio REST send failed: status=%s %s", status, (err or "")[:200])
+        else:
+            log.info("twilio REST reply sent (backend=%s, %s ms)", out.get("backend"), out.get("latency_ms"))
+    except Exception as e:
+        log.exception("twilio async reply failed: %s", e)
+
+
 @app.post("/twilio/whatsapp")
 async def twilio_whatsapp(request: Request, background: BackgroundTasks) -> Response:
     form = await request.form()
     params = {k: str(v) for k, v in form.items()}
     if not verify_twilio(request, params):
         raise HTTPException(403, "invalid Twilio signature")
-    to = params.get("From", "")
     if settings.twilio_async and settings.twilio_account_sid and settings.twilio_auth_token:
-        async def _later() -> None:
-            out = await _twilio_process(params)
-            await send_twilio_message(to, out["reply_text"], out.get("audio_url"))
-
-        background.add_task(_later)
+        # Recommended: Twilio gives the webhook 15 s, a River turn takes 4-12 s plus retrieval.
+        # Answer with empty TwiML now; the reply goes out through the REST API.
+        background.add_task(_twilio_reply_later, params)
         return Response(content='<?xml version="1.0" encoding="UTF-8"?><Response></Response>', media_type="application/xml")
     out = await _twilio_process(params)
     return Response(content=build_twiml(out["reply_text"], out.get("audio_url")), media_type="application/xml")
@@ -472,12 +546,15 @@ def main() -> None:
     ap.add_argument("--port", type=int, default=8090)
     ap.add_argument("--reload", action="store_true")
     ap.add_argument("--llm-url", default=None)
+    ap.add_argument("--backend", choices=["llama", "river"], default=None, help="LLM_BACKEND (default: env or llama)")
     ap.add_argument("--public-base-url", default=None)
     args = ap.parse_args()
     if args.mock:
         os.environ["LOKOL_MOCK"] = "1"
     if args.llm_url:
         os.environ["LLM_URL"] = args.llm_url
+    if args.backend:
+        os.environ["LLM_BACKEND"] = args.backend
     if args.public_base_url:
         os.environ["PUBLIC_BASE_URL"] = args.public_base_url
     import uvicorn
