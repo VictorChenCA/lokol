@@ -4,6 +4,7 @@ import { HEALTH_GRAPH } from "../../data/presets";
 import { buildManifest } from "../../pack";
 import { getRuntime, type RuntimeSource } from "../../runtime-loader";
 import type { Engine, EngineStatus, Graph, Lang, LoadProgress, Manifest } from "../../types";
+import { loadSettings } from "./settings";
 
 /** Fields the real engine adds on top of the shared Engine contract (all optional so the shim fits). */
 export interface LiveModel {
@@ -85,7 +86,8 @@ export function useDemoEngine() {
 
   const graph = (location.state as { graph?: Graph } | null)?.graph;
   const packParam = params.get("pack");
-  const sizeParam = params.get("size");
+  // ?size wins; otherwise the size saved in the field app's settings
+  const sizeParam = params.get("size") ?? loadSettings().size;
 
   useEffect(() => {
     let alive = true;

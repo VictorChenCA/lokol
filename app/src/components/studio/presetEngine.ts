@@ -13,6 +13,8 @@ interface Case {
   action: Action;
   lang: "pis" | "en";
   body: string;
+  /** The same reply in English, for a question asked in English. */
+  en?: string;
   flags?: string[];
   reason?: string;
 }
@@ -30,7 +32,8 @@ const FARM: Case[] = [
     },
     action: "ADVISE",
     lang: "pis",
-    body: "Diswan luk olsem taro lif blait.\nKatem an bonem olketa lif wea garem sik, no torowem long gaden.\nNo plantem taro kolosap tumas, mekem win save go thru.\nSapos sik hem kasem haf gaden, askem extension officer."
+    body: "Diswan luk olsem taro lif blait.\nKatem an bonem olketa lif wea garem sik, no torowem long gaden.\nNo plantem taro kolosap tumas, mekem win save go thru.\nSapos sik hem kasem haf gaden, askem extension officer.",
+    en: "This looks like taro leaf blight.\nCut off and burn the sick leaves; do not leave them in the garden.\nDo not plant taro too close together, so air can move through.\nIf more than half the garden is affected, ask the extension officer."
   },
   {
     match: /spray|chemical|poison|pesticide|cabbage|moth/i,
@@ -63,7 +66,8 @@ const HOST: Case[] = [
     },
     action: "ADVISE",
     lang: "pis",
-    body: "Long sample taem tebol, bot i go long Gizo long Fraede long ivining, an hem kasem Gizo long Sarere moning.\nPlis sekem wetem shipping ofis long Tosde, from taem save sens long weta."
+    body: "Long sample taem tebol, bot i go long Gizo long Fraede long ivining, an hem kasem Gizo long Sarere moning.\nPlis sekem wetem shipping ofis long Tosde, from taem save sens long weta.",
+    en: "In the sample timetable, the Gizo boat leaves on Friday evening and arrives in Gizo on Saturday morning.\nPlease check with the shipping office on Thursday, because times change with the weather."
   },
   {
     match: /room|book|price|how much|night|stay/i,
@@ -107,7 +111,7 @@ export function presetEngine(base: Engine, sector: Sector): Engine {
       const c = pick(message);
       const action: Action = c?.action ?? "ASK_PERSON";
       const stm = chunk?.section ?? "NONE";
-      const body = c?.body ?? FALLBACK[flags.lang === "pis" ? "pis" : "en"];
+      const body = c ? (flags.lang === "en" && c.en ? c.en : c.body) : FALLBACK[flags.lang === "pis" ? "pis" : "en"];
       const raw = `ACTION: ${action}\nSTM: ${stm}\n---\n${body}`;
       const t0 = performance.now();
       const parts = raw.split(/(\s+)/);

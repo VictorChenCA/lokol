@@ -1,12 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import type { Action, Chunk, Flags } from "../types";
 import { ACTION_META, SAMPLES, guessTask, type Sample, type Task } from "../components/demo/copy";
+import { loadSettings, replyLangFor, saveSettings, voiceFor, type FieldSettings } from "../components/demo/settings";
+import { SettingsSheet, type MicTest, type SpeakTest } from "../components/demo/SettingsSheet";
+import { devSoundMuted } from "../devMute";
+import { FIELD_SETTINGS_EVENT } from "../components/Shell";
 import { ReplyCard, UserBubble, type BotMsg, type Msg, type VoiceState } from "../components/demo/ReplyCard";
-import { Composer, ConnectivityChip, FlagChips, LoadCard, ModelChip, RuntimeFooter } from "../components/demo/parts";
+import { Composer, ConnectivityChip, LoadCard, ModelChip, RuntimeFooter, suppliesSummary } from "../components/demo/parts";
 import { PipelinePanel } from "../components/demo/PipelinePanel";
-import { LLM_SIZES, useDemoEngine, useInstallPrompt, useOnline } from "../components/demo/useDemoEngine";
-import { PIS_APPROX_NOTE, TalkBar, VOICE_IN_KEY, VoiceInPicker, type TalkPhase, type VoiceIn } from "../components/demo/TalkPanel";
+import { useDemoEngine, useInstallPrompt, useOnline } from "../components/demo/useDemoEngine";
+import { PIS_APPROX_NOTE, TalkBar, type TalkPhase, type VoiceIn } from "../components/demo/TalkPanel";
 import { listenOnce, pcmToWav, type ListenHandle } from "../runtime/vad";
 
 const ACTIONS: Action[] = ["ADVISE", "REFER_NOW", "REFER_NEXT_TRANSPORT", "ASK_PERSON"];
@@ -34,7 +38,50 @@ export default function Demo() {
   const customPack = Boolean(manifest && (manifest as { corpus_inline?: unknown }).corpus_inline);
   const install = useInstallPrompt();
   const shim = source === "shim";
-  const [flags, setFlags] = useState<Flags>({ lang: "pis", rdt: "yes", act: "yes", transport: "next_boat" });
+  const [settings, setSettingsState] = useState<FieldSettings>(() => loadSettings());
+  const settingsRef = useRef(settings);
+  settingsRef.current = settings;
+  const updateSettings = (p: Partial<FieldSettings>) => {
+    const next = { ...settingsRef.current, ...p };
+    settingsRef.current = next;
+    saveSettings(next);
+    setSettingsState(next);
+    if (p.size && searchParams.has("size")) {
+      // the saved size applies once the URL no longer pins one
+      const q = new URLSearchParams(searchParams);
+      q.delete("size");
+      setSearchParams(q, { replace: true });
+    }
+  };
+  const voiceIn: VoiceIn = settings.voiceIn;
+  const flagsFor = (text: string, extra: Partial<Flags> = {}): Flags => ({
+    lang: replyLangFor(text, settingsRef.current.replyLang),
+    rdt: settingsRef.current.rdt,
+    act: settingsRef.current.act,
+    transport: settingsRef.current.transport,
+    ...extra
+  });
+  const [settingsOpen, setSettingsOpen] = useState(() => searchParams.get("settings") === "1");
+  // The field app header (FieldShell) owns the gear; it asks this page to open the sheet.
+  useEffect(() => {
+    const h = (e: Event) => {
+      e.preventDefault();
+      setSettingsOpen(true);
+    };
+    window.addEventListener(FIELD_SETTINGS_EVENT, h);
+    return () => window.removeEventListener(FIELD_SETTINGS_EVENT, h);
+  }, []);
+  useEffect(() => {
+    if (searchParams.get("settings") !== "1") return;
+    setSettingsOpen(true);
+    const q = new URLSearchParams(searchParams);
+    q.delete("settings");
+    setSearchParams(q, { replace: true });
+  }, [searchParams, setSearchParams]);
+  const [soundBlocked, setSoundBlocked] = useState<BotMsg | null>(null);
+  const [speakTest, setSpeakTest] = useState<SpeakTest>({ phase: "idle" });
+  const [micTest, setMicTest] = useState<MicTest>({ phase: "idle", level: 0 });
+  const micTestRef = useRef<ListenHandle | null>(null);
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [hits, setHits] = useState<Chunk[]>([]);
   const [input, setInput] = useState("");
@@ -51,21 +98,6 @@ export default function Demo() {
   const recRef = useRef<MediaRecorder | null>(null);
   const timerRef = useRef<number | null>(null);
   const audioRef = useRef<{ ctx: AudioContext; srcs: AudioBufferSourceNode[]; gen: number } | null>(null);
-  const [voiceIn, setVoiceInState] = useState<VoiceIn>(() => {
-    try {
-      return localStorage.getItem(VOICE_IN_KEY) === "pis-approx" ? "pis-approx" : "en";
-    } catch {
-      return "en";
-    }
-  });
-  const setVoiceIn = (v: VoiceIn) => {
-    setVoiceInState(v);
-    try {
-      localStorage.setItem(VOICE_IN_KEY, v);
-    } catch {
-      /* storage blocked: the choice lasts for this visit */
-    }
-  };
   const [talkPhase, setTalkPhase] = useState<TalkPhase>("off");
   const [talkLevel, setTalkLevel] = useState(0);
   const [talkHeard, setTalkHeard] = useState<string | null>(null);
@@ -74,7 +106,6 @@ export default function Demo() {
   const whisperRef = useRef<Promise<any> | null>(null);
 
   const ready = !!engine;
-  const pis = flags.lang === "pis";
   const lastBot = useMemo(() => [...msgs].reverse().find((m): m is BotMsg => m.role === "bot") ?? null, [msgs]);
   const lastDone = useMemo(() => [...msgs].reverse().find((m): m is BotMsg => m.role === "bot" && m.stage === "done") ?? null, [msgs]);
 
@@ -88,7 +119,7 @@ export default function Demo() {
     async (textIn: string, opt: { task?: Task; flags?: Flags; via?: "voice" | "text" } = {}): Promise<BotMsg | null> => {
       const text = textIn.trim();
       if (!engine || !text || busy) return null;
-      const f = opt.flags ?? flags;
+      const f = opt.flags ?? flagsFor(text);
       const task = opt.task ?? guessTask(text);
       setBusy(true);
       setInput("");
@@ -149,16 +180,60 @@ export default function Demo() {
         setBusy(false);
       }
     },
-    [engine, flags, busy, shim, refreshStatus]
+    [engine, busy, shim, refreshStatus]
   );
 
   const runSample = (s: Sample) => {
-    const f = { ...flags, ...s.flags, lang: s.lang };
-    setFlags(f);
-    void send(s.text, { task: s.task, flags: f });
+    ensureAudio();
+    if (s.flags) updateSettings(s.flags as Partial<FieldSettings>);
+    void sendAndSpeak(s.text, { task: s.task, flags: flagsFor(s.text, s.flags) });
+  };
+
+  /** Send, then read the reply out loud when "Read replies aloud" is on. */
+  const sendAndSpeak = async (text: string, opt: { task?: Task; flags?: Flags; via?: "voice" | "text" } = {}) => {
+    const bot = await sendRef.current(text, opt);
+    if (bot && bot.stage === "done" && !bot.note && settingsRef.current.readAloud) await speakRef.current(bot);
+    return bot;
   };
 
   /* ---------- voice out ---------- */
+
+  /**
+   * Creates/resumes the AudioContext inside a user tap (and plays one silent sample) so that later automatic
+   * playback, after the model answers, is allowed by iOS Safari and Chrome's autoplay rules.
+   */
+  const ensureAudio = (): AudioContext | null => {
+    try {
+      const Ctx = (window.AudioContext || (window as any).webkitAudioContext) as typeof AudioContext;
+      if (!audioRef.current || audioRef.current.ctx.state === "closed") audioRef.current = { ctx: new Ctx(), srcs: [], gen: 0 };
+      const ctx = audioRef.current.ctx;
+      if (ctx.state !== "running") {
+        void ctx.resume().catch(() => {});
+        const b = ctx.createBuffer(1, 1, 22050);
+        const src = ctx.createBufferSource();
+        src.buffer = b;
+        src.connect(ctx.destination);
+        src.start(0);
+      }
+      return ctx;
+    } catch {
+      return null;
+    }
+  };
+
+  // Any first tap or key press on the page unlocks sound, so even a typed question is answered out loud.
+  useEffect(() => {
+    const unlock = () => {
+      if (!audioRef.current || audioRef.current.ctx.state !== "running") ensureAudio();
+    };
+    window.addEventListener("pointerdown", unlock, true);
+    window.addEventListener("keydown", unlock, true);
+    return () => {
+      window.removeEventListener("pointerdown", unlock, true);
+      window.removeEventListener("keydown", unlock, true);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const stopVoice = () => {
     const a = audioRef.current;
@@ -180,20 +255,37 @@ export default function Demo() {
   // hears the action within a couple of seconds instead of waiting for the whole reply.
   const play = (m: BotMsg) => {
     if (voice.phase !== "idle") return;
+    ensureAudio();
+    setSoundBlocked(null);
     void speakMsg(m);
   };
 
   const speakMsg = async (m: BotMsg): Promise<void> => {
     if (!engine) return;
-    // Create the AudioContext inside the tap so mobile browsers allow playback.
-    const Ctx = (window.AudioContext || (window as any).webkitAudioContext) as typeof AudioContext;
-    if (!audioRef.current) audioRef.current = { ctx: new Ctx(), srcs: [], gen: 0 };
+    const ctx0 = ensureAudio();
+    if (!ctx0 || !audioRef.current) return;
     const a = audioRef.current;
     const ctx = a.ctx;
-    void ctx.resume();
+    if (ctx.state !== "running") {
+      await Promise.race([ctx.resume().catch(() => {}), new Promise((r) => setTimeout(r, 400))]);
+      if ((ctx.state as AudioContextState) !== "running") {
+        // No tap has unlocked sound yet (autoplay rules): ask for one.
+        setSoundBlocked(m);
+        return;
+      }
+    }
+    a.srcs.forEach((src) => {
+      try {
+        src.stop();
+      } catch {
+        /* already stopped */
+      }
+    });
+    a.srcs = [];
     const gen = ++a.gen;
+    const vlang = voiceFor(m.lang, settingsRef.current.voice);
     const meta = ACTION_META[m.action ?? "ASK_PERSON"];
-    const say = `${m.lang === "pis" ? meta.pis : meta.en}.\n${m.text}`;
+    const say = `${vlang === "pis" ? meta.pis : meta.en}.\n${m.text}`;
     const parts = say
       .split(/\n+|(?<=[.!?])\s+/)
       .map((x) => x.trim())
@@ -206,13 +298,13 @@ export default function Demo() {
         if (a.gen !== gen) return;
         let buf: AudioBuffer;
         if (engine.speakPCM) {
-          const pcm = await engine.speakPCM(part, m.lang, (p) => {
+          const pcm = await engine.speakPCM(part, vlang, (p) => {
             if (p.stage === "download") setVoice({ id: m.id, phase: "loading", loaded_mb: p.loaded_mb, total_mb: p.total_mb });
           });
           buf = ctx.createBuffer(1, pcm.audio.length, pcm.sampling_rate);
           buf.copyToChannel(pcm.audio as any, 0);
         } else {
-          buf = await engine.speak(part, m.lang);
+          buf = await engine.speak(part, vlang);
         }
         if (a.gen !== gen) return;
         const src = ctx.createBufferSource();
@@ -331,7 +423,7 @@ export default function Demo() {
       setTalkPhase("thinking");
       const bot = await sendRef.current(text, { via: "voice" });
       if (!talkOnRef.current) break;
-      if (bot && bot.stage === "done") {
+      if (bot && bot.stage === "done" && !bot.note && settingsRef.current.readAloud) {
         setTalkPhase("speaking");
         await speakRef.current(bot);
       }
@@ -347,9 +439,8 @@ export default function Demo() {
     if (!engine) return;
     if (recording) recRef.current?.stop();
     // Create/resume the AudioContext inside the tap so mobile browsers allow the spoken replies.
-    const Ctx = (window.AudioContext || (window as any).webkitAudioContext) as typeof AudioContext;
-    if (!audioRef.current) audioRef.current = { ctx: new Ctx(), srcs: [], gen: 0 };
-    void audioRef.current.ctx.resume();
+    ensureAudio();
+    setSoundBlocked(null);
     talkOnRef.current = true;
     setMicNote(voiceIn === "pis-approx" ? { kind: "info", text: PIS_APPROX_NOTE } : null);
     void talkLoop();
@@ -380,10 +471,10 @@ export default function Demo() {
           text: mode === "pis-approx" ? "Transcribing on this phone (approximate Pijin). The first time loads Whisper base, 136 MB." : "Transcribing on this phone. The first time loads a 52 MB English speech model."
         });
         try {
-          const text = await transcribeFor(blob, mode);
+          const text = (await transcribeFor(blob, mode)).trim();
           if (text) {
-            setInput(text);
-            setMicNote({ kind: "info", text: mode === "pis-approx" ? `Check the words, fix anything wrong, then send. ${PIS_APPROX_NOTE}` : "Check the words, fix anything wrong, then send." });
+            setMicNote(mode === "pis-approx" ? { kind: "info", text: PIS_APPROX_NOTE } : null);
+            void sendAndSpeak(text, { via: "voice" });
           } else {
             setMicNote({ kind: "error", text: "No words came through. Hold the phone closer and try again." });
           }
@@ -409,15 +500,129 @@ export default function Demo() {
       recRef.current?.stop();
       return;
     }
-    if (flags.lang === "pis" && voiceIn === "en") {
-      setMicNote({
-        kind: "pis",
-        text: "Full Pijin voice-in needs the laptop pack (Omnilingual ASR, 300M). On this phone: type in Pijin, speak English, or try approximate Pijin (Whisper base, 136 MB, writes Pijin in English-like spelling)."
-      });
-      return;
-    }
+    ensureAudio();
+    setSoundBlocked(null);
     void startRecording(voiceIn);
   };
+
+  /* ---------- voice test (settings) ---------- */
+
+  const TEST_LINES: { lang: "en" | "pis"; text: string }[] = [
+    { lang: "en", text: "Hello. This is Lokol Health, running on this phone." },
+    { lang: "pis", text: "Halo. Mi Lokol Health, mi stap long fon blong iu." }
+  ];
+
+  const runSpeakTest = async () => {
+    if (!engine) return;
+    if (speakTest.phase === "playing") {
+      stopVoice();
+      setSpeakTest({ phase: "idle" });
+      return;
+    }
+    const ctx = ensureAudio();
+    if (!ctx || !audioRef.current) return setSpeakTest({ phase: "error", detail: "This browser has no Web Audio." });
+    const a = audioRef.current;
+    const gen = ++a.gen;
+    try {
+      for (const line of TEST_LINES) {
+        if (a.gen !== gen) return;
+        setSpeakTest({ phase: "loading", line: line.text, detail: line.lang === "pis" ? "Pijin voice" : "English voice" });
+        let buf: AudioBuffer;
+        const t0 = performance.now();
+        if (engine.speakPCM) {
+          const pcm = await engine.speakPCM(line.text, line.lang, (p) => {
+            if (p.stage === "download") setSpeakTest({ phase: "loading", line: line.text, detail: `Downloading the ${line.lang === "pis" ? "Pijin" : "English"} voice: ${p.loaded_mb} of ${p.total_mb} MB, once.` });
+          });
+          buf = ctx.createBuffer(1, pcm.audio.length, pcm.sampling_rate);
+          buf.copyToChannel(pcm.audio as any, 0);
+        } else buf = await engine.speak(line.text, line.lang);
+        if (a.gen !== gen) return;
+        if (ctx.state !== "running") await ctx.resume().catch(() => {});
+        const src = ctx.createBufferSource();
+        src.buffer = buf;
+        src.connect(ctx.destination);
+        a.srcs.push(src);
+        setSpeakTest({ phase: "playing", line: line.text, detail: `${line.lang === "pis" ? "Pijin" : "English"} voice, made in ${((performance.now() - t0) / 1000).toFixed(1)} s on this device` });
+        await new Promise<void>((resolve) => {
+          src.onended = () => resolve();
+          window.setTimeout(resolve, buf.duration * 1000 + 1500);
+          src.start();
+        });
+      }
+      if (a.gen === gen) setSpeakTest({ phase: "done", line: undefined, detail: ctx.state === "running" ? "Both voices played. If you heard nothing, check the volume and the silent switch." : "Sound is blocked. Tap the button again." });
+      refreshStatus();
+    } catch (e) {
+      setSpeakTest({ phase: "error", detail: `The voice could not play: ${(e as Error).message}` });
+    }
+  };
+
+  const runMicTest = async () => {
+    if (!engine) return;
+    if (micTestRef.current) {
+      micTestRef.current.stop();
+      micTestRef.current = null;
+      setMicTest({ phase: "idle", level: 0 });
+      return;
+    }
+    ensureAudio();
+    setMicTest({ phase: "listening", level: 0 });
+    let last = 0;
+    const h = listenOnce({
+      maxMs: 8000,
+      onLevel: (l) => {
+        if (Math.abs(l - last) > 0.002) {
+          last = l;
+          setMicTest((t) => (t.phase === "listening" || t.phase === "hearing" ? { ...t, level: l } : t));
+        }
+      },
+      onSpeech: () => setMicTest((t) => ({ ...t, phase: "hearing" }))
+    });
+    micTestRef.current = h;
+    try {
+      const u = await h.done;
+      if (micTestRef.current !== h) return;
+      micTestRef.current = null;
+      if (!u) return setMicTest({ phase: "done", level: 0, text: "" });
+      setMicTest({ phase: "transcribing", level: 0 });
+      const text = (await transcribeRef.current(pcmToWav(u.pcm, 16000))).trim();
+      setMicTest({ phase: "done", level: 0, text });
+      refreshStatus();
+    } catch (e) {
+      micTestRef.current = null;
+      const msg = (e as Error).name === "NotAllowedError" || /permission|denied/i.test((e as Error).message) ? "This browser did not give microphone access. Allow the microphone for this site." : `Microphone test failed: ${(e as Error).message}`;
+      setMicTest({ phase: "error", level: 0, error: msg });
+    }
+  };
+
+  useEffect(() => {
+    if (!settingsOpen && micTestRef.current) {
+      micTestRef.current.stop();
+      micTestRef.current = null;
+      setMicTest({ phase: "idle", level: 0 });
+    }
+  }, [settingsOpen]);
+
+  // Warm the stages this clinic uses, after the language model is ready, so the first spoken reply is quick.
+  useEffect(() => {
+    if (!engine?.loadModel || shim) return;
+    const roles: ("stt" | "tts_en")[] = [];
+    if (settings.speechIn && settings.voiceIn === "en") roles.push("stt");
+    if (settings.readAloud && (settings.voice === "en" || (settings.voice === "auto" && settings.replyLang !== "pis"))) roles.push("tts_en");
+    let alive = true;
+    (async () => {
+      for (const r of roles) {
+        if (!alive) return;
+        const st = engine.status() as any;
+        if (st.models?.find((x: any) => x.role === r)?.loaded) continue;
+        await engine.loadModel!(r).catch(() => null);
+        if (alive) refreshStatus();
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [engine, shim, settings.speechIn, settings.voiceIn, settings.readAloud, settings.voice, settings.replyLang]);
 
   /* ---------- copy / save ---------- */
 
@@ -459,42 +664,35 @@ export default function Demo() {
 
   const showInstall = ready && !install.installed && !installDismissed && (install.canPrompt || install.ios) && msgs.length > 0;
   const voiceLabel = status?.tts?.pis ? `${status.tts.pis.label}${status.tts.en ? `, ${status.tts.en.label}` : ""}` : null;
+  const talkOn = talkPhase !== "off";
 
   return (
-    <div className="mx-auto flex w-full max-w-[1060px] flex-1 justify-center gap-10 px-4 pt-4 sm:pt-6 lg:pt-8">
-      <section className="flex w-full max-w-[480px] flex-1 flex-col" aria-label="Lokol Health chat">
+    <div className="mx-auto flex w-full max-w-[1060px] flex-1 justify-center gap-10 px-4 pt-3 sm:pt-5 lg:pt-6">
+      <section className="flex w-full max-w-[480px] flex-1 flex-col" aria-label="Lokol Health">
         <header>
-          <div className="flex items-end justify-between gap-3">
-            <div>
-              <h1 className="font-display text-[30px] font-bold leading-none tracking-tight">{customPack ? manifest?.graph.name : "Lokol Health"}</h1>
-              <p className="mt-1.5 text-[14px] leading-snug text-ink-2">{customPack ? "Answers from your own manual, offline. Each reply cites the section and page it used." : "Helpem nes long klinik. Child care from the Solomon Islands Standard Treatment Manual."}</p>
-            </div>
-          </div>
-          <div className="mt-3 flex flex-wrap items-center gap-1.5">
+          {customPack ? (
+            <h1 className="font-display text-[24px] font-bold leading-tight tracking-tight">{manifest?.graph.name}</h1>
+          ) : (
+            <h1 className="sr-only">Lokol Health</h1>
+          )}
+          <p className="text-[13.5px] leading-snug text-ink-2">
+            {customPack ? "Answers from your own manual, offline. Each reply cites the section and page it used." : "Child care from the Solomon Islands Standard Treatment Manual, on this phone."}
+          </p>
+          <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
             <ConnectivityChip online={online} />
             <ModelChip llm={status?.llm} shim={shim} loading={!ready && !error} />
-            <span className="ml-1 inline-flex overflow-hidden rounded-full border border-line text-[12px]" role="group" aria-label="Model size">
-              {LLM_SIZES.map((sz) => {
-                const on = (searchParams.get("size") ?? "0.6b") === sz.key;
-                return (
-                  <button key={sz.key} type="button" title={sz.detail} aria-pressed={on} disabled={busy}
-                    onClick={() => { const next = new URLSearchParams(searchParams); if (sz.key === "0.6b") next.delete("size"); else next.set("size", sz.key); setSearchParams(next, { replace: true }); }}
-                    className={`px-2.5 py-1 font-medium transition ${on ? "bg-ink text-white" : "bg-card text-ink-2 hover:bg-sand"}`}>
-                    {sz.label}
-                  </button>
-                );
-              })}
-            </span>
           </div>
+          {!customPack && <button
+            type="button"
+            onClick={() => setSettingsOpen(true)}
+            title="Clinic supplies the answers take into account. Tap to change."
+            className="mt-2 flex w-full items-center gap-2 rounded-xl border border-line-2 bg-white/70 px-3 py-1.5 text-left text-[12.5px] text-ink-2 hover:border-line"
+          >
+            <span className="font-medium text-ink">Clinic supplies</span>
+            <span className="min-w-0 flex-1 truncate">{suppliesSummary(settings)}</span>
+            <span className="shrink-0 text-reef-deep">Change</span>
+          </button>}
         </header>
-
-        <div className="mt-4">
-          <FlagChips flags={flags} onChange={setFlags} disabled={busy} />
-          <div className="mt-2">
-            <VoiceInPicker value={voiceIn} onChange={setVoiceIn} disabled={recording || talkPhase !== "off"} />
-            {voiceIn === "pis-approx" && <p className="mt-1 text-[11.5px] leading-snug text-ink-3">{PIS_APPROX_NOTE}</p>}
-          </div>
-        </div>
 
         {packNote && <p className="mt-3 rounded-xl bg-frangipani-tint px-3 py-2 text-[13px] text-[#7A4E05]">{packNote}</p>}
         {ready && status?.llm && !status.llm.tuned && (
@@ -512,26 +710,28 @@ export default function Demo() {
         <div className="mt-5 flex flex-1 flex-col gap-4 pb-4">
           {msgs.length === 0 && (
             <div className="flex flex-col">
-              <p className="font-display text-[21px] font-semibold leading-snug">{pis ? "Tok abaot wanfala pikinini wea sik." : "Tell me about a sick child."}</p>
+              <p className="font-display text-[21px] font-semibold leading-snug">{customPack ? "Ask about your manual." : "Tell me about a sick child."}</p>
               <p className="mt-1 text-[14px] text-ink-2">
-                {pis ? "Hao old, wanem saen, hao long. " : ""}Age, signs, how long. Lokol follows the manual, cites the page, and says when to refer or ask a person.
+                {settings.speechIn ? "Tap Talk and speak, or type. " : ""}
+                {customPack
+                  ? "Lokol finds the matching section, cites it, and says when to ask a person."
+                  : "Age, signs, how long. Lokol follows the manual, cites the page, and says when to refer or ask a person. Write in Pijin and it answers in Pijin."}
               </p>
-              <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-                {SAMPLES.map((s) => {
+              {!customPack && <p className="mt-4 text-[12px] font-semibold uppercase tracking-wide text-ink-3">Try</p>}
+              <ul className="mt-1.5 grid gap-2">
+                {(customPack ? [] : SAMPLES).map((s) => {
                   const meta = ACTION_META[s.tone];
                   return (
                     <li key={s.text}>
                       <button
                         type="button"
-                        disabled={!ready || busy}
+                        disabled={!ready || busy || talkOn}
                         onClick={() => runSample(s)}
                         className="flex h-full w-full flex-col gap-1 rounded-xl border border-line bg-white px-3 py-2.5 text-left transition-colors hover:border-ink-3 disabled:opacity-50"
                       >
                         <span className="flex items-center gap-1.5 text-[12px]">
                           <span className={`h-2 w-2 rounded-full ${meta.band}`} aria-hidden />
-                          <span className="font-semibold text-ink">{s.kind.en}</span>
-                          <span className="text-ink-3">{s.kind.pis}</span>
-                          <span className="ml-auto text-[11px] text-ink-3">{s.lang === "pis" ? "Pijin" : "English"}</span>
+                          <span className="font-semibold text-ink">{s.label}</span>
                         </span>
                         <span className="line-clamp-2 text-[13.5px] leading-snug text-ink-2">{s.text}</span>
                       </button>
@@ -539,7 +739,7 @@ export default function Demo() {
                   );
                 })}
               </ul>
-              <p className="mt-4 text-[12.5px] text-ink-3">Everything stays on this phone. Lokol does not diagnose; the nurse decides.</p>
+              <p className="mt-4 text-[12.5px] text-ink-3">{customPack ? "Everything stays on this phone. A person decides." : "Everything stays on this phone. Lokol does not diagnose; the nurse decides."}</p>
             </div>
           )}
 
@@ -571,74 +771,84 @@ export default function Demo() {
         </div>
 
         <div className="sticky bottom-0 -mx-4 mt-auto border-t border-line-2 bg-paper/95 px-4 pb-[max(10px,env(safe-area-inset-bottom))] pt-2.5 backdrop-blur">
+          {soundBlocked && (
+            <button
+              type="button"
+              onClick={() => {
+                const m = soundBlocked;
+                ensureAudio();
+                setSoundBlocked(null);
+                void speakMsg(m);
+              }}
+              className="mb-2 flex w-full items-center justify-center gap-2 rounded-full bg-[#5B3F86] py-2.5 text-[14px] font-semibold text-white"
+            >
+              Tap to enable sound and hear the answer
+            </button>
+          )}
           {micNote && (
             <div
-              className={`mb-2 rounded-xl px-3 py-2 text-[13px] leading-snug ${
-                micNote.kind === "error" ? "bg-hibiscus-tint text-hibiscus" : micNote.kind === "pis" ? "bg-slate-tint text-ink-2" : "bg-white text-ink-2 ring-1 ring-line-2"
-              }`}
+              className={`mb-2 flex items-start gap-2 rounded-xl px-3 py-2 text-[13px] leading-snug ${micNote.kind === "error" ? "bg-hibiscus-tint text-hibiscus" : "bg-white text-ink-2 ring-1 ring-line-2"}`}
               role="status"
             >
-              {micNote.kind === "pis" && <p className="font-semibold text-ink">Voes long Pijin i no redi long fon yet.</p>}
-              <p>{micNote.text}</p>
-              {micNote.kind === "pis" && (
-                <div className="mt-2 flex gap-2">
-                  <button
-                    type="button"
-                    className="rounded-full bg-ink px-3 py-1 text-[12.5px] font-medium text-white"
-                    onClick={() => {
-                      setFlags((f) => ({ ...f, lang: "en" }));
-                      void startRecording("en");
-                    }}
-                  >
-                    Speak English instead
-                  </button>
-                  <button
-                    type="button"
-                    className="rounded-full border border-line bg-white px-3 py-1 text-[12.5px] font-medium"
-                    onClick={() => {
-                      setVoiceIn("pis-approx");
-                      void startRecording("pis-approx");
-                    }}
-                  >
-                    Try approximate Pijin
-                  </button>
-                  <button type="button" className="rounded-full border border-line bg-white px-3 py-1 text-[12.5px] font-medium" onClick={() => setMicNote(null)}>
-                    Type in Pijin
-                  </button>
-                </div>
-              )}
+              <p className="min-w-0 flex-1">{micNote.text}</p>
+              <button type="button" onClick={() => setMicNote(null)} aria-label="Dismiss" className="shrink-0 text-ink-3 hover:text-ink">
+                ×
+              </button>
             </div>
           )}
-          <TalkBar
-            phase={talkPhase}
-            level={talkLevel}
-            onToggle={toggleTalk}
-            onFinish={() => listenRef.current?.finish()}
-            disabled={!ready || (busy && talkPhase === "off")}
-            voiceIn={voiceIn}
-            heard={talkHeard}
-          />
+          {settings.speechIn && (
+            <TalkBar
+              phase={talkPhase}
+              level={talkLevel}
+              onToggle={toggleTalk}
+              onFinish={() => listenRef.current?.finish()}
+              disabled={!ready || (busy && talkPhase === "off")}
+              voiceIn={voiceIn}
+              heard={talkHeard}
+              speaks={settings.readAloud}
+            />
+          )}
           <Composer
             value={input}
             onChange={setInput}
-            onSend={() => void send(input)}
+            onSend={() => {
+              ensureAudio();
+              void sendAndSpeak(input);
+            }}
             onMic={onMic}
+            onTalk={toggleTalk}
             recording={recording}
             recSeconds={recSeconds}
             ready={ready}
             busy={busy}
-            lang={flags.lang}
+            speechIn={settings.speechIn}
+            talkOn={talkOn}
           />
           <div className="mt-1.5 flex items-center justify-between gap-2">
             <RuntimeFooter status={status} last={lastDone?.stats} shim={shim} loadMs={loadMs} />
-            <Link to="/studio" className="shrink-0 text-[11.5px] text-ink-3 underline-offset-2 hover:underline lg:hidden">
-              Edit in Studio
-            </Link>
+            <span className="shrink-0 text-[11.5px] text-ink-3">{settings.readAloud ? "Reads replies aloud" : "Read aloud off"}</span>
           </div>
         </div>
       </section>
 
-      <PipelinePanel status={status} last={lastBot} hits={hits} shim={shim} voiceLabel={voiceLabel} />
+      <PipelinePanel status={status} last={lastBot} hits={hits} shim={shim} voiceLabel={voiceLabel} speechIn={settings.speechIn} readAloud={settings.readAloud} sttLabel={voiceIn === "pis-approx" ? "Whisper base, Pijin (approximate), 136 MB" : undefined} packName={customPack ? manifest?.graph.name : undefined} corpusLabel={customPack ? "BM25 over the sections of your manual" : undefined} />
+
+      <SettingsSheet
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        settings={settings}
+        onChange={(p) => {
+          if (p.speechIn === false && talkOnRef.current) stopTalk();
+          updateSettings(p);
+        }}
+        busy={busy}
+        install={install}
+        speakTest={speakTest}
+        onSpeakTest={() => void runSpeakTest()}
+        micTest={micTest}
+        onMicTest={() => void runMicTest()}
+        devMuted={devSoundMuted()}
+      />
     </div>
   );
 }

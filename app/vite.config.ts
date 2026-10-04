@@ -97,17 +97,24 @@ export default defineConfig({
       registerType: "autoUpdate",
       includeAssets: ["icons/lokol.svg", "eval/results.sample.json"],
       manifest: {
-        name: "Lokol Studio",
+        // Installs the field app (Add to Home Screen); the Studio stays a website.
+        id: "/demo",
+        name: "Lokol Health",
         short_name: "Lokol",
-        description: "Small AI packs for frontline workers. Runs on the phone you already have.",
+        description: "Offline helper for nurse aides: child care from the Solomon Islands Standard Treatment Manual. Talk or type; it answers out loud.",
+        lang: "en",
         theme_color: "#102C3C",
         background_color: "#EEF4F2",
         display: "standalone",
-        start_url: "/",
+        orientation: "portrait",
+        start_url: "/demo",
+        scope: "/",
         icons: [
           { src: "icons/lokol.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
-          { src: "icons/lokol-192.png", sizes: "192x192", type: "image/png" },
-          { src: "icons/lokol-512.png", sizes: "512x512", type: "image/png", purpose: "any maskable" }
+          { src: "icons/lokol-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+          { src: "icons/lokol-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+          { src: "icons/lokol-maskable-192.png", sizes: "192x192", type: "image/png", purpose: "maskable" },
+          { src: "icons/lokol-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" }
         ]
       },
       workbox: {

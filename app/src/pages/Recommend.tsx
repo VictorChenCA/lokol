@@ -1,9 +1,9 @@
 import { Suspense, lazy, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import devicesJson from "../data/devices.json";
-import { recommend, searchDevices, tierFor, TIER_LABEL, type RecommendInput, type Recommendation } from "../recommend";
+import { recommend, searchDevices, tierFor, TIER_LABEL, TIER_HINT, type RecommendInput, type Recommendation } from "../recommend";
 import { useStudio } from "../store";
-import { Badge, Boundary, Chip, Field, Kbd, Progress, Segmented, TierBadge, Toggle, btnClass, mb, toast } from "../components/ui";
+import { Badge, Boundary, Chip, Field, Kbd, Progress, Segmented, Toggle, btnClass, mb, toast } from "../components/ui";
 import { buildManifest, packZip, download, slug } from "../pack";
 import { SECTOR_COPY } from "../data/presets";
 import type { Connectivity, Device, Sector } from "../types";
@@ -24,14 +24,7 @@ function SafeGraph({ graph, height }: { graph: import("../types").Graph; height:
 
 const DEVICES = devicesJson.devices as Device[];
 
-const STEPS = [
-  { t: "Sector", pis: "Waka" },
-  { t: "Languages", pis: "Langguis" },
-  { t: "Voice", pis: "Voes" },
-  { t: "Signal", pis: "Signal" },
-  { t: "Phone", pis: "Fon" },
-  { t: "Result", pis: "Ansa" }
-] as const;
+const STEPS = [{ t: "Sector" }, { t: "Languages" }, { t: "Voice" }, { t: "Signal" }, { t: "Device" }, { t: "Result" }] as const;
 
 function Check({ on }: { on: boolean }) {
   return (
@@ -176,8 +169,7 @@ export default function Recommend() {
   return (
     <div className="page-narrow pb-24 pt-8 sm:pt-12" onKeyDown={onKey}>
       <h1 className="font-display text-d-lg font-bold" style={{ fontVariationSettings: '"wdth" 86' }}>Recommend</h1>
-      <p className="mt-1 text-[14px] text-ink-3" lang="pis">Wanem nao fitim fon blong yu</p>
-      <p className="lede mt-3">Five questions about the place and the phone. The answer is a graph you can edit, with model sizes per node, the reasons, and what will not work on this device.</p>
+      <p className="lede mt-3">Five questions about the place and the phone. The answer is a pipeline you can edit for that exact device: what gets installed, the download size, the reasons, and what will not work on it.</p>
 
       {/* Stepper */}
       <nav aria-label="Steps" className="mt-8">
@@ -217,7 +209,6 @@ export default function Recommend() {
                   )}
                 </button>
                 <span className={`mt-2 text-[13px] font-medium ${now ? "text-ink" : "text-ink-3"}`}>{s.t}</span>
-                <span className="text-[11.5px] text-ink-4" lang="pis">{s.pis}</span>
               </li>
             );
           })}
@@ -236,7 +227,6 @@ export default function Recommend() {
                   on={sector === s}
                   onClick={() => setSector(s)}
                   title={SECTOR_COPY[s].title}
-                  sub={<span lang="pis">{SECTOR_COPY[s].pijin}</span>}
                   body={SECTOR_COPY[s].line}
                 >
                   <span className="mt-auto pt-3">
@@ -254,10 +244,10 @@ export default function Recommend() {
             <p className="mt-1 text-[14px] text-ink-3">Pick one or both. Code-switching between them is normal and supported.</p>
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
               {[
-                { code: "pis", name: "Solomon Islands Pijin", sub: "Pijin", note: "Text and voice out on every phone. Voice in needs a laptop: the Pijin speech model is 1.3 GB." },
-                { code: "en", name: "English", sub: "Inglis", note: "Text and voice both ways on every tier." }
+                { code: "pis", name: "Solomon Islands Pijin", note: "Text and voice out on every phone. Voice in needs a laptop: the Pijin speech model is 1.3 GB." },
+                { code: "en", name: "English", note: "Text and voice both ways on every tier." }
               ].map((l) => (
-                <Option key={l.code} role="checkbox" on={langs.includes(l.code)} onClick={() => toggleLang(l.code)} title={l.name} sub={<span lang="pis">{l.sub}</span>} body={l.note} />
+                <Option key={l.code} role="checkbox" on={langs.includes(l.code)} onClick={() => toggleLang(l.code)} title={l.name} body={l.note} />
               ))}
             </div>
             {langs.length === 0 && <p className="mt-3 text-[13px] font-medium text-hibiscus" role="alert">Pick at least one language to continue.</p>}
@@ -266,19 +256,30 @@ export default function Recommend() {
 
         {step === 2 && (
           <div>
-            <h2 className="font-display text-d-sm font-bold">Voice in, voice out?</h2>
-            <p className="mt-1 text-[14px] text-ink-3">Voice helps where reading is hard. Each adds a small speech model to the download.</p>
+            <h2 className="font-display text-d-sm font-bold">Voice in, voice out, or text only?</h2>
+            <p className="mt-1 text-[14px] text-ink-3">Voice helps where reading is hard. Each adds a small speech model to the download. Not every clinic needs it: text only keeps the pack smallest.</p>
+            <div className="mt-4">
+              <Segmented
+                value={voiceIn && voiceOut ? "both" : !voiceIn && !voiceOut ? "none" : "custom"}
+                onChange={(v) => {
+                  if (v === "both") { setVoiceIn(true); setVoiceOut(true); }
+                  if (v === "none") { setVoiceIn(false); setVoiceOut(false); }
+                }}
+                options={[{ value: "both", label: "Voice both ways" }, { value: "none", label: "No voice (text only)" }, { value: "custom", label: "Mixed" }]}
+                label="Voice"
+              />
+            </div>
             <div className="mt-5 divide-y divide-line-2 overflow-hidden rounded-2xl border border-line">
               <div className="flex items-center justify-between gap-4 bg-white p-4 sm:p-5">
                 <div>
-                  <div className="font-display text-[18px] font-bold">Speak to it <span className="text-[13px] font-normal text-ink-3" lang="pis">Toktok long hem</span></div>
+                  <div className="font-display text-[18px] font-bold">Speak to it {!voiceIn && <span className="text-[13px] font-normal text-ink-3">Off: the nurse types</span>}</div>
                   <div className="mt-0.5 text-[14px] text-ink-2">Adds a speech-in node: Moonshine tiny for English (about 50 MB). Pijin speech in runs on a laptop.</div>
                 </div>
                 <Toggle large checked={voiceIn} onChange={setVoiceIn} label="Voice in" />
               </div>
               <div className="flex items-center justify-between gap-4 bg-white p-4 sm:p-5">
                 <div>
-                  <div className="font-display text-[18px] font-bold">Hear the reply <span className="text-[13px] font-normal text-ink-3" lang="pis">Herem ansa</span></div>
+                  <div className="font-display text-[18px] font-bold">Hear the reply {!voiceOut && <span className="text-[13px] font-normal text-ink-3">Off: replies are text</span>}</div>
                   <div className="mt-0.5 text-[14px] text-ink-2">Adds a speech-out node: MMS Pijin (about 40 MB) or Kokoro English (about 90 MB).</div>
                 </div>
                 <Toggle large checked={voiceOut} onChange={setVoiceOut} label="Voice out" />
@@ -293,9 +294,9 @@ export default function Recommend() {
             <p className="mt-1 text-[14px] text-ink-3">Nodes only go online when there is signal to use. With none, everything runs on the device.</p>
             <div role="radiogroup" aria-label="Signal" className="mt-5 grid gap-3 sm:grid-cols-3">
               {[
-                { v: "none", t: "None", pis: "No signal", b: "Nurse-aide post with no tower. Everything runs on the device.", bars: 0 },
-                { v: "intermittent", t: "Comes and goes", pis: "Samtaem nomoa", b: "A bar or two some days. Works offline, sends notes when it can.", bars: 2 },
-                { v: "online", t: "Online", pis: "Gat signal", b: "Town clinic. WhatsApp and the hosted 9B on River become options.", bars: 4 }
+                { v: "none", t: "None", b: "Nurse-aide post with no tower. Everything runs on the device.", bars: 0 },
+                { v: "intermittent", t: "Comes and goes", b: "A bar or two some days. Works offline, sends notes when it can.", bars: 2 },
+                { v: "online", t: "Online", b: "Town clinic. WhatsApp and the hosted 9B on River become options.", bars: 4 }
               ].map((o) => (
                 <Option
                   key={o.v}
@@ -309,7 +310,6 @@ export default function Recommend() {
                       {o.t}
                     </span>
                   }
-                  sub={<span lang="pis">{o.pis}</span>}
                   body={o.b}
                 />
               ))}
@@ -321,7 +321,7 @@ export default function Recommend() {
           <div>
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <h2 className="font-display text-d-sm font-bold">Which phone?</h2>
+                <h2 className="font-display text-d-sm font-bold">Which device?</h2>
                 <p className="mt-1 text-[14px] text-ink-3">{DEVICES.length} phones sold in the Pacific, with approximate RAM and storage.</p>
               </div>
               <Segmented value={manual ? "manual" : "search"} onChange={(v) => setManual(v === "manual")} options={[{ value: "search", label: "Search the list" }, { value: "manual", label: "Enter numbers" }]} label="Device entry" />
@@ -345,7 +345,7 @@ export default function Recommend() {
                           </span>
                           <span className="shrink-0 text-right text-[13px]">
                             <span className="block font-semibold text-ink">{d.ram_gb} GB RAM</span>
-                            <span className="block text-ink-3">{d.storage_gb} GB, tier {t}</span>
+                            <span className="block text-ink-3" title={TIER_HINT}>{d.storage_gb} GB storage <span className="text-ink-4">· tier {t}</span></span>
                           </span>
                         </button>
                       </li>
@@ -374,8 +374,8 @@ export default function Recommend() {
             )}
             {previewTier && (
               <div className="mt-5 flex flex-wrap items-center gap-3 rounded-xl bg-sand px-4 py-3 text-[14px]" aria-live="polite">
-                <TierBadge tier={previewTier} />
-                <span className="text-ink-2">{TIER_LABEL[previewTier]}</span>
+                <span className="font-medium text-ink">{input.deviceName}: {input.ram_gb} GB RAM, {input.storage_gb} GB storage.</span>
+                <span className="text-[12px] text-ink-3" title={TIER_HINT}>{TIER_LABEL[previewTier]}</span>
               </div>
             )}
           </div>
@@ -383,17 +383,33 @@ export default function Recommend() {
 
         {step === 5 && result && (
           <div>
-            <div className="flex flex-wrap items-center gap-3">
-              <TierBadge tier={result.tier} />
-              <span className="text-[14px] text-ink-3">{result.tierLabel}</span>
+            <h2 className="font-display text-d-sm font-bold">{result.fitLine}</h2>
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-[13px] text-ink-3">
+              <span>{result.graph.name}</span>
+              <span title={`${result.tierLabel}. ${TIER_HINT}`} className="cursor-help rounded-md bg-sand px-1.5 py-0.5 text-[11.5px] text-ink-3">Tier {result.tier}</span>
             </div>
-            <h2 className="mt-3 font-display text-d-sm font-bold">{result.graph.name}</h2>
+
+            <div className="mt-5 rounded-xl border border-line bg-white p-4">
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <h3 className="font-display text-[16px] font-bold">What gets installed on the {input.deviceName || "device"}</h3>
+                <span className="text-[13px] text-ink-3">{mb(result.totalMb)} once, about {result.minutes3g < 1 ? "1 minute" : `${Math.round(result.minutes3g)} minutes`} on 3G</span>
+              </div>
+              <ul className="mt-2 divide-y divide-line-2 text-[14px]">
+                {result.installs.map((m) => (
+                  <li key={m.name} className="flex items-baseline justify-between gap-3 py-1.5">
+                    <span><span className="font-medium text-ink">{m.name}</span> <span className="text-ink-3">{m.role}</span></span>
+                    <span className="shrink-0 text-ink-2">{mb(m.mb)}</span>
+                  </li>
+                ))}
+                {!voiceIn && !voiceOut && <li className="py-1.5 text-ink-3">No voice models: this pack is text only.</li>}
+              </ul>
+            </div>
 
             <dl className="mt-5 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-4">
               <div className="bg-white p-3.5"><dt className="text-[12px] text-ink-3">Download once</dt><dd className="font-display text-[22px] font-bold">{mb(result.totalMb)}</dd></div>
               <div className="bg-white p-3.5"><dt className="text-[12px] text-ink-3">Free storage, est.</dt><dd className="font-display text-[22px] font-bold">{mb(result.freeStorageMb)}</dd></div>
-              <div className="bg-white p-3.5"><dt className="text-[12px] text-ink-3">Nodes</dt><dd className="font-display text-[22px] font-bold">{result.graph.nodes.length}</dd></div>
-              <div className="bg-white p-3.5"><dt className="text-[12px] text-ink-3">Online nodes</dt><dd className="font-display text-[22px] font-bold">{result.graph.nodes.filter((n) => n.online).length}</dd></div>
+              <div className="bg-white p-3.5"><dt className="text-[12px] text-ink-3">Steps</dt><dd className="font-display text-[22px] font-bold">{result.graph.nodes.length}</dd></div>
+              <div className="bg-white p-3.5"><dt className="text-[12px] text-ink-3">Online steps</dt><dd className="font-display text-[22px] font-bold">{result.graph.nodes.filter((n) => n.online).length}</dd></div>
             </dl>
 
             {result.usableRamMb > 0 && (
@@ -439,7 +455,7 @@ export default function Recommend() {
             <div className="mt-7 flex flex-wrap gap-3 border-t border-line-2 pt-5">
               <button type="button" className={btnClass("ink")} onClick={openInStudio}>Open in Studio</button>
               <button type="button" className={btnClass("ghost")} onClick={exportPack} disabled={exporting}>{exporting ? "Exporting" : "Export pack"}</button>
-              <button type="button" className={btnClass("ghost")} onClick={() => navigate("/demo", { state: { graph: result.graph } })}>Run demo</button>
+              <button type="button" className={btnClass("ghost")} onClick={() => navigate("/demo", { state: { graph: result.graph } })}>Try in the field app</button>
               <button type="button" className={`${btnClass("quiet")} sm:ml-auto`} onClick={() => go(0)}>Start over</button>
             </div>
           </div>

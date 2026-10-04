@@ -5,17 +5,16 @@ import { useStudio } from "../../store";
 import { tierFor } from "../../recommend";
 import { computeBudget, gb, internetOn, isComputer } from "./budget";
 import { NodeIcon, Icon } from "./icons";
+import { isEnabled, isOptionalStage } from "./enabled";
 
 function mbShort(n: number) {
   return n >= 1024 ? `${(n / 1024).toFixed(1)} GB` : n < 1 ? `${n.toFixed(1)} MB` : `${Math.round(n)} MB`;
 }
 
-function Section({ title, pis, children }: { title: string; pis?: string; children: React.ReactNode }) {
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="lk-insp__sec">
-      <h3>
-        {title} {pis && <span>{pis}</span>}
-      </h3>
+      <h3>{title}</h3>
       {children}
     </section>
   );
@@ -64,7 +63,7 @@ function ModelPicker({ node }: { node: GraphNode }) {
                   <span className="lk-mopt__tags">
                     {m.trainedBy && <span className="lk-tag lk-tag--trained">Lokol, {TRAINED_BY_LABEL[m.trainedBy]}</span>}
                     <span className={`lk-tag ${/NC/.test(m.license) ? "lk-tag--warn" : ""}`}>{m.license}</span>
-                    {warn ? <span className="lk-tag lk-tag--bad">Too big for tier {tier}</span> : <span className="lk-tag lk-tag--ok">Fits tier {tier}</span>}
+                    {warn ? <span className="lk-tag lk-tag--bad" title={`Tier ${tier}`}>Too big for {graph.target.device}</span> : <span className="lk-tag lk-tag--ok" title={`Tier ${tier}`}>Fits {graph.target.device}</span>}
                     {m.online_runtime && <span className="lk-tag">{net ? "Can run on River" : "River needs internet"}</span>}
                     {m.availability !== "browser" && <span className={`lk-tag ${m.availability === "catalog only" ? "lk-tag--warn" : ""}`}>{AVAILABILITY_LABEL[m.availability]}</span>}
                     {m.audio_llm && <span className="lk-tag">Audio LLM</span>}
@@ -126,7 +125,7 @@ function Params({ node }: { node: GraphNode }) {
         <label className="lk-check">
           <input type="checkbox" checked={p.abstain_when_no_guideline !== false} onChange={(e) => updateParam(node.id, "abstain_when_no_guideline", e.target.checked)} />
           <span>
-            Say “not sure, ask a person” when no guideline matches <em>Mi no sua, askem nes</em>
+            Say “not sure, ask a person” when no guideline matches
           </span>
         </label>
         <div>
@@ -137,9 +136,7 @@ function Params({ node }: { node: GraphNode }) {
             ))}
             {!rules &&
               RED_FLAG_LABELS.map((r) => (
-                <li key={r.en}>
-                  {r.en} <em>{r.pis}</em>
-                </li>
+                <li key={r.en}>{r.en}</li>
               ))}
           </ul>
           {!rules && <p className="lk-insp__muted">Any match replaces the model's answer with Refer now, or Refer on the next boat when transport is the next boat. The nurse decides.</p>}
@@ -233,6 +230,7 @@ export function Inspector({ onClose }: { onClose: () => void }) {
   const updateNode = useStudio((s) => s.updateNode);
   const removeNode = useStudio((s) => s.removeNode);
   const setNodeOnline = useStudio((s) => s.setNodeOnline);
+  const updateParam = useStudio((s) => s.updateParam);
   const node = graph.nodes.find((n) => n.id === selectedId) ?? null;
   const budget = useMemo(() => computeBudget(graph), [graph]);
   if (!node) return null;
@@ -249,9 +247,7 @@ export function Inspector({ onClose }: { onClose: () => void }) {
           <NodeIcon type={node.type} size={20} />
         </span>
         <div className="min-w-0 flex-1">
-          <div className="lk-insp__type">
-            {meta.name} <span>{meta.pijin}</span>
-          </div>
+          <div className="lk-insp__type">{meta.name}</div>
           <input className="lk-insp__title" value={node.label} onChange={(e) => updateNode(node.id, { label: e.target.value })} aria-label="Node label" />
         </div>
         <button type="button" className="lk-iconbtn" onClick={onClose} aria-label="Close inspector">
@@ -282,7 +278,27 @@ export function Inspector({ onClose }: { onClose: () => void }) {
           </div>
         )}
 
-        <Section title="Internet" pis="Intanet">
+        {isOptionalStage(node) && (
+          <Section title="Use this step">
+            <div className="lk-online">
+              <div className="min-w-0">
+                <div className="lk-online__state">{isEnabled(node) ? "On" : "Off"}</div>
+                <div className="lk-insp__muted">
+                  {isEnabled(node)
+                    ? node.type === "stt"
+                      ? "The nurse can speak a question. Turn off for a text-only pack: no speech model is downloaded."
+                      : "Replies are read aloud. Turn off for a text-only pack: no voice model is downloaded."
+                    : "Off. Messages skip this step, the test run ignores it and the exported pack leaves its model out."}
+                </div>
+              </div>
+              <button type="button" role="switch" aria-checked={isEnabled(node)} aria-label={`Use ${meta.name}`} className="lk-switch" onClick={() => updateParam(node.id, "enabled", !isEnabled(node))}>
+                <span />
+              </button>
+            </div>
+          </Section>
+        )}
+
+        <Section title="Internet">
           <div className={`lk-online ${!net ? "is-locked" : ""}`}>
             <div className="min-w-0">
               <div className="lk-online__state">{node.online && net ? "May use the internet" : "Offline only"}</div>
@@ -295,7 +311,7 @@ export function Inspector({ onClose }: { onClose: () => void }) {
         </Section>
 
         {node.type !== "gate" && node.type !== "channel" && node.type !== "note" && node.type !== "router" && (
-          <Section title="Model" pis="Model">
+          <Section title="Model">
             <ModelPicker node={node} />
           </Section>
         )}

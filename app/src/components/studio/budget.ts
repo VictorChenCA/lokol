@@ -1,4 +1,5 @@
 import type { Graph, GraphNode, GraphTarget, Tier } from "../../types";
+import { isEnabled } from "./enabled";
 import { getModel, NODE_META } from "../../models";
 import { tierFor, freeStorageMb, reservedRamMb, appOverheadMb, isComputerName } from "../../recommend";
 
@@ -87,11 +88,12 @@ export function computeBudget(g: Graph): Budget {
   const ram_reserved_mb = reservedMb(g.target);
   const ram_usable_mb = Math.max(0, ram_total_mb - ram_reserved_mb);
   const app_overhead_mb = appOverheadMb(computer);
-  const rows = g.nodes.map((n) => nodeCost(n, g));
+  const live = g.nodes.filter(isEnabled);
+  const rows = live.map((n) => nodeCost(n, g));
   const ram_used_mb = rows.reduce((s, r) => s + r.ram_mb, 0) + app_overhead_mb;
   const seen = new Set<string>();
   let disk_mb = 0;
-  for (const n of g.nodes) {
+  for (const n of live) {
     const r = rows.find((x) => x.id === n.id)!;
     const key = n.model?.id ?? n.id;
     if (r.disk_mb && !seen.has(key)) {
@@ -173,7 +175,7 @@ export function duration(min: number): string {
 }
 
 export const VERDICT_COPY: Record<Verdict, { en: string; pis: string }> = {
-  fits: { en: "Fits", pis: "Hem fit" },
-  tight: { en: "Tight", pis: "Klosap fulap" },
-  no: { en: "Does not fit", pis: "No save fit" }
+  fits: { en: "Fits", pis: "" },
+  tight: { en: "Tight", pis: "" },
+  no: { en: "Does not fit", pis: "" }
 };

@@ -24,7 +24,7 @@ export function SpeedPanel({ rows }: { rows: EvalRow[] }) {
             <div className="col-span-2 min-w-0">
               <p className="truncate text-[14px] font-semibold text-ink">{r.model}</p>
               <p className="text-[12px] text-ink-3">
-                {r.variant === "tuned" ? "Tuned" : "Base"}, tier {tier} ({TIER_NAME[tier].toLowerCase()}), {r.runtime}
+                {r.variant === "tuned" ? "Tuned" : "Base"}, {TIER_NAME[tier].toLowerCase()}, {r.runtime}
               </p>
             </div>
             <div>

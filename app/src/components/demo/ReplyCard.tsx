@@ -46,17 +46,16 @@ export function UserBubble({ m }: { m: UserMsg }) {
   return (
     <div className="flex flex-col items-end gap-1">
       <div className="max-w-[86%] whitespace-pre-wrap rounded-[20px] rounded-br-md bg-ink px-4 py-2.5 text-[15.5px] leading-snug text-white shadow-[0_6px_18px_-12px_rgba(16,44,60,0.6)]">{m.text}</div>
-      <span className="pr-1 text-[11px] text-ink-3">{m.via === "voice" ? "Voice note, transcribed on this phone" : m.lang === "pis" ? "Pijin" : "English"}</span>
+      <span className="pr-1 text-[11px] text-ink-3">{m.via === "voice" ? "Spoken, transcribed on this phone" : m.lang === "pis" ? "Pijin" : "English"}</span>
     </div>
   );
 }
 
 function WorkingSteps({ m }: { m: BotMsg }) {
-  const pis = m.lang === "pis";
-  const steps: { key: BotMsg["stage"]; en: string; pis: string }[] = [
-    { key: "lookup", en: "Finding the section in the manual", pis: "Lukim buk" },
-    { key: "prefill", en: "Reading the guideline excerpt", pis: "Ridim pij" },
-    { key: "writing", en: "Writing the answer", pis: "Raetem ansa" }
+  const steps: { key: BotMsg["stage"]; en: string }[] = [
+    { key: "lookup", en: "Finding the section in the manual" },
+    { key: "prefill", en: "Reading the guideline excerpt" },
+    { key: "writing", en: "Writing the answer" }
   ];
   const order = ["lookup", "prefill", "writing", "done"];
   const at = order.indexOf(m.stage);
@@ -79,8 +78,7 @@ function WorkingSteps({ m }: { m: BotMsg }) {
                 <span className="h-2 w-2 animate-pulse rounded-full bg-reef" />
               ) : null}
             </span>
-            <span className="font-medium">{pis ? s.pis : s.en}</span>
-            <span className="text-ink-3">{pis ? s.en.toLowerCase() : s.pis}</span>
+            <span className="font-medium">{s.en}</span>
             {s.key === "prefill" && state === "now" && pct !== null && <span className="ml-auto tabular-nums text-ink-3">{pct}%</span>}
           </li>
         );
@@ -141,7 +139,6 @@ export function ReplyCard({
   copiedId: number | null;
   savedIds: Set<number>;
 }) {
-  const pis = m.lang === "pis";
   if (m.stage === "error") {
     return (
       <div className="max-w-[94%] rounded-2xl border border-hibiscus/30 bg-white p-4 text-[14px]">
@@ -158,7 +155,7 @@ export function ReplyCard({
         {meta && (
           <div className={`flex items-center gap-2 px-4 py-2 text-[13px] font-semibold ${meta.soft}`}>
             <ActionGlyph glyph={meta.glyph} size={16} /> {meta.en}
-            <span className="font-normal opacity-80">{meta.pis}</span>
+            {m.lang === "pis" && <span className="font-normal opacity-80">{meta.pis}</span>}
           </div>
         )}
         <div className="p-4">
@@ -191,7 +188,7 @@ export function ReplyCard({
           </span>
           <div className="min-w-0">
             <p className="font-display text-[21px] font-bold leading-tight tracking-tight">{meta.en}</p>
-            <p className="text-[14px] leading-snug opacity-90">{meta.pis}</p>
+            {m.lang === "pis" && <p className="text-[14px] leading-snug opacity-90">{meta.pis}</p>}
           </div>
         </div>
         {(m.overridden || (m.redFlags && m.redFlags.length > 0)) && m.reason && (
@@ -216,7 +213,7 @@ export function ReplyCard({
           <Citation chunk={m.chunk!} stm={m.stm!} />
         ) : action === "ASK_PERSON" ? (
           <p className="rounded-xl bg-slate-tint px-3 py-2 text-[13px] leading-snug text-ink-2">
-            {pis ? "Buk blong pikinini no kavarem disfala. " : ""}No section of the children's manual covers this, so the safe answer is to ask a person.
+            No section of the children's manual covers this, so the safe answer is to ask a person.
           </p>
         ) : null}
       </div>
@@ -233,10 +230,10 @@ export function ReplyCard({
             {thisVoice === "loading"
               ? `Loading voice${voice.total_mb ? ` ${voice.loaded_mb ?? 0}/${voice.total_mb} MB` : ""}`
               : thisVoice === "speaking"
-                ? pis ? "Mekem voes" : "Making voice"
+                ? "Making voice"
                 : thisVoice === "playing"
                   ? "Stop"
-                  : pis ? "Pleim voes" : "Play voice"}
+                  : "Play voice"}
           </button>
         )}
         {!isNote && (

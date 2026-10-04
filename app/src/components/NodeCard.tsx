@@ -7,6 +7,7 @@ import { useTrace } from "./studio/trace";
 import { NodeIcon, Icon } from "./studio/icons";
 import { TracePreview } from "./studio/TracePreview";
 import { stageIndex } from "./studio/layout";
+import { isEnabled, isOptionalStage } from "./studio/enabled";
 import "./studio/studio.css";
 
 export type LokolNodeData = {
@@ -95,7 +96,7 @@ function Body({ node }: { node: GraphNode }) {
           {(rules ?? RED_FLAG_LABELS.slice(0, 3).map((r) => r.en)).slice(0, 3).map((r) => (
             <li key={r}>{r}</li>
           ))}
-          {!rules && <li className="lk-rules__more">+{RED_FLAG_LABELS.length - 3} more, then “Mi no sua, askem nes”</li>}
+          {!rules && <li className="lk-rules__more">+{RED_FLAG_LABELS.length - 3} more, then “not sure, ask a person”</li>}
         </ul>
       </>
     );
@@ -137,12 +138,14 @@ function NodeCardInner({ data, selected }: NodeProps<LokolNode>) {
   const hosted = node.model?.runtime === "river";
   const online = node.online && data.internet !== false;
   const state = step?.state;
+  const off = isOptionalStage(node) && !isEnabled(node);
   const cls = [
     "lk-card",
     selected ? "is-selected" : "",
     issue ? "has-issue" : "",
     state ? `is-${state}` : "",
-    readOnly ? "is-readonly" : ""
+    readOnly ? "is-readonly" : "",
+    off ? "is-off" : ""
   ].join(" ");
 
   return (
@@ -162,13 +165,17 @@ function NodeCardInner({ data, selected }: NodeProps<LokolNode>) {
         </span>
         <div className="lk-head__text">
           <div className="lk-head__row">
-            <span className="lk-type">
-              {meta.name} <span>{meta.pijin}</span>
-            </span>
+            <span className="lk-type">{meta.name}</span>
+            {off ? (
+              <span className="lk-net is-offstage" title="This step is switched off. Messages skip it and the pack does not download its model.">
+                Off
+              </span>
+            ) : (
             <span className={`lk-net ${hosted ? "is-hosted" : online ? "is-online" : "is-offline"}`} title={hosted ? "Hosted on River: needs a signal" : online ? "May use the internet when there is a signal" : "Runs on the device"}>
               <span className="lk-net__dot" />
               {hosted ? "River" : online ? "Online" : "Offline"}
             </span>
+            )}
           </div>
           <div className="lk-title" title={node.label}>
             {node.label}

@@ -8,11 +8,11 @@ import { BASE_COLOR, HEADLINE, TIER_NAME, TUNED_COLOR, familyOf, fmtMetric, grou
 
 const TASK_NAMES: Record<string, string> = { guidance: "Guidance", referral: "Referral", note: "Visit note", followup: "Follow-up", abstain: "Abstain" };
 
-function Block({ id, title, pis, lede, children }: { id: string; title: string; pis: string; lede?: ReactNode; children: ReactNode }) {
+function Block({ id, title, lede, children }: { id: string; title: string; pis?: string; lede?: ReactNode; children: ReactNode }) {
   return (
-    <section id={id} aria-labelledby={`${id}-h`} className="scroll-mt-24">
+    <section id={id} aria-labelledby={`${id}-h`} className="min-w-0 scroll-mt-24">
       <h2 id={`${id}-h`} className="font-display text-d-sm font-bold sm:text-[28px]">
-        {title} <span className="font-normal text-ink-3">{pis}</span>
+        {title}
       </h2>
       {lede && <p className="mt-1.5 max-w-[66ch] text-[15px] leading-relaxed text-ink-2">{lede}</p>}
       <div className="mt-5">{children}</div>
@@ -74,7 +74,7 @@ export default function Eval() {
   return (
     <div className="pb-24">
       <header className="page pt-10 sm:pt-14">
-        <p className="text-[14px] font-medium text-reef-deep">Eval / Testem</p>
+        <p className="text-[14px] font-medium text-reef-deep">Evaluate</p>
         <div className="mt-2 flex flex-wrap items-end justify-between gap-6">
           <div className="max-w-[780px]">
             <h1 className="font-display text-d-lg font-bold">Same prompt, same manual page. Only the weights differ.</h1>
@@ -135,9 +135,9 @@ export default function Eval() {
                   >
                     <span className="font-display text-[22px] font-bold leading-none tabular-nums">{x.size}</span>
                     <span className="min-w-0">
-                      <span className="block text-[12.5px] font-semibold leading-tight">Tier {x.tier}</span>
+                      <span className="block text-[12.5px] font-semibold leading-tight">{TIER_NAME[x.tier]}</span>
                       <span className={`block text-[11.5px] leading-tight ${x.size === g.size ? "text-white/70" : "text-ink-3"}`}>
-                        {TIER_NAME[x.tier]}
+                        Tier {x.tier}
                         {x.smoke ? ", smoke run" : ""}
                       </span>
                     </span>
@@ -173,7 +173,7 @@ export default function Eval() {
         </section>
 
         {groups.length > 1 && (
-          <Block id="tiers" title="Every tier at a glance" pis="Evri saes" lede="Large number: tuned. Small amber number: the base model it started from. Tap a size to see it above.">
+          <Block id="tiers" title="Every model size at a glance" pis="Evri saes" lede="Large number: tuned. Small amber number: the base model it started from. Tap a size to see it above.">
             <TierMatrix groups={groups} selected={g.size} onSelect={setSize} />
           </Block>
         )}

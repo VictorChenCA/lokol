@@ -184,14 +184,13 @@ function Icon({ name }: { name: keyof typeof ICONS }) {
 function Target({
   icon,
   title,
-  pis,
   badges,
   children,
   className = ""
 }: {
   icon: keyof typeof ICONS;
   title: string;
-  pis: string;
+  pis?: string;
   badges?: ReactNode;
   children: ReactNode;
   className?: string;
@@ -205,7 +204,6 @@ function Target({
           </span>
           <div>
             <h3 className="font-display text-[20px] font-bold leading-tight">{title}</h3>
-            <p className="text-[13px] text-ink-3" lang="pis">{pis}</p>
           </div>
         </div>
         {badges && <div className="flex flex-wrap gap-1.5">{badges}</div>}
@@ -504,7 +502,6 @@ export default function Packs() {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="font-display text-d-lg font-bold" style={{ fontVariationSettings: '"wdth" 86' }}>Deploy</h1>
-            <p className="mt-1 text-[14px] text-ink-3" lang="pis">Putum long fon, long laptop, o long WhatsApp</p>
             <p className="lede mt-3">Pick a pack, then where it runs. Every target uses the same graph and the same model files, so a clinic can start on a laptop and move to phones without retraining.</p>
           </div>
         </div>
@@ -586,7 +583,7 @@ export default function Packs() {
           <div className="space-y-10">
             <section aria-labelledby="t-pick">
               <h2 id="t-pick" className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 font-display text-[22px] font-bold">
-                Pick where it runs <span className="text-[14px] font-normal text-ink-3" lang="pis">Wea nao hem bae ran?</span>
+                Pick where it runs
               </h2>
               <p className="mt-1 text-[14px] text-ink-3">
                 Three run with no signal. Chat channels need a signal, but the model still answers from the clinic laptop. Hosted demo: <a className="link" href={HOSTED_DEMO_URL} target="_blank" rel="noreferrer">{HOSTED_DEMO_URL.replace("https://", "")}</a>

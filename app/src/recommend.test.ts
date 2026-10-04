@@ -150,3 +150,32 @@ describe("searchDevices", () => {
     expect(searchDevices(devices, "galaxy a0").length).toBeGreaterThan(3);
   });
 });
+
+describe("device-specific result", () => {
+  it("names the device, the model and the download in one line", () => {
+    const r = recommend({ sector: "health", languages: ["pis", "en"], voiceIn: false, voiceOut: false, connectivity: "none", deviceName: "Samsung Galaxy A12", ram_gb: 3, storage_gb: 32 });
+    expect(r.fitLine).toMatch(/^(Fits|Tight on) your Samsung Galaxy A12 \(3 GB RAM\): Lokol Health/);
+    expect(r.fitLine).toMatch(/GB download$/);
+    expect(r.installs.length).toBeGreaterThan(0);
+    expect(r.installs.some((m) => m.role === "speech in" || m.role === "speech out")).toBe(false);
+    expect(r.minutes3g).toBeGreaterThan(0);
+  });
+  it("no voice removes the speech nodes", () => {
+    const r = recommend({ sector: "health", languages: ["pis", "en"], voiceIn: false, voiceOut: false, connectivity: "none", deviceName: "Laptop", ram_gb: 16, storage_gb: 512, isLaptop: true });
+    expect(r.graph.nodes.some((n) => n.type === "stt" || n.type === "tts")).toBe(false);
+  });
+});
+
+describe("switched-off stages", () => {
+  it("activeGraph drops disabled speech nodes and rewires around them", async () => {
+    const { activeGraph } = await import("./components/studio/enabled");
+    const r = recommend({ sector: "health", languages: ["pis", "en"], voiceIn: true, voiceOut: true, connectivity: "none", deviceName: "Laptop", ram_gb: 16, storage_gb: 512, isLaptop: true });
+    const g = { ...r.graph, nodes: r.graph.nodes.map((n) => (n.type === "stt" || n.type === "tts" ? { ...n, params: { ...n.params, enabled: false } } : n)) };
+    const a = activeGraph(g);
+    expect(a.nodes.some((n) => n.type === "stt" || n.type === "tts")).toBe(false);
+    const ids = new Set(a.nodes.map((n) => n.id));
+    expect(a.edges.every((e) => ids.has(e.from) && ids.has(e.to))).toBe(true);
+    const gate = a.nodes.find((n) => n.type === "gate")!;
+    expect(a.edges.some((e) => e.from === gate.id)).toBe(true);
+  });
+});

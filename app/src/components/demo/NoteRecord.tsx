@@ -29,7 +29,7 @@ export function NoteRecord({ note }: { note: Record<string, unknown> }) {
     <div className="overflow-hidden rounded-xl border border-line">
       <div className="bg-sand px-3 py-2">
         <p className="font-display text-[15px] font-semibold leading-tight">Visit record</p>
-        <p className="text-[12px] text-ink-3">Not blong visit. Kept on this phone until the nurse sends it.</p>
+        <p className="text-[12px] text-ink-3">Visit note. Kept on this phone until the nurse sends it.</p>
       </div>
       <dl className="grid grid-cols-2 gap-px bg-line-2 text-[14px]">
         <div className="bg-white px-3 py-2">

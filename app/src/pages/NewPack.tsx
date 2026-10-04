@@ -59,7 +59,7 @@ function Stepper({ step, maxStep, onPick }: { step: Step; maxStep: Step; onPick:
               className={`flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[13.5px] transition-colors ${on ? "border-reef bg-reef text-white" : reachable ? "border-line bg-white text-ink hover:border-ink-4" : "border-line-2 bg-sand text-ink-4"}`}
             >
               <span className={`grid h-5 w-5 place-items-center rounded-full text-[12px] font-semibold ${on ? "bg-white/20" : "bg-ink/5"}`}>{s.n}</span>
-              {s.label} <span className={on ? "text-white/70" : "text-ink-4"}>{s.pis}</span>
+              {s.label}
             </button>
           </li>
         );
@@ -215,7 +215,7 @@ export default function NewPack() {
     <div className="pb-24">
       <header className="page pt-10 sm:pt-14">
         <div className="max-w-[760px]">
-          <p className="text-[14px] font-medium text-reef-deep">New pack / Niu pak</p>
+          <p className="text-[14px] font-medium text-reef-deep">New pack</p>
           <h1 className="mt-2 font-display text-d-lg font-bold">Build a pack from your own manual</h1>
           <p className="lede mt-4">
             Upload the guideline your workers already use. Lokol splits it into sections, indexes it on this device, and runs it offline with the same red-flag gate and

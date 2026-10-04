@@ -843,3 +843,22 @@
 
 /* Keyboard focus reads on the dark canvas too */
 .lk-studio :focus-visible { outline-color: #2ec4d3; }
+
+/* ---------- switched-off stages, test run copy, quieter tier badge ---------- */
+.lk-card.is-off { opacity: 0.45; filter: saturate(0.2); border-style: dashed; }
+.lk-card.is-off .lk-body { opacity: 0.7; }
+.lk-net.is-offstage { background: rgba(255, 255, 255, 0.1); color: #c9d6db; font-weight: 700; letter-spacing: 0.02em; }
+.lk-edge.is-off .lk-edge__base { stroke-dasharray: 5 6; opacity: 0.45; }
+.lk-edge.is-off .lk-edge__flow { display: none; }
+.lk-console__desc { font-size: 12.5px; line-height: 1.45; color: var(--lk-muted); margin: 0; }
+.lk-console:not(.is-open) .lk-console__desc { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1; }
+.lk-console__open { margin-left: auto; }
+.lk-tier { font-size: 10.5px; font-weight: 600; padding: 2px 6px; opacity: 0.8; cursor: help; }
+.lk-supply { display: inline-flex; align-items: center; gap: 4px; cursor: help; }
+.lk-fitline { font-size: 12px; color: var(--lk-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 280px; }
+.lk-textonly[aria-pressed="true"] { background: rgba(255, 255, 255, 0.12); }
+@media (max-width: 767px) {
+  .lk-console:not(.is-open) .lk-console__desc { display: none; }
+  .lk-fitline { display: none; }
+}
+.lk-verdict > span { max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

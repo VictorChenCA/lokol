@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { activeGraph, isEnabled } from "./enabled";
 import type { Chunk, Engine, Flags, GateResult, Graph, GraphNode, Lang, LoadProgress, ParsedReply } from "../../types";
 import { buildManifest } from "../../pack";
 import { getRuntime, type RuntimeSource } from "../../runtime-loader";
@@ -122,7 +123,10 @@ export interface RunInput {
  * note / speech out → reply. Each node lights up while its runtime call is in flight; the badge shows
  * the measured time of that call, not the animation.
  */
-export async function runTrace({ graph, text, audio, flags }: RunInput): Promise<void> {
+export async function runTrace({ graph: full, text, audio, flags }: RunInput): Promise<void> {
+  // Switched-off stages (voice in or out) are left out of the run, the way the exported pack leaves them out.
+  const graph = activeGraph(full);
+  const offIds = full.nodes.filter((n) => !isEnabled(n)).map((n) => n.id);
   const my = ++runToken;
   const T = useTrace.getState();
   T.reset();
@@ -158,6 +162,7 @@ export async function runTrace({ graph, text, audio, flags }: RunInput): Promise
     const engine = graph.sector === "health" ? loaded.engine : presetEngine(loaded.engine, graph.sector);
     const queued: Record<string, StepRun> = {};
     nodes.forEach((n) => (queued[n.id] = { state: "queued" }));
+    offIds.forEach((id) => (queued[id] = { state: "skipped", peek: "Turned off", note: "Turned off" }));
     useTrace.setState({ status: "running", runtime: source, progress: null, steps: queued });
     const t0 = performance.now();
 
@@ -189,7 +194,7 @@ export async function runTrace({ graph, text, audio, flags }: RunInput): Promise
         await travel(lastId, sttNode.id);
         const said = await visit(sttNode.id, () => engine.transcribe(audio, flags.lang), (t) => ({
           peek: t ? `“${t.slice(0, 60)}${t.length > 60 ? "…" : ""}”` : "No words recognised",
-          detail: { kind: "stt", text: t, reason: t ? undefined : flags.lang === "pis" ? "Pijin voice-in runs on the laptop tier (Omnilingual ASR in the Python sidecar)." : "Nothing recognised; try again closer to the mic." }
+          detail: { kind: "stt", text: t, reason: t ? undefined : flags.lang === "pis" ? "Pijin voice-in runs on a laptop (Omnilingual ASR in the Python sidecar)." : "Nothing recognised; try again closer to the mic." }
         }));
         if (!alive()) return;
         if (said) message = said;

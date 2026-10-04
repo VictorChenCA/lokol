@@ -13,6 +13,11 @@ function soundOn(): boolean {
   }
 }
 
+/** True only in `vite dev` with sound not switched on. Always false in a production build. */
+export function devSoundMuted(): boolean {
+  return import.meta.env.DEV && typeof window !== "undefined" && !soundOn();
+}
+
 if (import.meta.env.DEV && typeof window !== "undefined" && !soundOn()) {
   const origPlay = HTMLMediaElement.prototype.play;
   HTMLMediaElement.prototype.play = function (this: HTMLMediaElement) {
@@ -42,4 +47,3 @@ if (import.meta.env.DEV && typeof window !== "undefined" && !soundOn()) {
   console.info("[lokol] dev build: audio output muted. Add ?sound=on to the URL to hear voice output.");
 }
 
-export {};

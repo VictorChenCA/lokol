@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import type { Chunk } from "../../types";
 import { ACTION_META } from "./copy";
@@ -5,14 +6,21 @@ import type { BotMsg } from "./ReplyCard";
 import type { RichStatus } from "./useDemoEngine";
 
 /** Desktop-only side panel: the pack's nodes, with what each one did for the latest question. */
-export function PipelinePanel({ status, last, hits, shim, voiceLabel }: { status: RichStatus | null; last: BotMsg | null; hits: Chunk[]; shim: boolean; voiceLabel: string | null }) {
+export function PipelinePanel({ status, last, hits, shim, voiceLabel, speechIn = true, readAloud = true, sttLabel, packName, corpusLabel }: { status: RichStatus | null; last: BotMsg | null; hits: Chunk[]; shim: boolean; voiceLabel: string | null; speechIn?: boolean; readAloud?: boolean; sttLabel?: string; packName?: string; corpusLabel?: string }) {
   const llm = status?.llm;
   const running = last && last.stage !== "done" && last.stage !== "error";
-  const steps = [
+  const steps: { key: string; en: string; color: string; active: boolean | null | undefined; off?: boolean; body: ReactNode }[] = [
+    {
+      key: "stt",
+      en: "Speech in",
+      color: "#3E8E5A",
+      active: false,
+      off: !speechIn,
+      body: <span>{speechIn ? sttLabel ?? "Moonshine tiny, English, 52 MB" : "Off in settings: typing only"}</span>
+    },
     {
       key: "rag",
       en: "Guideline lookup",
-      pis: "Lukim buk",
       color: "#E9A93A",
       active: running && last?.stage === "lookup",
       body: hits.length ? (
@@ -27,13 +35,12 @@ export function PipelinePanel({ status, last, hits, shim, voiceLabel }: { status
       ) : last ? (
         <span>No section matched</span>
       ) : (
-        <span>BM25 over 183 STM chunks, Pijin synonyms</span>
+        <span>{corpusLabel ?? "BM25 over 183 STM chunks, Pijin synonyms"}</span>
       )
     },
     {
       key: "llm",
       en: "Language model",
-      pis: "Brain",
       color: "#0F7B88",
       active: running && (last?.stage === "prefill" || last?.stage === "writing"),
       body: shim ? (
@@ -52,7 +59,6 @@ export function PipelinePanel({ status, last, hits, shim, voiceLabel }: { status
     {
       key: "gate",
       en: "Safety gate",
-      pis: "Sef-gate",
       color: "#C32F49",
       active: false,
       body:
@@ -65,21 +71,29 @@ export function PipelinePanel({ status, last, hits, shim, voiceLabel }: { status
           <span>12 danger signs force a referral; no citation means ask a person</span>
         )
     },
-    { key: "tts", en: "Speech out", pis: "Toktok", color: "#7A5CA8", active: false, body: <span>{voiceLabel ?? "MMS Pijin voice, Kokoro English"}</span> }
+    {
+      key: "tts",
+      en: "Speech out",
+      color: "#7A5CA8",
+      active: false,
+      off: !readAloud,
+      body: <span>{readAloud ? voiceLabel ?? "MMS Pijin voice, Kokoro English" : "Off in settings: play button per reply"}</span>
+    }
   ];
   return (
     <aside className="sticky top-[76px] hidden h-fit w-[300px] shrink-0 lg:block" aria-label="What runs on this device">
       <div className="rounded-2xl bg-ink p-4 text-white shadow-node">
         <p className="font-display text-[16px] font-semibold">Running on this device</p>
-        <p className="mt-0.5 text-[12.5px] text-white/60">The Lokol Health pack, node by node.</p>
+        <p className="mt-0.5 text-[12.5px] text-white/60">The {packName ?? "Lokol Health"} pack, node by node.</p>
         <ol className="relative mt-4 space-y-3">
           <span className="absolute bottom-3 left-[7px] top-3 w-px bg-white/15" aria-hidden />
           {steps.map((s) => (
-            <li key={s.key} className="relative flex gap-3">
+            <li key={s.key} className={`relative flex gap-3 ${s.off ? "opacity-45" : ""}`}>
               <span className={`relative z-10 mt-1 h-[15px] w-[15px] shrink-0 rounded-full border-2 border-ink ${s.active ? "animate-pulse" : ""}`} style={{ background: s.color }} aria-hidden />
               <div className="min-w-0 flex-1 rounded-xl bg-white/[0.06] px-3 py-2">
                 <p className="text-[13px] font-semibold">
-                  {s.en} <span className="font-normal text-white/50">{s.pis}</span>
+                  {s.en}
+                  {s.off && <span className="ml-1.5 rounded-full bg-white/15 px-1.5 py-px text-[10.5px] font-medium">Off</span>}
                 </p>
                 <div className="mt-0.5 text-[12px] leading-snug text-white/70">{s.body}</div>
               </div>

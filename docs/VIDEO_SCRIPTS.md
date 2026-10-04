@@ -6,20 +6,20 @@ The World Bank brief wants these points somewhere across the videos: the one-sen
 
 ---
 
-## 1. Product demo (screen recording + phone)
+## 1. Product demo (phone + screen recording)
 
-**Covers:** problem statement, user journey, offline, local language, guardrails, Studio.
+**Covers:** problem statement, user journey, offline, local language by voice, guardrails, the Studio. About 135 words.
 
 | Time | Picture | Voice-over |
 |---|---|---|
-| 0–8 s | Phone in airplane mode, Lokol Health open | "In rural Solomon Islands, most children are seen by a nurse aide, not a doctor, often with no signal. This is Lokol Health, and this phone is in airplane mode." |
-| 8–22 s | Type or speak a Pijin case: *"Pikinini 3 yia, hot bodi tu dei, no laek kaikai."* Reply streams in with the **Advise** badge and the **MALARIA p53** citation; tap play for the Pijin voice | "A nurse describes a sick child in Pijin. Lokol answers in Pijin, from the national treatment manual, and shows the page it used. It speaks it too." |
-| 22–32 s | Danger-sign case: *"...hem sek-sek tude moning."* Big red **Refer now** badge with what to give before the boat | "If there's a danger sign, like a convulsion, it doesn't guess. It tells her to refer, and what to give while she waits for the boat." |
-| 32–38 s | Adult chest-pain question gives the grey **Ask a person** badge | "Outside the manual, it says: mi no sua, askem dokta. A person always makes the call." |
-| 38–55 s | Lokol Studio: the node graph; switch the device to a 2 GB Galaxy A02, the recommender swaps to the 0.6B model and shows the budget bars; trace mode lights up the nodes | "Lokol Studio is how we built it. Pick the sector, the language and the phone. It recommends small models that fit, and every node is a model we trained." |
-| 55–60 s | WhatsApp reply on a phone, then the Deploy page QR | "Then deploy it offline, to Android, or to WhatsApp. Smol AI blong iumi." |
+| 0–8 s | Phone, airplane mode on, the installed **Lokol Health** app (home-screen icon) | "In rural Solomon Islands, most sick children are seen by a nurse aide, not a doctor, often with no signal. This phone is in airplane mode." |
+| 8–24 s | Tap **Talk**, say in Pijin: *"Pikinini blong mi hem tri yia, hot bodi tu dei."* The reply appears with the **Advise** badge and the **MALARIA p53** citation and is read aloud in Pijin | "The nurse just talks. Lokol answers in Pijin, from the national treatment manual, shows the page it used, and reads it out loud." |
+| 24–34 s | Sample: baby with fever who had a fit. Big red **Refer now** badge | "A danger sign is never a judgment call for the model: Lokol refers, and says what to do while waiting for the boat." |
+| 34–40 s | Adult chest pain sample: grey **Ask a person** | "Outside the manual, it says: mi no sua, askem dokta." |
+| 40–48 s | Basic phone: SMS to the clinic number, reply arrives | "No smartphone? The same model answers by SMS from a laptop in the clinic." |
+| 48–60 s | Laptop: landing, **Launch Lokol Studio**, Studio canvas for a Galaxy A12, a Test run lighting each step, then New pack from a farming leaflet | "Lokol Studio builds these: pick the phone, it picks models that fit, every node is a model we trained, and any manual becomes a new pack. Smol AI blong iumi." |
 
----
+Tips: open https://lokol-studio.vercel.app/demo once on Wi-Fi so the model downloads, add it to the home screen, then switch on airplane mode. If the Pijin speech recognition mishears, type the Pijin line instead; the point is the spoken reply.
 
 ## 2. Technical walkthrough
 

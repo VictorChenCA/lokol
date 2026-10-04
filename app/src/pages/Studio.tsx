@@ -24,8 +24,9 @@ import { NodeIcon, Icon } from "../components/studio/icons";
 import { computeBudget, internetOn, isComputer } from "../components/studio/budget";
 import { edgeHandles, CARD_W, estimateHeight } from "../components/studio/layout";
 import { useTrace } from "../components/studio/trace";
+import { activeGraph, isEnabled, isOptionalStage } from "../components/studio/enabled";
 import { NODE_META, getModel } from "../models";
-import { recommend, type Recommendation } from "../recommend";
+import { recommend, TIER_HINT, type Recommendation } from "../recommend";
 import { buildManifest, packZip, download, slug } from "../pack";
 import type { Graph, NodeType, Sector } from "../types";
 import "../components/studio/studio.css";
@@ -121,7 +122,7 @@ function AddNodeMenu() {
                   </span>
                   <span className="min-w-0">
                     <span className="lk-add__name">
-                      {m.name} <em>{m.pijin}</em>
+                      {m.name}
                     </span>
                     <span className="lk-add__blurb">{m.blurb}</span>
                   </span>
@@ -133,6 +134,29 @@ function AddNodeMenu() {
         </ul>
       )}
     </div>
+  );
+}
+
+/* ---------- Text only: switch speech in and speech out off (or back on) ---------- */
+
+function TextOnlyButton() {
+  const graph = useStudio((s) => s.graph);
+  const voice = graph.nodes.filter(isOptionalStage);
+  if (!voice.length) return null;
+  const textOnly = voice.every((n) => !isEnabled(n));
+  return (
+    <button
+      type="button"
+      className="lk-tool lk-textonly"
+      aria-pressed={textOnly}
+      title={textOnly ? "Turn speech in and speech out back on" : "Turn off speech in and speech out: a text-only pack with no voice models to download"}
+      onClick={() => {
+        const up = useStudio.getState().updateParam;
+        voice.forEach((n) => up(n.id, "enabled", textOnly));
+      }}
+    >
+      {textOnly ? "Turn voice on" : "Text only"}
+    </button>
   );
 }
 
@@ -165,8 +189,11 @@ function RecommendCard({ notice, onClose }: { notice: RecNotice; onClose: () => 
       <div className="lk-rec__head">
         <Icon.wand size={16} />
         <div className="min-w-0 flex-1">
-          <p className="lk-rec__title">Recommended for {rec.graph.target.device}</p>
-          <p className="lk-rec__sub">{rec.tierLabel}</p>
+          <p className="lk-rec__title">{rec.fitLine}</p>
+          <p className="lk-rec__sub">
+            Installs {rec.installs.map((m) => m.name).join(", ")}; about {rec.minutes3g < 1 ? "1 minute" : `${Math.round(rec.minutes3g)} minutes`} on 3G.{" "}
+            <span title={TIER_HINT} style={{ opacity: 0.7, cursor: "help" }}>Tier {rec.tier}</span>
+          </p>
         </div>
         <button type="button" className="lk-iconbtn" onClick={onClose} aria-label="Dismiss">
           <Icon.close size={14} />
@@ -234,7 +261,8 @@ function Canvas({ onReady }: { onReady: () => void }) {
     return graph.edges.map((e) => {
       const s = byId.get(e.from);
       const t = byId.get(e.to);
-      return { id: `${e.from}->${e.to}`, source: e.from, target: e.to, type: "flow", ...edgeHandles(s, t), data: { online: !!(s?.online && t?.online && net) } };
+      const off = !!((s && !isEnabled(s)) || (t && !isEnabled(t)));
+      return { id: `${e.from}->${e.to}`, source: e.from, target: e.to, type: "flow", ...edgeHandles(s, t), data: { online: !!(s?.online && t?.online && net), off } };
     });
   }, [graph.nodes, graph.edges, net]);
 
@@ -381,6 +409,7 @@ function Canvas({ onReady }: { onReady: () => void }) {
       </ReactFlow>
       <div className="lk-tools">
         <AddNodeMenu />
+        <TextOnlyButton />
         <button type="button" className="lk-tool" onClick={() => tidy()} title="Put every node back in its stage column">
           <Icon.grid size={14} /> Tidy
         </button>
@@ -399,7 +428,7 @@ function Canvas({ onReady }: { onReady: () => void }) {
       {graph.nodes.length === 0 && (
         <div className="lk-empty">
           <p className="lk-empty__title">Empty canvas</p>
-          <p>Add nodes with Add node, load a preset above, or press Recommend for this device to build a graph for the target phone.</p>
+          <p>Add steps with Add node, load a preset above, or press Recommend for this device to build a pipeline for the target phone.</p>
         </div>
       )}
     </div>
@@ -419,7 +448,8 @@ function StudioHeader() {
   const exportPack = async () => {
     setBusy(true);
     try {
-      const manifest = buildManifest(graph);
+      // Switched-off voice stages are left out, so their models are not in the pack.
+      const manifest = buildManifest(activeGraph(graph));
       const blob = await packZip(manifest);
       download(blob, `${slug(graph.name)}.zip`);
       try {
@@ -453,8 +483,8 @@ function StudioHeader() {
         <button type="button" className="btn-on-dark btn-sm" onClick={exportPack} disabled={busy}>
           <Icon.download size={14} /> {busy ? "Exporting…" : "Export pack"}
         </button>
-        <button type="button" className="btn-glow btn-sm" onClick={() => navigate("/demo", { state: { graph } })}>
-          Open in Demo
+        <button type="button" className="btn-glow btn-sm" onClick={() => navigate("/demo", { state: { graph: activeGraph(graph) } })}>
+          Open in field app
         </button>
       </div>
     </div>
@@ -488,8 +518,8 @@ function StudioInner() {
     const rec = recommend({
       sector: graph.sector,
       languages: graph.language,
-      voiceIn: graph.nodes.some((n) => n.type === "stt"),
-      voiceOut: graph.nodes.some((n) => n.type === "tts"),
+      voiceIn: graph.nodes.some((n) => n.type === "stt" && isEnabled(n)),
+      voiceOut: graph.nodes.some((n) => n.type === "tts" && isEnabled(n)),
       connectivity: t.connectivity,
       deviceName: t.device,
       ram_gb: t.ram_gb,

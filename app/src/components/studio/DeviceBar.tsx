@@ -3,7 +3,7 @@ import devicesJson from "../../data/devices.json";
 import type { Device, Graph } from "../../types";
 import { NODE_META } from "../../models";
 import { useStudio } from "../../store";
-import { searchDevices, TIER_LABEL } from "../../recommend";
+import { searchDevices, TIER_HINT } from "../../recommend";
 import { computeBudget, duration, gb, internetOn, BUNDLE_SOURCE, SBD_PER_GB, VERDICT_COPY, type Budget } from "./budget";
 import { Icon } from "./icons";
 
@@ -154,7 +154,7 @@ export function DeviceBar({ onRecommend, busy }: { onRecommend: () => void; busy
   return (
     <div className="lk-devicebar" role="region" aria-label="Target device and budget">
       <DevicePicker graph={graph} />
-      <span className="lk-tier" title={TIER_LABEL[b.tier]}>
+      <span className="lk-tier" title={TIER_HINT}>
         Tier {b.tier}
       </span>
       <div className="lk-sep" />
@@ -171,7 +171,7 @@ export function DeviceBar({ onRecommend, busy }: { onRecommend: () => void; busy
         {net ? <Icon.wifi size={16} /> : <Icon.wifiOff size={16} />}
         <span className="lk-net-switch__text">
           <span>Internet {net ? "on" : "off"}</span>
-          <em>{net ? "Intanet hem on" : "No intanet"}</em>
+          <em>{net ? "Online steps allowed" : "All on this device"}</em>
         </span>
         <span className="lk-net-switch__track">
           <span />
@@ -180,8 +180,8 @@ export function DeviceBar({ onRecommend, busy }: { onRecommend: () => void; busy
       <div className="relative" ref={whyRef}>
         <button type="button" className={`lk-verdict is-${b.verdict}`} aria-expanded={why} onClick={() => setWhy((x) => !x)}>
           {b.verdict === "fits" ? <Icon.check size={14} strokeWidth={2.4} /> : <Icon.warn size={14} strokeWidth={2.2} />}
-          <span>{v.en}</span>
-          <em>{v.pis}</em>
+          <span>{b.verdict === "fits" ? `Fits your ${graph.target.device}` : b.verdict === "tight" ? `Tight on your ${graph.target.device}` : `Too big for your ${graph.target.device}`}</span>
+          <em>({graph.target.ram_gb} GB RAM)</em>
         </button>
         {why && (
           <div className="lk-pop lk-pop--why" role="dialog" aria-label="Why">

@@ -1,4 +1,4 @@
-import type { Action, Flags, Lang, Transport, YesNoUnknown } from "../../types";
+import type { Action, Flags, Transport, YesNoUnknown } from "../../types";
 
 /** Action meta for the reply card. English headline, Pijin subtitle (what the nurse reads first). */
 export const ACTION_META: Record<
@@ -14,23 +14,18 @@ export const ACTION_META: Record<
 export type Task = "guidance" | "referral" | "note" | "followup" | "abstain";
 
 export interface Sample {
-  kind: { en: string; pis: string };
-  lang: Lang;
+  label: string;
   text: string;
   flags?: Partial<Flags>;
   task?: Task;
   tone: Action;
 }
 
-/** Sample prompts: real presentations from the STM for Children 2017 scope, plus one adult case for the fail-safe. */
+/** Try-it prompts, all in English (typing Pijin still works; the reply follows the message's language). */
 export const SAMPLES: Sample[] = [
-  { kind: { en: "Fever", pis: "Hot bodi" }, lang: "pis", text: "Pikinini 3 yia, hot bodi tu dei, no kaikai gud. No fit. Wanem mi duim?", flags: { rdt: "yes", act: "yes" }, tone: "ADVISE" },
-  { kind: { en: "Danger sign", pis: "Denja saen" }, lang: "pis", text: "Bebi 8 manis, hot bodi an hem sek-sek tude moning, slip tumas nao.", flags: { transport: "next_boat" }, tone: "REFER_NOW" },
-  { kind: { en: "No test kit", pis: "No RDT" }, lang: "en", text: "Girl 4 years, fever since yesterday, weight 15 kg. We have no malaria test kits left.", flags: { rdt: "no", act: "yes" }, tone: "ADVISE" },
-  { kind: { en: "Diarrhoea", pis: "Sitsit wata" }, lang: "en", text: "Child 18 months, watery diarrhoea for 3 days, still drinking and playing. Weight 10 kg. What do I give?", tone: "ADVISE" },
-  { kind: { en: "Visit note", pis: "Raetem not" }, lang: "en", text: "Visit note: boy 3 years, 13 kg, fever 2 days, not eating well, no danger signs, RDT positive. Gave Coartem 1 tablet and paracetamol. Review in 2 days.", task: "note", tone: "ADVISE" },
-  { kind: { en: "SMS to mother", pis: "Mesej long mami" }, lang: "pis", text: "Raetem smol mesej long mami: pikinini mas dring ORS evri taem hem sitsit, an kam bak long klinik long 2 dei.", task: "followup", tone: "ADVISE" },
-  { kind: { en: "Adult, out of scope", pis: "Bigman" }, lang: "en", text: "Adult man, 45, chest pain since this morning. What dose of aspirin should I give?", tone: "ASK_PERSON" }
+  { label: "Fever, RDT positive", text: "Child 3 years, 14 kg, fever for two days, RDT positive, no danger signs. What do I give?", flags: { rdt: "yes", act: "yes" }, tone: "ADVISE" },
+  { label: "Baby with fever and a fit", text: "Baby 8 months, fever and a fit this morning, now very sleepy.", flags: { transport: "next_boat" }, tone: "REFER_NOW" },
+  { label: "Adult chest pain", text: "Adult man, 45, chest pain since this morning. What dose of aspirin should I give?", tone: "ASK_PERSON" }
 ];
 
 export function guessTask(text: string): Task | undefined {
@@ -39,40 +34,41 @@ export function guessTask(text: string): Task | undefined {
   return undefined;
 }
 
+/** Clinic supplies the model is told about, in plain words. */
 export const FLAG_OPTIONS: {
   key: "rdt" | "act" | "transport";
-  en: string;
-  pis: string;
-  values: { v: YesNoUnknown | Transport; en: string; pis: string; tone: "good" | "bad" | "unknown" }[];
+  label: string;
+  tip: string;
+  values: { v: YesNoUnknown | Transport; en: string; tone: "good" | "bad" | "unknown" }[];
 }[] = [
   {
     key: "rdt",
-    en: "Malaria test kit",
-    pis: "RDT",
+    label: "Malaria test kit (RDT)",
+    tip: "Malaria test kit (RDT) in stock? With no kits the manual says to treat fever as malaria where it is common.",
     values: [
-      { v: "yes", en: "in stock", pis: "garem", tone: "good" },
-      { v: "no", en: "out", pis: "nomoa", tone: "bad" },
-      { v: "unknown", en: "not sure", pis: "no sua", tone: "unknown" }
+      { v: "yes", en: "In stock", tone: "good" },
+      { v: "no", en: "Out", tone: "bad" },
+      { v: "unknown", en: "Not sure", tone: "unknown" }
     ]
   },
   {
     key: "act",
-    en: "Coartem",
-    pis: "ACT",
+    label: "Malaria medicine (Coartem / ACT)",
+    tip: "Malaria medicine (Coartem / ACT) in stock? If it is out, a positive test means referral.",
     values: [
-      { v: "yes", en: "in stock", pis: "garem", tone: "good" },
-      { v: "no", en: "out", pis: "nomoa", tone: "bad" },
-      { v: "unknown", en: "not sure", pis: "no sua", tone: "unknown" }
+      { v: "yes", en: "In stock", tone: "good" },
+      { v: "no", en: "Out", tone: "bad" },
+      { v: "unknown", en: "Not sure", tone: "unknown" }
     ]
   },
   {
     key: "transport",
-    en: "Transport",
-    pis: "Bot",
+    label: "Transport to hospital",
+    tip: "Transport to hospital: now / next boat / none. Decides between refer now and refer on the next boat.",
     values: [
-      { v: "next_boat", en: "next boat", pis: "nekis bot", tone: "unknown" },
-      { v: "now", en: "now", pis: "nao", tone: "good" },
-      { v: "none", en: "none", pis: "nomoa", tone: "bad" }
+      { v: "now", en: "Now", tone: "good" },
+      { v: "next_boat", en: "Next boat", tone: "unknown" },
+      { v: "none", en: "None", tone: "bad" }
     ]
   }
 ];

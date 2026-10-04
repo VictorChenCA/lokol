@@ -108,7 +108,7 @@ export function ActionBadge({
   big = false,
   size,
   variant = "soft",
-  pijin = true
+  pijin = false
 }: {
   action: Action;
   big?: boolean;

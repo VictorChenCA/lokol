@@ -31,7 +31,7 @@ export function GraphView({ graph, height = 320 }: { graph: Graph; height?: numb
       target: e.to,
       type: "flow",
       ...edgeHandles(byId.get(e.from), byId.get(e.to)),
-      data: { readOnly: true }
+      data: { readOnly: true, off: [byId.get(e.from), byId.get(e.to)].some((n) => n?.params?.enabled === false) }
     }));
   }, [graph]);
   return (

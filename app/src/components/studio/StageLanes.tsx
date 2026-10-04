@@ -31,7 +31,6 @@ export function StageLanes({ nodes }: { nodes: GraphNode[] }) {
               <div className="lk-lane__label">
                 <span className="lk-lane__num">{i + 1}</span>
                 <span className="lk-lane__en">{s.en}</span>
-                <span className="lk-lane__pis">{s.pis}</span>
               </div>
             </div>
           );

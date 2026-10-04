@@ -2,7 +2,7 @@ import { useTrace, playBuffer } from "./trace";
 import { ACTION_COPY } from "../ui";
 import { Icon } from "./icons";
 
-/** Expanded output of one node after a trace run. Rendered under the card, above the canvas. */
+/** Expanded output of one node after a test run. Rendered under the card, above the canvas. */
 export function TracePreview({ nodeId, side = "right" }: { nodeId: string; side?: "left" | "right" }) {
   const step = useTrace((s) => s.steps[nodeId]);
   const audio = useTrace((s) => s.audio);
@@ -25,7 +25,7 @@ export function TracePreview({ nodeId, side = "right" }: { nodeId: string; side?
       {d.kind === "rag" && (
         <>
           <h4>Retrieved from the Standard Treatment Manual</h4>
-          {d.chunks.length === 0 && <p className="lk-preview__muted">No section matched well enough. The model sees “guideline: none” and should say “Mi no sua”.</p>}
+          {d.chunks.length === 0 && <p className="lk-preview__muted">No section matched well enough. The model sees “guideline: none” and should say it is not sure and to ask a person.</p>}
           {d.chunks.map((c, i) => (
             <div key={c.id} className={`lk-chunk ${i === 0 ? "is-top" : ""}`}>
               <div className="lk-chunk__head">
@@ -51,10 +51,9 @@ export function TracePreview({ nodeId, side = "right" }: { nodeId: string; side?
       )}
       {d.kind === "gate" && (
         <>
-          <h4>Gate decision</h4>
+          <h4>Safety gate</h4>
           <div className={`lk-decision tone-${ACTION_COPY[d.gate.action].tone}`}>
             <strong>{ACTION_COPY[d.gate.action].label}</strong>
-            <span>{ACTION_COPY[d.gate.action].pijin}</span>
           </div>
           {d.gate.red_flags.length > 0 && (
             <p>

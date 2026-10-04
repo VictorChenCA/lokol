@@ -26,6 +26,12 @@ export interface Recommendation {
   /** Estimated resident memory of the whole pack, and what the device leaves free for it. */
   ramMb: number;
   usableRamMb: number;
+  /** One line about the chosen device, e.g. "Fits your Samsung Galaxy A12 (3 GB RAM): Lokol Health 0.6B, 0.5 GB download". */
+  fitLine: string;
+  /** What gets installed on the device, largest first. */
+  installs: { name: string; role: string; mb: number }[];
+  /** Minutes to download the pack once on 3G (about 2 Mbps). */
+  minutes3g: number;
 }
 
 export const TIER_LABEL: Record<Tier, string> = {
@@ -34,6 +40,11 @@ export const TIER_LABEL: Record<Tier, string> = {
   C: "Tier C: better phone (6–8 GB)",
   D: "Tier D: laptop or clinic PC"
 };
+
+/** Tooltip for the small tier badge: tiers are a memory grouping, not the headline. */
+export const TIER_HINT = "Lokol groups phones by memory: under 3 GB, 3-5 GB, 6-8 GB, laptop.";
+
+const ROLE: Record<string, string> = { stt: "speech in", tts: "speech out", rag: "manual lookup", llm: "language model" };
 
 export function tierFor(ram_gb: number, isLaptop = false): Tier {
   if (isLaptop || ram_gb > 8) return "D";
@@ -93,7 +104,7 @@ export function recommend(input: RecommendInput): Recommendation {
   const online = input.connectivity !== "none";
   const health = input.sector === "health";
 
-  reasons.push(`${input.deviceName || "This device"} has about ${input.ram_gb} GB of RAM, so it is ${TIER_LABEL[tier].replace(/^Tier (\w): /, "tier $1, a ")}. About ${(usable / 1024).toFixed(1)} GB is free for Lokol after the system.`);
+  reasons.push(`${input.deviceName || "This device"} has about ${input.ram_gb} GB of RAM. About ${(usable / 1024).toFixed(1)} GB is free for Lokol after the system and other apps.`);
 
   // Speech and lookup first: they are small and decide how much room the language model has.
   type Optional = { key: string; model: ModelRef; type: "stt" | "tts"; lang: "en" | "pis"; drop: string };
@@ -297,7 +308,22 @@ export function recommend(input: RecommendInput): Recommendation {
     edges
   });
 
-  return { tier, tierLabel: TIER_LABEL[tier], graph, reasons, willNotWork, totalMb, freeStorageMb: free, ramMb, usableRamMb: usable };
+  const installs: Recommendation["installs"] = [];
+  const seenI = new Set<string>();
+  for (const n of nodes) {
+    if (n.model && !seenI.has(n.model.id)) {
+      seenI.add(n.model.id);
+      installs.push({ name: getModel(n.model.id)?.name ?? n.model.id, role: ROLE[n.type] ?? n.type, mb: n.model.size_mb });
+    }
+  }
+  installs.sort((a, b) => b.mb - a.mb);
+  const dev = input.deviceName || "device";
+  const llmName = getModel(llmRef.id)?.name ?? llmRef.id;
+  const fits = ramMb <= usable && totalMb <= free;
+  const fitLine = `${fits ? "Fits your" : "Tight on your"} ${dev} (${input.ram_gb} GB RAM): ${llmName}, ${(totalMb / 1024).toFixed(1)} GB download`;
+  const minutes3g = ((totalMb + 4) * 8) / 2 / 60;
+
+  return { tier, tierLabel: TIER_LABEL[tier], graph, reasons, willNotWork, totalMb, freeStorageMb: free, ramMb, usableRamMb: usable, fitLine, installs, minutes3g };
 }
 
 export function searchDevices(devices: Device[], q: string): Device[] {

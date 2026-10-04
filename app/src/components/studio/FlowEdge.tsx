@@ -2,7 +2,7 @@ import { memo } from "react";
 import { BaseEdge, getBezierPath, type EdgeProps, type Edge } from "@xyflow/react";
 import { useTrace } from "./trace";
 
-export type FlowEdgeData = { readOnly?: boolean; online?: boolean };
+export type FlowEdgeData = { readOnly?: boolean; online?: boolean; off?: boolean };
 export type FlowEdgeT = Edge<FlowEdgeData, "flow">;
 
 /** Edge with a slow dash that shows data direction, and a glowing particle while a trace passes. */
@@ -11,7 +11,7 @@ function FlowEdgeInner({ id, sourceX, sourceY, targetX, targetY, sourcePosition,
   const live = useTrace((s) => (data?.readOnly ? false : s.liveEdges.includes(id)));
   const done = useTrace((s) => (data?.readOnly ? false : s.doneEdges.includes(id)));
   const tracing = useTrace((s) => (data?.readOnly ? false : s.status === "running" || s.status === "done"));
-  const cls = ["lk-edge", selected ? "is-selected" : "", live ? "is-live" : "", done ? "is-done" : "", tracing && !live && !done ? "is-dim" : "", data?.online ? "is-online" : ""].join(" ");
+  const cls = ["lk-edge", selected ? "is-selected" : "", live ? "is-live" : "", done ? "is-done" : "", tracing && !live && !done ? "is-dim" : "", data?.online ? "is-online" : "", data?.off ? "is-off" : ""].join(" ");
   return (
     <g className={cls}>
       <BaseEdge id={id} path={path} className="lk-edge__base" interactionWidth={18} />

@@ -7,13 +7,13 @@ import { RunsSection } from "../components/train/Runs";
 import { DatasetSection, NotCovered } from "../components/train/Dataset";
 import { TrainYourOwn } from "../components/train/TrainYourOwn";
 
-function Section({ id, title, pis, lede, aside, children }: { id: string; title: string; pis: string; lede?: ReactNode; aside?: ReactNode; children: ReactNode }) {
+function Section({ id, title, lede, aside, children }: { id: string; title: string; pis?: string; lede?: ReactNode; aside?: ReactNode; children: ReactNode }) {
   return (
     <section id={id} aria-labelledby={`${id}-h`} className="scroll-mt-24">
       <div className="mb-5 flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
         <div>
           <h2 id={`${id}-h`} className="font-display text-d-sm font-bold sm:text-[30px]">
-            {title} <span className="font-normal text-ink-3">{pis}</span>
+            {title}
           </h2>
           {lede && <p className="mt-1.5 max-w-[66ch] text-[15px] leading-relaxed text-ink-2">{lede}</p>}
         </div>
@@ -65,7 +65,7 @@ export default function Train() {
       <header className="page pt-10 sm:pt-14">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div className="max-w-[760px]">
-            <p className="text-[14px] font-medium text-reef-deep">Train / Trenem</p>
+            <p className="text-[14px] font-medium text-reef-deep">Train</p>
             <h1 className="mt-2 font-display text-d-lg font-bold">Every node is a model you can retrain</h1>
             <p className="lede mt-4">
               The language model in Lokol Health was trained for one job: apply the Solomon Islands child treatment manual, in Pijin or English, and say

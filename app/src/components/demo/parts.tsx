@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import type { Flags, Lang } from "../../types";
+import type { Flags } from "../../types";
 import { FLAG_OPTIONS, ROLE_LABEL } from "./copy";
 import { IconChip, IconDownload, IconMic, IconPlane, IconSend, IconSignal } from "./icons";
 import type { LiveModel, Progress, RichStatus } from "./useDemoEngine";
@@ -45,51 +45,49 @@ export function ModelChip({ llm, shim, loading }: { llm?: LiveModel | null; shim
   );
 }
 
-/* ---------- flags as chips ---------- */
+/* ---------- clinic supplies ---------- */
 
-export function FlagChips({ flags, onChange, disabled }: { flags: Flags; onChange: (f: Flags) => void; disabled?: boolean }) {
-  const dot = { good: "bg-palm", bad: "bg-hibiscus", unknown: "bg-slate" } as const;
+/** The three clinic-supply switches, each with a plain-words tooltip. */
+export function Supplies({ flags, onChange, disabled }: { flags: Pick<Flags, "rdt" | "act" | "transport">; onChange: (f: Partial<Flags>) => void; disabled?: boolean }) {
+  const on = { good: "bg-palm text-white", bad: "bg-hibiscus text-white", unknown: "bg-slate text-white" } as const;
   return (
-    <div className="flex flex-wrap items-stretch gap-2">
-      <div role="radiogroup" aria-label="Language / Langwis" className="inline-flex rounded-full border border-line bg-white p-0.5">
-        {(["pis", "en"] as Lang[]).map((l) => (
-          <button
-            key={l}
-            type="button"
-            role="radio"
-            aria-checked={flags.lang === l}
-            disabled={disabled}
-            onClick={() => onChange({ ...flags, lang: l })}
-            className={`rounded-full px-3 py-1.5 text-[13px] font-semibold transition-colors ${flags.lang === l ? "bg-ink text-white" : "text-ink-2 hover:bg-sand"}`}
-          >
-            {l === "pis" ? "Pijin" : "English"}
-          </button>
-        ))}
-      </div>
-      {FLAG_OPTIONS.map((f) => {
-        const cur = f.values.find((v) => v.v === flags[f.key]) ?? f.values[0];
-        const next = f.values[(f.values.indexOf(cur) + 1) % f.values.length];
-        return (
-          <button
-            key={f.key}
-            type="button"
-            disabled={disabled}
-            onClick={() => onChange({ ...flags, [f.key]: next.v } as Flags)}
-            aria-label={`${f.en}: ${cur.en}. Tap to change to ${next.en}.`}
-            className="group inline-flex items-center gap-2 rounded-full border border-line bg-white py-1 pl-2.5 pr-3 text-left transition-colors hover:border-ink-3 disabled:opacity-50"
-          >
-            <span className={`h-2 w-2 shrink-0 rounded-full ${dot[cur.tone]}`} aria-hidden />
-            <span className="leading-tight">
-              <span className="block text-[10.5px] text-ink-3">{f.pis === "Bot" ? "Bot / Transport" : `${f.pis} / ${f.en}`}</span>
-              <span className="block text-[13px] font-semibold text-ink">
-                {cur.pis[0].toUpperCase() + cur.pis.slice(1)} <span className="font-normal text-ink-3">{cur.en}</span>
-              </span>
-            </span>
-          </button>
-        );
-      })}
+    <div className="space-y-3">
+      {FLAG_OPTIONS.map((f) => (
+        <div key={f.key}>
+          <p className="flex items-center gap-1.5 text-[13.5px] font-semibold text-ink" title={f.tip}>
+            {f.label}
+            <span className="grid h-4 w-4 place-items-center rounded-full border border-line text-[10px] font-bold text-ink-3" aria-hidden>?</span>
+          </p>
+          <p className="text-[12px] leading-snug text-ink-3">{f.tip}</p>
+          <div role="radiogroup" aria-label={f.label} className="mt-1.5 inline-flex rounded-full border border-line bg-white p-0.5">
+            {f.values.map((v) => {
+              const sel = flags[f.key] === v.v;
+              return (
+                <button
+                  key={v.v}
+                  type="button"
+                  role="radio"
+                  aria-checked={sel}
+                  disabled={disabled}
+                  onClick={() => onChange({ [f.key]: v.v } as Partial<Flags>)}
+                  className={`rounded-full px-3 py-1 text-[13px] font-medium transition-colors disabled:opacity-50 ${sel ? on[v.tone] : "text-ink-2 hover:bg-sand"}`}
+                >
+                  {v.en}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ))}
     </div>
   );
+}
+
+/** One-line summary of the supplies for the header ("Test kit in stock, Coartem out, boat: next"). */
+export function suppliesSummary(flags: Pick<Flags, "rdt" | "act" | "transport">): string {
+  const yn = (v: string) => (v === "yes" ? "in stock" : v === "no" ? "out" : "not sure");
+  const t = flags.transport === "now" ? "now" : flags.transport === "none" ? "none" : "next boat";
+  return `Test kit ${yn(flags.rdt)} · Coartem ${yn(flags.act)} · Transport ${t}`;
 }
 
 /* ---------- composer ---------- */
@@ -99,34 +97,39 @@ export function Composer({
   onChange,
   onSend,
   onMic,
+  onTalk,
   recording,
   recSeconds,
   ready,
   busy,
-  lang
+  speechIn,
+  talkOn
 }: {
   value: string;
   onChange: (v: string) => void;
   onSend: () => void;
   onMic: () => void;
+  onTalk: () => void;
   recording: boolean;
   recSeconds: number;
   ready: boolean;
   busy: boolean;
-  lang: Lang;
+  speechIn: boolean;
+  talkOn: boolean;
 }) {
   const ref = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     if (!value) {
-      el.style.height = "46px";
+      el.style.height = "48px";
       return;
     }
     el.style.height = "0px";
-    el.style.height = `${Math.min(140, Math.max(46, el.scrollHeight))}px`;
+    el.style.height = `${Math.min(140, Math.max(48, el.scrollHeight))}px`;
   }, [value]);
-  const pis = lang === "pis";
+  const typed = !!value.trim();
+  const showVoice = speechIn && !typed && !recording;
   return (
     <form
       className="flex items-end gap-2"
@@ -135,19 +138,6 @@ export function Composer({
         onSend();
       }}
     >
-      <button
-        type="button"
-        onClick={onMic}
-        disabled={!ready || busy}
-        aria-pressed={recording}
-        aria-label={recording ? "Stop recording" : "Record a voice note"}
-        className={`relative grid h-[46px] w-[46px] shrink-0 place-items-center rounded-full transition-colors disabled:opacity-40 ${
-          recording ? "bg-hibiscus text-white" : "border border-line bg-white text-ink hover:bg-sand"
-        }`}
-      >
-        {recording && <span className="absolute inset-0 animate-ping rounded-full bg-hibiscus/40" aria-hidden />}
-        <IconMic size={20} className="relative" />
-      </button>
       <div className="relative min-w-0 flex-1">
         <textarea
           ref={ref}
@@ -160,27 +150,61 @@ export function Composer({
               onSend();
             }
           }}
-          disabled={!ready || recording}
-          placeholder={recording ? "" : !ready ? "Loading the pack" : pis ? "Raetem long Pijin o English" : "Age, signs, how long"}
+          disabled={!ready || recording || talkOn}
+          placeholder={recording ? "" : !ready ? "Loading the pack" : "Type a case"}
           aria-label="Message"
-          className="block w-full resize-none rounded-[22px] border border-line bg-white px-4 py-[11px] text-[16px] leading-snug text-ink placeholder:text-ink-3 focus:border-reef focus:outline-none focus:ring-2 focus:ring-reef/20 disabled:bg-white/70"
+          className="block w-full resize-none rounded-[24px] border border-line bg-white px-4 py-[12px] text-[16px] leading-snug text-ink placeholder:text-ink-3 focus:border-reef focus:outline-none focus:ring-2 focus:ring-reef/20 disabled:bg-white/70"
         />
         {recording && (
           <span className="pointer-events-none absolute inset-0 flex items-center gap-2 px-4 text-[15px] text-hibiscus">
             <span className="h-2 w-2 animate-pulse rounded-full bg-hibiscus" />
-            Listening {Math.floor(recSeconds / 60)}:{String(recSeconds % 60).padStart(2, "0")}
-            <span className="text-ink-3">tap the mic to stop</span>
+            Recording {Math.floor(recSeconds / 60)}:{String(recSeconds % 60).padStart(2, "0")}
+            <span className="truncate text-ink-3">tap to stop</span>
           </span>
         )}
       </div>
-      <button
-        type="submit"
-        disabled={!ready || busy || !value.trim() || recording}
-        aria-label="Send"
-        className="grid h-[46px] w-[46px] shrink-0 place-items-center rounded-full bg-reef text-white transition-colors hover:bg-reef-deep disabled:bg-line disabled:text-ink-3"
-      >
-        {busy ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" /> : <IconSend size={19} />}
-      </button>
+      {speechIn && (typed ? null : (
+        <button
+          type="button"
+          onClick={onMic}
+          disabled={!ready || busy || talkOn}
+          aria-pressed={recording}
+          aria-label={recording ? "Stop recording and send" : "Record one voice message"}
+          title={recording ? "Stop and send" : "Record one message, then Lokol answers out loud"}
+          className={`relative grid h-12 w-12 shrink-0 place-items-center rounded-full transition-colors disabled:opacity-40 ${
+            recording ? "bg-hibiscus text-white" : "border border-line bg-white text-ink hover:bg-sand"
+          }`}
+        >
+          {recording && <span className="absolute inset-0 animate-ping rounded-full bg-hibiscus/40" aria-hidden />}
+          {recording ? <span className="relative h-3.5 w-3.5 rounded-[3px] bg-white" /> : <IconMic size={21} className="relative" />}
+        </button>
+      ))}
+      {showVoice ? (
+        <button
+          type="button"
+          onClick={onTalk}
+          disabled={!ready || (busy && !talkOn)}
+          aria-pressed={talkOn}
+          title="Hands-free: speak, pause, hear the answer, speak again"
+          className={`inline-flex h-12 shrink-0 items-center gap-1.5 rounded-full px-4 text-[15px] font-semibold text-white shadow-[0_8px_20px_-12px_rgba(16,44,60,0.8)] transition-colors disabled:opacity-40 ${
+            talkOn ? "bg-hibiscus" : "bg-reef hover:bg-reef-deep"
+          }`}
+        >
+          <IconMic size={18} />
+          {talkOn ? "Stop" : "Talk"}
+        </button>
+      ) : (
+        !recording && (
+          <button
+            type="submit"
+            disabled={!ready || busy || !typed}
+            aria-label="Send"
+            className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-reef text-white transition-colors hover:bg-reef-deep disabled:bg-line disabled:text-ink-3"
+          >
+            {busy ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" /> : <IconSend size={19} />}
+          </button>
+        )
+      )}
     </form>
   );
 }
@@ -205,7 +229,7 @@ export function LoadCard({ progress, error, onRetry, shim, sizes }: { progress: 
           <p className="mt-0.5 text-[13.5px] leading-snug text-ink-2">
             {shim
               ? "Canned replies, no downloads."
-              : `One download${totalMb ? ` of about ${Math.round(totalMb)} MB` : ""}, then it works with no signal. Wan taem nomoa.`}
+              : `One download${totalMb ? ` of about ${Math.round(totalMb)} MB` : ""}, then it works with no signal.`}
           </p>
         </div>
       </div>
@@ -222,7 +246,6 @@ export function LoadCard({ progress, error, onRetry, shim, sizes }: { progress: 
               <div className="flex items-baseline justify-between gap-2 text-[13.5px]">
                 <span className="min-w-0 truncate">
                   <span className="font-semibold">{lbl.en}</span>
-                  {lbl.pis && <span className="text-ink-3"> {lbl.pis}</span>}
                   <span className="text-ink-3"> {key === "corpus" ? "STM Children 2017" : p.model_id}</span>
                 </span>
                 <span className={`shrink-0 tabular-nums ${failed ? "text-hibiscus" : p.stage === "ready" ? "text-[#24603A]" : "text-ink-3"}`}>{state}</span>

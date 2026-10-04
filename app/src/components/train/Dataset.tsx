@@ -12,14 +12,13 @@ const ACTION_LABEL: Record<string, string> = {
 
 function Composition({
   title,
-  pis,
   counts,
   color,
   label,
   hint
 }: {
   title: string;
-  pis: string;
+  pis?: string;
   counts: Record<string, number>;
   color: (k: string) => string;
   label: (k: string) => string;
@@ -31,7 +30,7 @@ function Composition({
     <div>
       <div className="flex items-baseline justify-between gap-2">
         <h4 className="text-[14px] font-semibold text-ink">
-          {title} <span className="font-normal text-ink-3">{pis}</span>
+          {title}
         </h4>
         <span className="text-[12px] tabular-nums text-ink-3">{int(total)} rows</span>
       </div>
@@ -148,7 +147,7 @@ export function SampleThread({ s }: { s: DatasetSample }) {
           )}
         </div>
         <p className="mt-1.5 pl-1 text-[12px] text-ink-3">
-          {t ? `${t.en} (${t.pis}). ` : ""}
+          {t ? `${t.en}. ` : ""}
           {s.red_flags.length ? `Danger sign in the message: ${s.red_flags.join(", ")}. ` : ""}
           Written by {s.teacher}, passed all checks. Row {s.id}.
         </p>
@@ -160,7 +159,7 @@ export function SampleThread({ s }: { s: DatasetSample }) {
 function sampleTab(s: DatasetSample) {
   const lang = LANG_LABEL[s.lang]?.en ?? s.lang;
   if (s.task === "note") return { title: "Visit note", sub: lang };
-  if (s.task === "abstain") return { title: s.lang === "pis" ? "Mi no sua" : "Not sure", sub: `${lang}, abstain` };
+  if (s.task === "abstain") return { title: "Not sure", sub: `${lang}, abstain` };
   if (s.red_flags.length) return { title: "Danger sign", sub: `${lang}, ${ACTION_LABEL[s.action ?? ""]?.toLowerCase() ?? "refer"}` };
   if (s.task === "referral") return { title: "Referral", sub: `${lang}, ${ACTION_LABEL[s.action ?? ""]?.toLowerCase() ?? ""}` };
   return { title: TASK_LABEL[s.task]?.en ?? s.task, sub: lang };

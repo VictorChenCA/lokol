@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { PRESETS, SECTOR_COPY } from "../data/presets";
 import { NODE_META } from "../models";
 import { ActionBadge, Badge, NODE_GLOW, SignalBars, btnClass, mb } from "../components/ui";
 import type { Graph, NodeType, Sector } from "../types";
+import { isSignedOut, setSignedOut } from "../components/Profile";
+import { GITHUB_URL } from "../components/Shell";
 
 const SECTORS: Sector[] = ["health", "agriculture", "tourism"];
 
@@ -22,14 +24,14 @@ function useReducedMotion() {
 
 /* ------------------------------------------------------------------ hero graph */
 
-type HeroNode = { type: NodeType; pis: string; title: string; sub: string };
+type HeroNode = { type: NodeType; title: string; sub: string };
 
 const HERO_NODES: HeroNode[] = [
-  { type: "channel", pis: "Nes i tok", title: "Nurse aide types", sub: "Pijin text, no signal" },
-  { type: "rag", pis: "Lukim buk", title: "STM lookup", sub: "Malaria, p.53" },
-  { type: "llm", pis: "Brain", title: "Lokol Health 0.6B", sub: "0.4 GB, on the phone" },
-  { type: "gate", pis: "Sef-gate", title: "Safety gate", sub: "red flag: no fit dring" },
-  { type: "tts", pis: "Toktok", title: "Speech out", sub: "Pijin voice, MMS" }
+  { type: "channel", title: "Nurse aide types", sub: "Types or speaks, no signal" },
+  { type: "rag", title: "STM lookup", sub: "Malaria, p.53" },
+  { type: "llm", title: "Lokol Health 0.6B", sub: "0.4 GB, on the phone" },
+  { type: "gate", title: "Safety gate", sub: "red flag: no fit dring" },
+  { type: "tts", title: "Speech out", sub: "Reads the reply aloud" }
 ];
 
 function HeroGraph({ vertical }: { vertical: boolean }) {
@@ -98,7 +100,6 @@ function HeroGraph({ vertical }: { vertical: boolean }) {
             <rect x="0" y="12" width="5" height={H - 24} rx="2.5" fill={c} />
             <text x="18" y="21" fontFamily="'Instrument Sans', system-ui, sans-serif" fontSize="11.5" fontWeight="600" fill="#5C7482">
               {NODE_META[n.type]?.name ?? n.type}
-              <tspan fill="#8A9EA8" fontWeight="500"> {n.pis}</tspan>
             </text>
             <text x="18" y="41" fontFamily="'Bricolage Grotesque', system-ui, sans-serif" fontWeight="700" fontSize="16" fill="#102C3C">{n.title}</text>
             <text x="18" y="58" fontFamily="'Instrument Sans', system-ui, sans-serif" fontSize="12" fill="#5C7482">{n.sub}</text>
@@ -143,7 +144,7 @@ function HeroPanel() {
             <span className="rounded-md bg-canvas-3 px-1.5 py-0.5 text-[11px] text-glow-rag">STM: Malaria, p.53</span>
           </figcaption>
           <div className="mt-1.5 rounded-2xl rounded-bl-md bg-[#F8FBFA] px-3.5 py-3 text-ink">
-            <ActionBadge action="REFER_NEXT_TRANSPORT" size="md" />
+            <ActionBadge action="REFER_NEXT_TRANSPORT" size="md" pijin />
             <p className="mt-2 text-[14.5px] leading-snug" lang="pis">
               Diswan hem saen blong denja. Pikinini mas go long hospital long bot tumoro moning. Taem yu wet: givim artesunate, an lukim blood sugar.
             </p>
@@ -213,29 +214,149 @@ const FACTS = [
 ];
 
 const STEPS = [
-  { to: "/recommend", t: "Check the phone", pis: "Lukim fon", cta: "Check a phone", b: "Name the phone (82 Pacific models listed) and the signal. Studio picks a model size for every node and says what will not fit." },
-  { to: "/studio?preset=health", t: "Compose in Studio", pis: "Wokples", cta: "Open Studio", b: "Each pack is a graph of nodes, and every node is its own small model or rule block. Swap sizes, switch internet per node, run a trace." },
-  { to: "/train", t: "Train custom nodes", pis: "Trenem", cta: "See training runs", b: "Fine-tune the language node on your guideline: a 9B on River for clinic laptops, Apple-silicon LoRA for phone tiers." },
-  { to: "/eval", t: "Prove it works", pis: "Testem", cta: "See base vs tuned", b: "Held-out test cases score base and tuned models on the right action, refusals and citations, before anything ships." },
-  { to: "/deploy", t: "Deploy offline or to WhatsApp", pis: "Putum long fon", cta: "Deploy a pack", b: "A QR for the offline phone app, a GGUF for PocketPal, commands for a clinic laptop, or a WhatsApp and Messenger bridge." },
-  { to: "/demo", t: "Try it with no signal", pis: "Traem", cta: "Try Lokol Health", b: "Type or speak a case in Pijin or English and watch every node answer on this device, with the safety gate last." }
+  { to: "/recommend", t: "Check the phone", cta: "Check a phone", b: "Name the phone (82 Pacific models listed) and the signal. Studio picks a model size for every node and says what will not fit." },
+  { to: "/studio?preset=health", t: "Compose in Studio", cta: "Open Studio", b: "Each pack is a graph of nodes, and every node is its own small model or rule block. Swap model sizes, turn voice in or out, switch internet per node, and do a test run." },
+  { to: "/train", t: "Train custom nodes", cta: "See training runs", b: "Fine-tune the language node on your guideline: a 9B on River for clinic laptops, Apple-silicon LoRA for phone tiers." },
+  { to: "/eval", t: "Prove it works", cta: "See base vs tuned", b: "Held-out test cases score base and tuned models on the right action, refusals and citations, before anything ships." },
+  { to: "/deploy", t: "Deploy offline or to WhatsApp", cta: "Deploy a pack", b: "A QR for the offline phone app, a GGUF for PocketPal, commands for a clinic laptop, or a WhatsApp and Messenger bridge." },
+  { to: "/demo", t: "Try it with no signal", cta: "Try the field app", b: "Speak or type a case in English or Pijin and hear the answer read aloud, every node running on this device, with the safety gate last." }
 ];
 
 /** One tone per step, following the node colours along the pipeline. */
 const STEP_TONES = ["#7FB3C8", "#2EC4D3", "#F2B84B", "#5CC48A", "#B394F0", "#0F7B88"];
 
 const WILL_NOT = [
-  { t: "No diagnosis", pis: "No talem sik", b: "It applies the Standard Treatment Manual and cites the page it used. It never reads images and never names a disease on its own authority." },
-  { t: "A person decides", pis: "Nes nao disaedem", b: "Every reply is advice to the nurse aide. Referral, treatment and what to tell the family stay her call." },
-  { t: "Not sure, ask a person", pis: "Mi no sua, askem nes", b: "No matching section, an adult patient, a dose outside the manual: it says so and names who to ask, instead of guessing." },
-  { t: "Data stays on the phone", pis: "Stap long fon nomoa", b: "Notes live on the device behind a PIN. Nothing leaves unless a node is switched online and the nurse taps send." }
+  { t: "No diagnosis", b: "It applies the Standard Treatment Manual and cites the page it used. It never reads images and never names a disease on its own authority." },
+  { t: "A person decides", b: "Every reply is advice to the nurse aide. Referral, treatment and what to tell the family stay her call." },
+  { t: "Not sure, ask a person", b: "No matching section, an adult patient, a dose outside the manual: it says so and names who to ask, instead of guessing." },
+  { t: "Data stays on the phone", b: "Notes live on the device behind a PIN. Nothing leaves unless a node is switched online and the nurse taps send." }
 ];
+
+/* ------------------------------------------------------------------ launch + evidence */
+
+/** Primary CTA: "signs in" to the sample workspace and opens the Studio app. */
+function LaunchButton({ variant = "ink", size = "lg", label = "Launch Lokol Studio" }: { variant?: "ink" | "ghost" | "on-dark" | "glow"; size?: "sm" | "md" | "lg"; label?: string }) {
+  const navigate = useNavigate();
+  return (
+    <button
+      type="button"
+      className={btnClass(variant, size)}
+      onClick={() => {
+        setSignedOut(false);
+        navigate("/app");
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
+type EvRow = { size: string; where: string; base: { act: number; flag: number }; tuned: { act: number; flag: number } };
+/* From public/eval/results.json (300 held-out cases); refreshed from the file when it loads. */
+const EV_FALLBACK: EvRow[] = [
+  { size: "0.6B", where: "2 GB phones, 0.4 GB", base: { act: 0, flag: 0 }, tuned: { act: 0.637, flag: 0.948 } },
+  { size: "1.7B", where: "4 GB phones, 1.1 GB", base: { act: 0, flag: 0 }, tuned: { act: 0.643, flag: 0.965 } },
+  { size: "9B", where: "clinic laptop or River", base: { act: 0, flag: 0 }, tuned: { act: 0.87, flag: 0.837 } }
+];
+
+function useEvidence() {
+  const [rows, setRows] = useState<EvRow[]>(EV_FALLBACK);
+  const [n, setN] = useState(300);
+  useEffect(() => {
+    let alive = true;
+    fetch("/eval/results.json")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!alive || !d?.rows) return;
+        const next = EV_FALLBACK.map((row) => {
+          const m = (v: string) => d.rows.find((x: any) => x.size === row.size && x.variant === v)?.metrics;
+          const b = m("base"), t = m("tuned");
+          return b && t ? { ...row, base: { act: b.action_accuracy, flag: b.red_flag_recall }, tuned: { act: t.action_accuracy, flag: t.red_flag_recall } } : row;
+        });
+        setRows(next);
+        if (d.test_set?.n) setN(d.test_set.n);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
+  return { rows, n };
+}
+
+const pct = (x: number) => `${Math.round(x * 100)}%`;
+
+function Evidence() {
+  const { rows, n } = useEvidence();
+  return (
+    <section className="page mt-20 sm:mt-28" aria-labelledby="evidence">
+      <div className="grid gap-4 lg:grid-cols-12">
+        <h2 id="evidence" className="scroll-mt-20 font-display text-d-md font-bold lg:col-span-5">Evidence, not a promise</h2>
+        <p className="lede lg:col-span-6 lg:col-start-7 lg:self-end">
+          {n} held-out test cases, never seen in training. The same models before and after fine-tuning on the treatment manual. Untuned models cannot follow the protocol at all, so their scores are zero.
+        </p>
+      </div>
+      <div className="mt-8 grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-3">
+        {rows.map((r) => (
+          <div key={r.size} className="bg-paper p-6">
+            <p className="font-display text-[22px] font-bold">Lokol Health {r.size}</p>
+            <p className="text-[13px] text-ink-3">{r.where}</p>
+            <dl className="mt-4 grid grid-cols-2 gap-4">
+              <div>
+                <dt className="text-[13px] text-ink-2">Catches danger signs</dt>
+                <dd className="font-display text-[40px] font-bold leading-none tabular-nums">{pct(r.tuned.flag)}</dd>
+                <dd className="mt-1 text-[12.5px] text-frangipani-deep">base model {pct(r.base.flag)}</dd>
+              </div>
+              <div>
+                <dt className="text-[13px] text-ink-2">Right action</dt>
+                <dd className="font-display text-[40px] font-bold leading-none tabular-nums">{pct(r.tuned.act)}</dd>
+                <dd className="mt-1 text-[12.5px] text-frangipani-deep">base model {pct(r.base.act)}</dd>
+              </div>
+            </dl>
+          </div>
+        ))}
+      </div>
+      <p className="mt-3 text-[13px] text-ink-3">
+        The safety gate adds a second check on top of the model: it refers any message with a danger sign, even when the model misses it. Full results and every metric are in Lokol Studio under Evaluate.
+      </p>
+    </section>
+  );
+}
+
+function FinalCta() {
+  return (
+    <section className="page my-20 sm:my-28" aria-labelledby="cta">
+      <div className="canvas-dots relative overflow-hidden rounded-[22px] border border-canvas-line px-6 py-10 text-canvas-text sm:px-10 sm:py-14">
+        <div className="canvas-vignette pointer-events-none absolute inset-0" aria-hidden />
+        <div className="relative max-w-[60ch]">
+          <h2 id="cta" className="font-display text-d-md font-bold text-white">Build a pack for your phones</h2>
+          <p className="mt-3 text-[16px] leading-relaxed text-canvas-muted">
+            Check a device, compose the pack, test it, and deploy it to a phone that never sees a signal. Or open the field app and talk to Lokol Health now.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <LaunchButton variant="glow" />
+            <Link to="/demo" className={btnClass("on-dark", "lg")}>Try the field app</Link>
+            <a href={GITHUB_URL} target="_blank" rel="noreferrer" className={btnClass("on-dark", "lg")}>GitHub</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 /* ------------------------------------------------------------------ page */
 
 export default function Home() {
+  const [signedOut] = useState(isSignedOut);
   return (
     <div className="pb-0">
+      {signedOut && (
+        <div className="border-b border-line/70 bg-paper-2/70">
+          <p className="page py-2 text-[13.5px] text-ink-2" role="status">
+            You signed out of the sample workspace. Launch Lokol Studio to sign back in.
+          </p>
+        </div>
+      )}
       {/* Hero */}
       <section className="page pt-10 sm:pt-16">
         <h1
@@ -253,12 +374,11 @@ export default function Home() {
           </div>
           <div className="lg:col-span-8">
             <p className="lede">
-              Lokol Studio composes offline AI from nodes that are each their own small trained model: speech in, guideline lookup, language model, safety gate, speech out and channel. It recommends what fits a given phone, trains the nodes that need it, and deploys the result as a pack that works with no signal.
+              Lokol Studio composes offline AI from nodes that are each their own small trained model: speech in, guideline lookup, language model, safety gate, speech out and channel. Voice in and out are optional: switch them off for a text-only pack. Studio recommends what fits a given phone, trains the nodes that need it, and deploys the result as a pack that works with no signal.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <Link to="/studio" className={btnClass("ink", "lg")}>Open Studio</Link>
-              <Link to="/demo" className={btnClass("ghost", "lg")}>Try Lokol Health</Link>
-              <Link to="/recommend" className={`${btnClass("quiet", "lg")} hidden sm:inline-flex`}>Check a phone</Link>
+              <LaunchButton />
+              <Link to="/demo" className={btnClass("ghost", "lg")}>Try the field app</Link>
             </div>
           </div>
         </div>
@@ -295,13 +415,12 @@ export default function Home() {
 
       {/* How it works */}
       <section className="page mt-20 sm:mt-28" aria-labelledby="how">
-        <h2 id="how" className="font-display text-d-md font-bold">How it works</h2>
+        <h2 id="how" className="scroll-mt-20 font-display text-d-md font-bold">How it works</h2>
         <ol className="mt-8 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
           {STEPS.map((s, i) => (
             <li key={s.t} className="relative border-t-2 pt-5" style={{ borderColor: STEP_TONES[i] }}>
               <span className="grid h-9 w-9 place-items-center rounded-full bg-ink font-display text-[15px] font-bold text-white">{i + 1}</span>
               <h3 className="mt-4 font-display text-[20px] font-bold leading-tight">{s.t}</h3>
-              <p className="text-[13px] text-ink-3" lang="pis">{s.pis}</p>
               <p className="mt-2 max-w-[44ch] text-[15px] leading-relaxed text-ink-2">{s.b}</p>
               <Link to={s.to} className="link mt-3 inline-block text-[14px]">
                 {s.cta}
@@ -311,6 +430,8 @@ export default function Home() {
         </ol>
       </section>
 
+      <Evidence />
+
       {/* Sector packs */}
       <section className="page mt-20 sm:mt-28" aria-labelledby="packs">
         <div className="flex flex-wrap items-end justify-between gap-3">
@@ -318,7 +439,7 @@ export default function Home() {
             <h2 id="packs" className="font-display text-d-md font-bold">One Studio, three sectors</h2>
             <p className="mt-2 max-w-[58ch] text-[15px] text-ink-3">Health is the worked example with tuned models and evals. Farm and Host are presets: same nodes, another corpus and safety rules.</p>
           </div>
-          <Link to="/deploy" className={btnClass("ghost", "sm")}>All packs and deploy targets</Link>
+          <LaunchButton variant="ghost" size="sm" />
         </div>
         <div className="mt-8 grid gap-5 md:grid-cols-3">
           {SECTORS.map((s) => {
@@ -337,7 +458,6 @@ export default function Home() {
                 </div>
                 <div className="flex flex-1 flex-col p-5">
                   <h3 className="font-display text-[22px] font-bold leading-tight">{c.title}</h3>
-                  <p className="text-[13px] text-ink-3" lang="pis">{c.pijin}</p>
                   <p className="mt-3 flex-1 text-[15px] leading-relaxed text-ink-2">{c.line}</p>
                   <dl className="mt-4 grid grid-cols-3 gap-2 border-t border-line-2 pt-3 text-[12px] text-ink-3">
                     <div><dt>Nodes</dt><dd className="font-display text-[17px] font-semibold text-ink">{g.nodes.length}</dd></div>
@@ -346,7 +466,7 @@ export default function Home() {
                   </dl>
                   <div className="mt-4 flex flex-wrap gap-2">
                     <Link to={`/studio?preset=${s}`} className={btnClass(live ? "ink" : "ghost", "sm")}>Open in Studio</Link>
-                    {live && <Link to="/demo" className={btnClass("ghost", "sm")}>Try the demo</Link>}
+                    {live && <Link to="/demo" className={btnClass("ghost", "sm")}>Try the field app</Link>}
                   </div>
                 </div>
               </article>
@@ -373,13 +493,14 @@ export default function Home() {
             {WILL_NOT.map((w) => (
               <li key={w.t} className="bg-ink p-6">
                 <h3 className="font-display text-[20px] font-bold">{w.t}</h3>
-                <p className="text-[13px] text-white/55" lang={w.t.startsWith("Mi") ? "pis" : undefined}>{w.pis}</p>
                 <p className="mt-3 text-[15px] leading-relaxed text-white/80">{w.b}</p>
               </li>
             ))}
           </ul>
         </div>
       </section>
+
+      <FinalCta />
 
       {/* Footer: sources and licenses */}
       <footer className="border-t border-line bg-paper-2/60">

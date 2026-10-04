@@ -138,7 +138,7 @@ export function FeaturedRun({ run }: { run: TrainRun }) {
           <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-4">
             <Fact k="Loss" v={last !== undefined ? last.toFixed(2) : "n/a"} sub={first !== undefined ? `from ${first.toFixed(2)} at step 1` : undefined} />
             <Fact k="Elapsed" v={duration(run.elapsed_s)} sub={run.started_at ? `started ${new Date(run.started_at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}` : undefined} />
-            <Fact k={run.status === "running" ? "Time left, est." : "Status"} v={run.status === "running" ? duration(run.eta_s) : STATUS[run.status].label} sub={STATUS[run.status].pis} />
+            <Fact k={run.status === "running" ? "Time left, est." : "Status"} v={run.status === "running" ? duration(run.eta_s) : STATUS[run.status].label} />
             <Fact k="Cost, est." v={run.cost_usd_est !== undefined ? `$${run.cost_usd_est.toFixed(2)}` : "n/a"} sub={run.trained_tokens ? `${(run.trained_tokens / 1e6).toFixed(1)}M tokens${run.status === "running" ? " so far" : ""}` : undefined} />
             {run.best?.val ? (
               <Fact

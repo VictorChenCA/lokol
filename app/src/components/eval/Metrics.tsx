@@ -1,5 +1,5 @@
 import type { EvalRow, EvalSlice } from "../../types";
-import { BASE_COLOR, HEADLINE, TUNED_COLOR, fmtMetric, type Group, type MetricDef } from "./shared";
+import { BASE_COLOR, HEADLINE, TIER_NAME, TUNED_COLOR, fmtMetric, type Group, type MetricDef } from "./shared";
 
 /** One metric as a dumbbell: base dot, tuned dot, the gap between them. */
 function Dumbbell({ m, base, tuned }: { m: MetricDef; base?: number; tuned?: number }) {
@@ -22,7 +22,7 @@ function Dumbbell({ m, base, tuned }: { m: MetricDef; base?: number; tuned?: num
         <p className="text-[15px] font-semibold leading-snug text-ink" title={m.why}>
           {m.label}
         </p>
-        <p className="text-[12.5px] text-ink-3">{m.pis}</p>
+        <p className="text-[12.5px] leading-snug text-ink-3">{m.why}</p>
       </div>
       <div className="relative h-7" role="img" aria-label={`${m.label}: base ${fmtMetric(m, base)}, tuned ${fmtMetric(m, tuned)}`}>
         <div className="absolute inset-x-0 top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-line-2" />
@@ -101,7 +101,7 @@ export function TierMatrix({ groups, selected, onSelect }: { groups: Group[]; se
                   className={`rounded-lg px-2 py-1 text-left ${g.size === selected ? "bg-ink text-white" : "hover:bg-sand"}`}
                 >
                   <span className="block font-display text-[16px] font-bold leading-tight">{g.size}</span>
-                  <span className={`block text-[11.5px] ${g.size === selected ? "text-white/70" : "text-ink-3"}`}>Tier {g.tier}</span>
+                  <span className={`block text-[11.5px] ${g.size === selected ? "text-white/70" : "text-ink-3"}`} title={`Tier ${g.tier}`}>{TIER_NAME[g.tier]}</span>
                 </button>
               </th>
             ))}
