@@ -30,6 +30,7 @@ function citeChunk(stm: string | null | undefined, chunks: Chunk[]): Chunk | nul
 export default function Demo() {
   const online = useOnline();
   const { manifest, packNote, engine, source, progress, error, status, loadMs, refreshStatus, retry } = useDemoEngine();
+  const customPack = Boolean(manifest && (manifest as { corpus_inline?: unknown }).corpus_inline);
   const install = useInstallPrompt();
   const shim = source === "shim";
   const [flags, setFlags] = useState<Flags>({ lang: "pis", rdt: "yes", act: "yes", transport: "next_boat" });
@@ -464,8 +465,8 @@ export default function Demo() {
         <header>
           <div className="flex items-end justify-between gap-3">
             <div>
-              <h1 className="font-display text-[30px] font-bold leading-none tracking-tight">Lokol Health</h1>
-              <p className="mt-1.5 text-[14px] leading-snug text-ink-2">Helpem nes long klinik. Child care from the Solomon Islands Standard Treatment Manual.</p>
+              <h1 className="font-display text-[30px] font-bold leading-none tracking-tight">{customPack ? manifest?.graph.name : "Lokol Health"}</h1>
+              <p className="mt-1.5 text-[14px] leading-snug text-ink-2">{customPack ? "Answers from your own manual, offline. Each reply cites the section and page it used." : "Helpem nes long klinik. Child care from the Solomon Islands Standard Treatment Manual."}</p>
             </div>
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-1.5">

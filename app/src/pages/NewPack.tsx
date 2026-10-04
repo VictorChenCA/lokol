@@ -202,8 +202,9 @@ export default function NewPack() {
     toast("Pack saved on this device", { body: `${corpus.chunks.length} chunks, ${corpus.sections.length} sections`, tone: "palm" });
   }
 
-  function tryIt(manifest: object) {
-    navigate(withRuntime(`/demo?pack=${encodeURIComponent(blobManifestUrl(manifest))}`));
+  function tryIt(manifest: object, id?: string) {
+    const pack = id ? `idb:${id}` : blobManifestUrl(manifest);
+    navigate(withRuntime(`/demo?pack=${encodeURIComponent(pack)}`));
   }
 
   const probeHits = useMemo(() => (built && probe.trim() ? built.index.searchDetailed(probe, 3).hits : []), [built, probe]);
@@ -370,7 +371,7 @@ export default function NewPack() {
             ) : (
               <div className="space-y-5">
                 <div className="flex flex-wrap gap-2">
-                  <Button size="lg" onClick={() => tryIt(built.manifest)}>Try it</Button>
+                  <Button size="lg" onClick={() => tryIt(built.manifest, built.manifest.pack_id)}>Try it</Button>
                   <Button size="lg" variant="ghost" onClick={() => exportZip(built.manifest)}>Export pack</Button>
                 </div>
                 <p className="text-[14px] text-ink-2">
@@ -410,7 +411,7 @@ export default function NewPack() {
                   <span className="font-medium">{p.name}</span>
                   <span className="text-ink-3">{((p.manifest as { corpus_inline?: CorpusFile }).corpus_inline?.chunks.length ?? 0)} chunks · {new Date(p.created_at).toLocaleString()}</span>
                   <span className="ml-auto flex gap-1">
-                    <Button size="sm" variant="ghost" onClick={() => tryIt(p.manifest)}>Try it</Button>
+                    <Button size="sm" variant="ghost" onClick={() => tryIt(p.manifest, p.id)}>Try it</Button>
                     <Button size="sm" variant="quiet" onClick={() => exportZip(p.manifest as unknown as Manifest & { corpus_inline?: CorpusFile })}>Export</Button>
                     <Button size="sm" variant="quiet" onClick={() => deletePack(p.id).then(() => listPacks().then(setSaved))}>Delete</Button>
                   </span>

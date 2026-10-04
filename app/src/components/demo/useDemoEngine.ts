@@ -78,6 +78,13 @@ export function useDemoEngine() {
       }
       const url = packParam || PACK_URL;
       try {
+        if (url.startsWith("idb:")) {
+          const { getPack } = await import("../../runtime/corpus_builder");
+          const saved = await getPack(url.slice(4));
+          if (!saved) throw new Error("not saved on this device");
+          if (alive) setManifest(saved.manifest as unknown as Manifest);
+          return;
+        }
         const r = await fetch(url);
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         const m = (await r.json()) as Manifest;
