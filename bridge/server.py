@@ -204,7 +204,7 @@ async def handle_text(
     result = apply_gate(text, parsed, flags, chunk.section if chunk else None, lang, engine.sections,
                         excerpt=chunk.text if chunk else None, page=chunk.page if chunk else None)
     page = chunk.page if (chunk and result.stm and result.stm == chunk.section) else (chunk.page if chunk and result.stm else None)
-    reply_text = format_for_channel(result, lang, page)
+    reply_text = _humanize_json_lines(format_for_channel(result, lang, page))
 
     audio_url = None
     if want_voice or st.voice:
@@ -366,6 +366,29 @@ def build_twiml(body: str, media_url: str | None = None) -> str:
 _twilio_transport: httpx.AsyncBaseTransport | None = None
 
 
+def _humanize_json_lines(text: str) -> str:
+    """The small models sometimes answer with a JSON case note (a training task) instead of plain lines.
+    On chat channels, turn such a line into the plain advice it carries and drop the bookkeeping fields."""
+    out = []
+    for ln in text.splitlines():
+        t = ln.strip()
+        if t.startswith("{") and t.endswith("}"):
+            try:
+                obj = json.loads(t)
+            except Exception:
+                out.append(ln); continue
+            if isinstance(obj, dict):
+                for k in ("drugs", "follow_up", "referral"):
+                    v = obj.get(k)
+                    if isinstance(v, list):
+                        v = "; ".join(str(x if not isinstance(x, dict) else " ".join(str(y) for y in x.values())) for x in v)
+                    if v:
+                        out.append(str(v)[:220])
+                continue
+        out.append(ln)
+    return "\n".join(out)
+
+
 async def send_twilio_message(to: str, body: str, media_url: str | None = None, from_: str | None = None) -> dict:
     """Twilio REST: POST /2010-04-01/Accounts/{SID}/Messages.json (Basic auth SID:token)."""
     url = f"https://api.twilio.com/2010-04-01/Accounts/{settings.twilio_account_sid}/Messages.json"
@@ -438,6 +461,10 @@ async def twilio_whatsapp(request: Request, background: BackgroundTasks) -> Resp
         background.add_task(_twilio_reply_later, params)
         return Response(content='<?xml version="1.0" encoding="UTF-8"?><Response></Response>', media_type="application/xml")
     out = await _twilio_process(params)
+    if request.url.path.endswith("/sms"):
+        # Twilio's free-trial SMS testing number rejects our TwiML reply (error 12300, invalid Content-Type);
+        # a text/plain body is sent back as the SMS reply as-is.
+        return PlainTextResponse(out["reply_text"][:1500], media_type="text/plain; charset=utf-8")
     return Response(content=build_twiml(out["reply_text"], out.get("audio_url")), media_type="application/xml")
 
 

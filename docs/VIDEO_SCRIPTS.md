@@ -6,31 +6,34 @@ The World Bank brief wants these points somewhere across the videos: the one-sen
 
 ---
 
-## 1. Product demo (phone + screen recording)
+## 1. Product demo (screen recording, 58 s, captions burned in)
 
-**Covers:** problem statement, user journey, offline, local language by voice, guardrails, the Studio. About 135 words.
+**Covers:** problem, user journey, device fit, Studio, guardrails, scalability, deployment, offline field use in Pijin. The captions double as the voice-over script if you record one (about 130 words).
 
-| Time | Picture | Voice-over |
+| Time | Picture | Caption / voice-over |
 |---|---|---|
-| 0–8 s | Phone, airplane mode on, the installed **Lokol Health** app (home-screen icon) | "In rural Solomon Islands, most sick children are seen by a nurse aide, not a doctor, often with no signal. This phone is in airplane mode." |
-| 8–24 s | Tap **Talk**, say in Pijin: *"Pikinini blong mi hem tri yia, hot bodi tu dei."* The reply appears with the **Advise** badge and the **MALARIA p53** citation and is read aloud in Pijin | "The nurse just talks. Lokol answers in Pijin, from the national treatment manual, shows the page it used, and reads it out loud." |
-| 24–34 s | Sample: baby with fever who had a fit. Big red **Refer now** badge | "A danger sign is never a judgment call for the model: Lokol refers, and says what to do while waiting for the boat." |
-| 34–40 s | Adult chest pain sample: grey **Ask a person** | "Outside the manual, it says: mi no sua, askem dokta." |
-| 40–48 s | Basic phone: SMS to the clinic number, reply arrives | "No smartphone? The same model answers by SMS from a laptop in the clinic." |
-| 48–60 s | Laptop: landing, **Launch Lokol Studio**, Studio canvas for a Galaxy A12, a Test run lighting each step, then New pack from a farming leaflet | "Lokol Studio builds these: pick the phone, it picks models that fit, every node is a model we trained, and any manual becomes a new pack. Smol AI blong iumi." |
+| 0–5 s | Landing page | Lokol Studio builds small AI helpers that run where the signal does not. |
+| 5–9 s | Overview | One workspace: pick a device, build a pack, wire the models, deploy. |
+| 9–16 s | Recommend: Health, Galaxy A15 | Start from the phone a health worker already owns. Lokol picks models that fit its memory. |
+| 16–25 s | Studio: four stages, voice switches, device dropdown | Lokol Health in Studio: speech in, manual lookup, fine-tuned model, safety gate, speech out. Every node can be swapped. |
+| 25–33 s | Test run: baby with a fit, nodes light up, Refer now | Test run: watch a case flow through each step, with the manual page it used. |
+| 33–41 s | New pack from the farming sample leaflet | Any guideline becomes a new pack: health, farming, tourism, or your own sector. |
+| 41–48 s | Deploy: Phone app, Android, Laptop, WhatsApp/SMS tabs | Deploy what you built: phone app, Android, laptop, or SMS and WhatsApp. |
+| 48–58 s | Field app: Pijin case, Refer now with the manual page | Field app, no signal: the nurse asks in Pijin. Lokol answers from the manual, cites the page, and refers danger signs. |
 
-Tips: open https://lokol-studio.vercel.app/demo once on Wi-Fi so the model downloads, add it to the home screen, then switch on airplane mode. If the Pijin speech recognition mishears, type the Pijin line instead; the point is the spoken reply.
+Optional phone inserts: the installed app in airplane mode answering by voice, and an SMS reply on a basic phone.
 
-## 2. Technical walkthrough
+## 2. Technical walkthrough (screen recording, 58 s, captions burned in)
 
-**Covers:** tech stack, training, evidence it works, what was hard, limitations. About 140 words.
+**Covers:** stack, training data, fine-tuning, evidence against base and few-shot models, guardrails, deployment. About 140 words.
 
-| Time | Picture | Voice-over |
+| Time | Picture | Caption / voice-over |
 |---|---|---|
-| 0–12 s | Studio canvas, trace mode lighting up the nodes | "Lokol Studio runs every node in the browser, offline: llama.cpp in WebAssembly for the language model, transformers.js for Pijin speech, and a search index over the Solomon Islands children's treatment manual." |
-| 12–28 s | Train page: pipeline graphic, River loss curve | "We trained the models ourselves. Open-weight teachers on River AI wrote thirty-eight hundred nurse cases from the manual, in Pijin and English. We fine-tuned Qwen 3.5 9B on River for under fifteen dollars, and 0.6 and 1.7 billion parameter models on a MacBook, then shrank them to 400 megabytes for phones." |
-| 28–45 s | Eval page: base vs tuned bars | "On 300 held-out cases, stock models never follow the protocol. Tuned, the 9B picks the right action 87 percent of the time, and every model catches over 90 percent of danger signs." |
-| 45–60 s | Eval dose audit, then README limitations | "Hardest part: models invent doses, even the teachers. So Lokol shows no dose that isn't printed in the cited page for that drug. Limits: synthetic data, the children's manual only, and Pijin voice input needs a laptop." |
+| 0–13 s | Studio, model card | Every node is a model we trained or exported: Qwen3 0.6B and 1.7B tuned on a MacBook, Qwen3.5 9B tuned on River AI, Pijin speech as ONNX. |
+| 13–25 s | Test run with the trace | All in the browser, offline: llama.cpp in WebAssembly, transformers.js speech, search over the children's treatment manual, a rule-based safety gate. |
+| 25–36 s | Train page | Data: open-weight teachers on River wrote 2,700 training cases from the manual in Pijin and English. LoRA, then 4-bit GGUF. |
+| 36–51 s | Evaluate page | 300 held-out cases. Stock models: 0% on the protocol, 38% right action even with examples. Tuned 9B: 87% right action, 87% right page. No dose shown unless the cited page gives it. |
+| 51–58 s | Deploy, Laptop and WhatsApp/SMS tabs | Ships as a phone app, on Android, or on a clinic laptop that answers SMS. Models are public on Hugging Face. |
 
 ## 3. Team introduction (you on camera, about 115 words, 55 s)
 
