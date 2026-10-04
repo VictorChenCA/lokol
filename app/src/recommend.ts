@@ -102,7 +102,9 @@ export function recommend(input: RecommendInput): Recommendation {
     if (hasEnglish) optional.push({ key: "stt-en", model: MODELS.stt_en, type: "stt", lang: "en", drop: "English voice-in is off to leave memory for the language model. The nurse types instead." });
     if (hasPijin) {
       if (tier === "D") optional.push({ key: "stt-pis", model: MODELS.stt_pis, type: "stt", lang: "pis", drop: "Pijin voice-in is off: not enough memory beside the language model." });
-      else willNotWork.push("Pijin voice-in: the smallest Pijin speech model is 1.3 GB and runs in a Python service on a laptop. On this phone the nurse types Pijin, or speaks English.");
+      else if (tier === "C")
+        optional.push({ key: "stt-pis", model: MODELS.stt_pis_approx, type: "stt", lang: "pis", drop: "Approximate Pijin voice-in (Whisper base) is off: not enough memory beside the language model. The nurse types Pijin." });
+      else willNotWork.push("Pijin voice-in: the smallest Pijin speech model is 1.3 GB and runs in a Python service on a laptop. On this phone the nurse types Pijin, or speaks English. Phones with 6 GB or more get an approximate Pijin voice-in (Whisper base).");
     }
   }
   if (input.voiceOut) {
@@ -167,9 +169,24 @@ export function recommend(input: RecommendInput): Recommendation {
   const stts = optional.filter((o) => o.type === "stt");
   stts.forEach((o, i) => {
     const id = nodeId("stt", i + 1);
-    nodes.push({ id, type: "stt", label: o.lang === "pis" ? "Speech in (Pijin)" : "Speech in (English)", model: o.model, params: o.lang === "pis" ? { lang: "pis", service: "sidecar" } : { lang: "en" }, online: false, position: P });
+    const approx = o.lang === "pis" && o.model.id === MODELS.stt_pis_approx.id;
+    nodes.push({
+      id,
+      type: "stt",
+      label: o.lang === "pis" ? (approx ? "Speech in (Pijin, approximate)" : "Speech in (Pijin)") : "Speech in (English)",
+      model: o.model,
+      params: o.lang === "pis" ? (approx ? { lang: "pis", approximate: true, whisper_language: "en", task: "transcribe" } : { lang: "pis", service: "sidecar" }) : { lang: "en" },
+      online: false,
+      position: P
+    });
     edges.push({ from: chIn, to: id });
-    reasons.push(o.lang === "pis" ? "Pijin voice-in runs on the laptop with Omnilingual ASR (300M, 1.3 GB), trained on about 25 hours of Pijin." : "English voice-in uses Moonshine Tiny (52 MB) inside the browser.");
+    reasons.push(
+      o.lang === "pis"
+        ? approx
+          ? "Pijin voice-in is approximate on this phone: Whisper base (136 MB, in the browser) writes Pijin speech in English-like spelling. The Lokol model was trained on Pijin text and the lookup expands Pijin and English terms, so the reply still lands."
+          : "Pijin voice-in runs on the laptop with Omnilingual ASR (300M, 1.3 GB), trained on about 25 hours of Pijin."
+        : "English voice-in uses Moonshine Tiny (52 MB) inside the browser."
+    );
   });
   if (!input.voiceIn) reasons.push("Voice-in is off, so no speech model is downloaded. Text works in both languages.");
 

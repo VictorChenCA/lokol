@@ -9,6 +9,7 @@ const RECIPES: Record<string, { mlx?: string; layers?: number; iters?: number; l
   "qwen3-0.6b-base": { mlx: "mlx-community/Qwen3-0.6B-bf16", layers: 28, iters: 700, lr: "2e-4", exporter: "std", tag: "qwen3-0.6b" },
   "qwen3.5-0.8b-base": { mlx: "mlx-community/Qwen3.5-0.8B-MLX-bf16", layers: 1, iters: 700, lr: "2e-4", exporter: "qwen35", tag: "0.8B" },
   "qwen3-1.7b-base": { mlx: "mlx-community/Qwen3-1.7B-bf16", layers: 28, iters: 600, lr: "1.5e-4", exporter: "std", tag: "qwen3-1.7b" },
+  "qwen3-4b-base": { mlx: "mlx-community/Qwen3-4B-bf16", layers: 16, iters: 500, lr: "1e-4", exporter: "std", tag: "qwen3-4b" },
   "qwen3.5-9b-base": { river: "Qwen/Qwen3.5-9B", tag: "9b" }
 };
 

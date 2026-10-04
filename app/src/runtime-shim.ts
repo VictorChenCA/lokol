@@ -3,6 +3,39 @@
  * Same API as the real engine (SPEC §5). Replies are plausible, not generated.
  */
 import type { Chunk, Engine, EngineStatus, Flags, GateResult, Lang, LoadProgress, Manifest, ParsedReply } from "./types";
+import { BM25Index } from "./runtime/rag";
+
+/** A pack built in the New pack wizard: its own corpus, red-flag phrases and fallback message. */
+interface CustomPack { index: BM25Index; redFlags: string[]; fallback: string; name: string }
+
+function customPack(manifest: Manifest): CustomPack | null {
+  const m = manifest as Manifest & { corpus_inline?: any; red_flags?: string[]; fallback_message?: string };
+  if (!m.corpus_inline) return null;
+  return {
+    index: new BM25Index(m.corpus_inline),
+    redFlags: (m.red_flags ?? []).map((r) => r.trim().toLowerCase()).filter(Boolean),
+    fallback: m.fallback_message || "I am not sure. Ask a person who knows.",
+    name: m.graph?.name ?? "Your pack"
+  };
+}
+
+function customFlags(c: CustomPack, text: string): string[] {
+  const t = text.toLowerCase();
+  return c.redFlags.filter((r) => t.includes(r));
+}
+
+/** Canned reply for a custom pack: cites the retrieved chunk of the user's own manual. */
+function customCanned(c: CustomPack, chunk: Chunk | null, message: string): ParsedReply {
+  const flags = customFlags(c, message);
+  if (flags.length) {
+    const body = `Red flag: ${flags.join(", ")}.\n${c.fallback}`;
+    return { action: "REFER_NOW", stm: chunk?.section ?? "NONE", body, raw: `ACTION: REFER_NOW\nSTM: ${chunk?.section ?? "NONE"}\n---\n${body}` };
+  }
+  if (!chunk) return { action: "ASK_PERSON", stm: "NONE", body: c.fallback, raw: `ACTION: ASK_PERSON\nSTM: NONE\n---\n${c.fallback}` };
+  const sentences = chunk.text.replace(/\s+/g, " ").match(/[^.!?]+[.!?]/g) ?? [chunk.text];
+  const body = [`From "${chunk.section}" (page ${chunk.page}):`, ...sentences.slice(0, 4).map((x) => x.trim())].join("\n");
+  return { action: "ADVISE", stm: chunk.section, body, raw: `ACTION: ADVISE\nSTM: ${chunk.section}\n---\n${body}` };
+}
 
 const RED_FLAGS: { re: RegExp; label: string }[] = [
   { re: /\b(convuls|fit|fits|sek-?sek|seizure)/i, label: "convulsions" },
@@ -135,7 +168,7 @@ function canned(flags: Flags, chunk: Chunk | null, message: string): ParsedReply
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 class ShimEngine implements Engine {
-  constructor(private manifest: Manifest) {}
+  constructor(private manifest: Manifest, private custom: CustomPack | null = null) {}
 
   async transcribe(_audio: Blob, lang: Lang): Promise<string> {
     await sleep(600);
@@ -145,12 +178,17 @@ class ShimEngine implements Engine {
 
   async retrieve(query: string): Promise<Chunk[]> {
     await sleep(120);
+    if (this.custom) {
+      // real BM25 over the user's corpus; a small manual has low IDF, so the bar is coverage, not score
+      const hits = this.custom.index.searchDetailed(stripNegations(query), 3).hits;
+      return (hits[0] && hits[0].coverage >= 0.3 ? hits : []) as Chunk[];
+    }
     const c = pick(query);
     return c ? [{ ...c, score: 7.4 }] : [];
   }
 
   async generate(flags: Flags, guidelineChunk: Chunk | null, message: string, onToken?: (t: string) => void): Promise<ParsedReply> {
-    const reply = canned(flags, guidelineChunk, message);
+    const reply = this.custom ? customCanned(this.custom, guidelineChunk, message) : canned(flags, guidelineChunk, message);
     const t0 = performance.now();
     const words = reply.raw.split(/(\s+)/);
     let n = 0;
@@ -164,6 +202,11 @@ class ShimEngine implements Engine {
   }
 
   gate(message: string, reply: ParsedReply): GateResult {
+    if (this.custom) {
+      const found = customFlags(this.custom, message);
+      if (found.length && !/^REFER/.test(reply.action)) return { action: "REFER_NOW", reason: "Red flag in the message; model reply replaced.", red_flags: found, reply: this.custom.fallback, overridden: true };
+      return { action: reply.action, reason: null, red_flags: found, reply: reply.body, overridden: false };
+    }
     const flags = detectRedFlags(message);
     if (flags.length && !/^REFER/.test(reply.action)) {
       const body = `Danger sign: ${flags.join(", ")}. Refer now. Keep the child warm, give the first dose per the manual, write a referral note.`;
@@ -210,5 +253,5 @@ export async function loadPack(manifest: Manifest, onProgress?: (p: LoadProgress
     }
     onProgress?.({ model_id: m.id, loaded_mb: m.size_mb, total_mb: m.size_mb, stage: "ready" });
   }
-  return new ShimEngine(manifest);
+  return new ShimEngine(manifest, customPack(manifest));
 }

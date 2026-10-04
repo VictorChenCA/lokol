@@ -123,6 +123,16 @@ describe("recommend", () => {
     expect(r.reasons.join(" ")).toMatch(/Memory is tight/);
   });
 
+  it("6 GB+ phone with Pijin voice-in gets approximate Whisper base, labelled honestly", () => {
+    const r = recommend({ sector: "health", languages: ["pis", "en"], voiceIn: true, voiceOut: true, connectivity: "none", deviceName: "Samsung Galaxy A54", ram_gb: 8, storage_gb: 128 });
+    expect(r.tier).toBe("C");
+    const pis = r.graph.nodes.find((n) => n.type === "stt" && n.params.lang === "pis");
+    expect(pis?.model?.id).toBe("whisper-base");
+    expect(pis?.label).toMatch(/approximate/);
+    expect(r.reasons.join(" ")).toMatch(/approximate/);
+    expect(r.willNotWork.some((w) => /^Pijin voice-in: the smallest/.test(w))).toBe(false);
+  });
+
   it("lays nodes out in stage columns", () => {
     const r = recommend({ sector: "health", languages: ["en"], voiceIn: true, voiceOut: true, connectivity: "none", deviceName: "x", ram_gb: 8, storage_gb: 128 });
     const x = (t: string) => r.graph.nodes.find((n) => n.type === t)!.position.x;

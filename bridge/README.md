@@ -93,6 +93,7 @@ Measured (2026-10-03, `--backend river`, warm session): Pijin fever case 6.4 s e
 | `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` | signature check (on when the token is set), media download, REST send |
 | `TWILIO_WHATSAPP_FROM` | sandbox sender, default `whatsapp:+14155238886` |
 | `TWILIO_ASYNC` | **`1` recommended** (default in `run_local.sh`): answer the webhook with empty TwiML at once and send the reply through the Twilio REST API (`POST /2010-04-01/Accounts/{SID}/Messages.json`, Basic auth SID:token, `From` = `TWILIO_WHATSAPP_FROM`) from a background task. Twilio times a webhook out at 15 s; a River turn is 4-12 s plus retrieval, and a River timeout plus fallback can take longer. Needs SID + token; without them the bridge stays synchronous. `0` = reply inside the webhook response (TwiML), used by the tests |
+| `TWILIO_MODE` | `webhook` (default) or `poll`: no webhook, the bridge polls the Messages list (free trial tier, see below). `TWILIO_POLL_INTERVAL` (3 s), `TWILIO_POLL_MAX_AGE` (600 s), `TWILIO_SEEN_FILE` (`bridge/.state/twilio_seen.json`) |
 | `META_VERIFY_TOKEN` | the string you type into the Meta webhook form (default `lokol-verify`) |
 | `META_PAGE_TOKEN` | Page access token for the Send API |
 | `META_APP_SECRET` | optional; enables `X-Hub-Signature-256` verification |
@@ -116,6 +117,37 @@ Measured (2026-10-03, `--backend river`, warm session): Pijin fever case 6.4 s e
 6. Voice notes: send one; the bridge downloads it with Basic auth (SID:token), converts with ffmpeg, transcribes through the sidecar, and answers with text plus an Ogg/Opus voice note (`<Media>` URL under `PUBLIC_BASE_URL/static/audio/`).
 
 Notes: the sandbox only talks to numbers that joined; free trial accounts can send to joined numbers without a template inside the 24 h session window; the sandbox is free (standard WhatsApp conversation pricing applies only on upgraded accounts). Use `TWILIO_ASYNC=1` (the `run_local.sh` default): the webhook returns an empty `<Response></Response>` at once and the reply (text, plus the voice note as `MediaUrl`) goes out through the REST API, so River latency never hits Twilio's 15 s webhook limit. A failed REST send is logged (`twilio REST send failed: status=...`). With `TWILIO_ASYNC=0` the webhook response itself is the TwiML reply (`<Response><Message><Body>…</Body><Media>…</Media></Message></Response>`), fine for the fast mock or a small local model.
+
+## Free tier: polling mode (`TWILIO_MODE=poll`)
+
+Twilio's new **Limited trial** accounts cannot set the sandbox webhook (Sandbox settings redirects to an upgrade page), but the REST API still lists inbound messages and still sends to the verified tester. Polling mode needs no webhook and no public URL for text:
+
+```bash
+TWILIO_MODE=poll LLM_BACKEND=river bridge/run_local.sh     # or TWILIO_MODE=poll in .env
+```
+
+1. `.env`: `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, and `TWILIO_WHATSAPP_FROM` = the sandbox number shown on **Messaging → Try it out → Send a WhatsApp message** for your account (e.g. `whatsapp:+17372583742`).
+2. From the verified phone, send the `join <two-words>` code to that number in WhatsApp (Twilio answers the join itself).
+3. Start the bridge as above. It prints `Twilio polling the Messages list every 3 s` instead of the webhook instructions; `GET /health` shows `twilio.poll` with `polls`, `answered`, `sent`, `errors`, `last_error`.
+4. Send a nurse message. Within about 3 s plus the model turn the reply arrives.
+
+How it works (`bridge/twilio_poll.py`): every `TWILIO_POLL_INTERVAL` seconds (3) it calls `GET /2010-04-01/Accounts/{SID}/Messages.json?To=<TWILIO_WHATSAPP_FROM>&PageSize=20&DateSent>=<yesterday UTC>` with Basic auth, takes inbound `whatsapp:+…` messages it has not seen (oldest first), marks each one seen in `bridge/.state/twilio_seen.json` **before** answering (never a double reply), turns it into the webhook's form fields (a voice note's `Media.json` gives the `MediaUrl0`, downloaded with Basic auth) and runs it through the same handler as `/twilio/whatsapp` (commands, ASR, retrieval, LLM, red-flag gate). The reply goes out with `POST Messages.json` (`From`, `To`, `Body`); a voice note is attached as `MediaUrl` only when `PUBLIC_BASE_URL` is https (keep the tunnel running for voice replies).
+
+- **First start** (no seen file): everything already in the log is marked seen and nothing is answered.
+- Messages older than `TWILIO_POLL_MAX_AGE` (600 s, e.g. sent while the bridge was down) and sandbox keywords (`join …`, `stop`, `start`) are marked seen without a reply.
+- Errors back off 3 → 6 → … → 60 s (straight to 60 s on 401/403). Logs show masked message SIDs, hashed numbers and HTTP codes, never the token or message bodies.
+- Do not run polling mode and a configured webhook at the same time on one number (both would answer).
+
+CLI, outside the bridge (reads `.env`):
+
+```bash
+.venv/bin/python -m bridge.twilio_poll --list            # read-only: inbound count, timestamps, seen flags (no bodies)
+.venv/bin/python -m bridge.twilio_poll --once --dry-run  # which message --once would answer; sends and marks nothing
+.venv/bin/python -m bridge.twilio_poll --once            # answer the newest unseen inbound message (24 h window), exit
+.venv/bin/python -m bridge.twilio_poll                   # standalone poller loop (same as TWILIO_MODE=poll in the bridge)
+```
+
+Free-trial limits still apply: replies reach only the verified tester who joined the sandbox, inside WhatsApp's 24 h session window.
 
 ## Facebook Messenger (Meta Cloud)
 
@@ -149,4 +181,4 @@ Uses `corpus/stm_children_chunks.jsonl` + `corpus/sections.json` from the DATA l
 .venv/bin/python -m pytest bridge/tests -q
 ```
 
-Covers the gate (red flags in both languages, parser, overrides), BM25 (tiny corpus and the real one), commands/state, `POST /message`, the Twilio webhook (signed text, bad signature → 403, voice note → `<Media>`, XML escaping), the Messenger webhook (verify handshake, text event → Send API, audio event, echo/non-page events, app-secret signature), and `test_upgrades.py`: CORS + PNA preflight, the `/health` shape (no secret values), the River backend with a mocked client (prompt is SYSTEM_PROMPT only, red-flag gate still applies, timeout → canned ASK_PERSON, error → llama fallback, session rebuilt after an error, checkpoint default = step 180, `response_json` string parsing) and `TWILIO_ASYNC=1` end to end (empty TwiML, then one REST call to `Messages.json` with Basic auth and the reply, through an `httpx.MockTransport`; a 401 from Twilio is logged, not raised). No test touches the network.
+Covers the gate (red flags in both languages, parser, overrides), BM25 (tiny corpus and the real one), commands/state, `POST /message`, the Twilio webhook (signed text, bad signature → 403, voice note → `<Media>`, XML escaping), the Messenger webhook (verify handshake, text event → Send API, audio event, echo/non-page events, app-secret signature), and `test_upgrades.py`: CORS + PNA preflight, the `/health` shape (no secret values), the River backend with a mocked client (prompt is SYSTEM_PROMPT only, red-flag gate still applies, timeout → canned ASK_PERSON, error → llama fallback, session rebuilt after an error, checkpoint default = step 180, `response_json` string parsing) and `TWILIO_ASYNC=1` end to end (empty TwiML, then one REST call to `Messages.json` with Basic auth and the reply, through an `httpx.MockTransport`; a 401 from Twilio is logged, not raised). `test_twilio_poll.py`: polling mode (first start answers nothing, list query shape + Basic auth, each new inbound answered once across restarts, oldest first, stale and `join` messages skipped, `--once` limit and dry run, a voice note through the real webhook handler with an authenticated media download, `MediaUrl` only for https, handler/send errors, backoff, no secrets in logs). No test touches the network.

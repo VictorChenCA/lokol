@@ -4,10 +4,12 @@
 #   bridge/run_local.sh                          # LLM_BACKEND from env or .env, default llama
 #   LLM_BACKEND=river bridge/run_local.sh        # River-hosted tuned 9B (needs RIVER_API_KEY in .env)
 #   WITH_VOICE=1 LLM_BACKEND=river bridge/run_local.sh
+#   TWILIO_MODE=poll LLM_BACKEND=river bridge/run_local.sh   # Twilio free trial: poll, no webhook to set
 #
 # Env: LLM_BACKEND (llama|river), WITH_VOICE (1 = start sidecar/server.py), BRIDGE_PORT (8090),
 #      SIDECAR_PORT (8091), BRIDGE_HOST (127.0.0.1), NO_TUNNEL (1 = skip cloudflared),
-#      TWILIO_ASYNC (default 1 here: empty TwiML at once, reply via the Twilio REST API).
+#      TWILIO_ASYNC (default 1 here: empty TwiML at once, reply via the Twilio REST API),
+#      TWILIO_MODE (webhook, default | poll = the bridge polls the Twilio Messages list every 3 s).
 # The tunnel URL goes to bridge/.state/public_url (gitignored; removed on exit), never into .env.
 # Secrets stay in .env, which the bridge reads itself; this script never prints them.
 # Works with macOS /bin/bash 3.2.
@@ -38,7 +40,9 @@ LLM_BACKEND="${LLM_BACKEND:-$(env_get LLM_BACKEND)}"
 LLM_BACKEND="${LLM_BACKEND:-llama}"
 TWILIO_ASYNC="${TWILIO_ASYNC:-$(env_get TWILIO_ASYNC)}"
 TWILIO_ASYNC="${TWILIO_ASYNC:-1}"
-export LLM_BACKEND TWILIO_ASYNC
+TWILIO_MODE="${TWILIO_MODE:-$(env_get TWILIO_MODE)}"
+TWILIO_MODE="${TWILIO_MODE:-webhook}"
+export LLM_BACKEND TWILIO_ASYNC TWILIO_MODE
 export SIDECAR_URL="${SIDECAR_URL:-http://127.0.0.1:$SIDECAR_PORT}"
 
 case "$LLM_BACKEND" in
@@ -120,12 +124,18 @@ done
 
 echo
 echo "=================================================================="
-echo " Lokol bridge   http://127.0.0.1:$PORT   (LLM_BACKEND=$LLM_BACKEND, TWILIO_ASYNC=$TWILIO_ASYNC)"
+echo " Lokol bridge   http://127.0.0.1:$PORT   (LLM_BACKEND=$LLM_BACKEND, TWILIO_MODE=$TWILIO_MODE, TWILIO_ASYNC=$TWILIO_ASYNC)"
+if [ "$TWILIO_MODE" = poll ]; then
+  echo " Twilio         polling the Messages list every ${TWILIO_POLL_INTERVAL:-3} s (free trial: no webhook to set)."
+  echo "                Message the sandbox number from the verified phone; replies go out via the REST API."
+fi
 if [ -n "$PUBLIC_URL" ]; then
   echo " Public URL     $PUBLIC_URL      (saved to bridge/.state/public_url)"
-  echo " Twilio webhook $PUBLIC_URL/twilio/whatsapp"
-  echo "                (Twilio console > Messaging > Try it out > WhatsApp > Sandbox settings,"
-  echo "                 'When a message comes in', method POST)"
+  if [ "$TWILIO_MODE" != poll ]; then
+    echo " Twilio webhook $PUBLIC_URL/twilio/whatsapp"
+    echo "                (Twilio console > Messaging > Try it out > WhatsApp > Sandbox settings,"
+    echo "                 'When a message comes in', method POST)"
+  fi
   echo " Messenger      $PUBLIC_URL/messenger/webhook"
 fi
 env_has TWILIO_AUTH_TOKEN || echo " note: TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN not in .env yet (no signature check, no async REST replies)"

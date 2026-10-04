@@ -47,13 +47,14 @@
           "size_mb": 52,
           "license": "MIT",
           "runtime": "transformersjs",
-          "note": "English only. Pijin voice-in is laptop tier (omnilingual-ctc-300m-pis in the sidecar)."
+          "note": "English in the browser (Moonshine). Pijin voice-in: full model is laptop tier (omnilingual-ctc-300m-pis in the sidecar); on phones the Demo's 'Voice input: Pijin, approximate' setting uses whisper-base (onnx-community/whisper-base, 136 MB, MIT), which writes Pijin speech in English-like spelling."
         },
         "params": {
           "languages": [
             "en"
           ],
-          "pis_note": "laptop tier only"
+          "pis_note": "laptop tier for full Pijin; approximate on phones via whisper-base",
+          "pis_approx_model": "whisper-base"
         },
         "online": false,
         "position": {
@@ -278,7 +279,7 @@
       "size_mb": 52,
       "license": "MIT",
       "runtime": "transformersjs",
-      "note": "English only. Pijin voice-in is laptop tier (omnilingual-ctc-300m-pis in the sidecar)."
+      "note": "English in the browser (Moonshine). Pijin voice-in: full model is laptop tier (omnilingual-ctc-300m-pis in the sidecar); on phones the Demo's 'Voice input: Pijin, approximate' setting uses whisper-base (onnx-community/whisper-base, 136 MB, MIT), which writes Pijin speech in English-like spelling."
     },
     {
       "id": "mms-tts-pis",

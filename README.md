@@ -98,19 +98,25 @@ Full tables, per-language and per-task scores, judge scores and limitations: [`e
 
 ## Run it
 
+1. **Hosted demo, nothing to install:** https://lokol-studio.vercel.app/demo (phone or laptop; Add to Home screen and it works offline). Add `?runtime=shim` for canned replies without downloading models.
+2. **One line with Ollama** (template, system prompt and settings come from the Hugging Face repo):
+   ```bash
+   ollama run hf.co/VictorChenCA/lokol-health-qwen3-1.7b-gguf
+   ```
+   Each message is the Lokol protocol: a flags line, a guideline line, the nurse's question (example on the [model card](https://huggingface.co/VictorChenCA/lokol-health-qwen3-1.7b-gguf)).
+3. **Laptop or clinic PC, model server + bridge in one command** (macOS/Linux; needs `brew install llama.cpp` and Python 3.10+):
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/VictorChenCA/lokol/main/deploy/lokol-laptop.sh | bash -s -- --model 1.7b
+   ```
+   `--voice` adds Pijin speech, `--tunnel` a public URL, `--dry-run` prints the plan. Details: [`deploy/README.md`](deploy/README.md).
+4. **WhatsApp or Messenger:** run the installer with `--tunnel`, then paste the printed webhook URL into the Twilio Sandbox (WhatsApp) or your Meta app (Messenger). Step by step: [`bridge/README.md`](bridge/README.md) and the Deploy page in the app.
+
+Android with PocketPal: [`deploy/ANDROID.md`](deploy/ANDROID.md). Develop Studio locally:
+
 ```bash
 git clone https://github.com/VictorChenCA/lokol && cd lokol
-# hosted: https://lokol-studio.vercel.app
-# web app (Studio + offline demo)
 cd app && npm install && npm run dev            # http://localhost:5173
-# laptop pack: model server + WhatsApp/Messenger bridge + speech sidecar
-python3.12 -m venv .venv && .venv/bin/pip install -r bridge/requirements.txt -r sidecar/requirements.txt
-llama-server -m <lokol-health GGUF> --port 8080 -c 4096 --jinja
-.venv/bin/python -m bridge.server --port 8090
-.venv/bin/python sidecar/server.py               # Pijin voice in/out, port 8091
 ```
-
-WhatsApp (Twilio Sandbox), Messenger and Android steps: [`bridge/README.md`](bridge/README.md) and the Deploy page in the app.
 
 ## Repo map
 

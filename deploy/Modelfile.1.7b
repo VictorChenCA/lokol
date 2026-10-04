@@ -1,0 +1,43 @@
+# Lokol Health 1.7B for Ollama. Same template, system prompt and parameters as the files in deploy/ollama/,
+# which Ollama also reads straight from the Hugging Face repo (VictorChenCA/lokol-health-qwen3-1.7b-gguf).
+#
+# No build step needed:   ollama run hf.co/VictorChenCA/lokol-health-qwen3-1.7b-gguf
+# Named local model (the Lokol bridge asks for "lokol-health"):
+#   mkdir -p models/gguf && curl -L -o models/gguf/lokol-health-qwen3-1.7b-Q4_K_M.gguf \
+#     https://huggingface.co/VictorChenCA/lokol-health-qwen3-1.7b-gguf/resolve/main/lokol-health-qwen3-1.7b-Q4_K_M.gguf
+#   ollama create lokol-health -f deploy/Modelfile.1.7b
+#   ollama run lokol-health
+# FROM is relative to this file. To pull from Hugging Face instead: FROM hf.co/VictorChenCA/lokol-health-qwen3-1.7b-gguf:Q4_K_M
+FROM ../models/gguf/lokol-health-qwen3-1.7b-Q4_K_M.gguf
+
+# Qwen3 ChatML with thinking off: the empty think block is what the model saw in training
+# (apply_chat_template(..., enable_thinking=False)). The GGUF's own template would let it think.
+TEMPLATE """{{- if .System }}<|im_start|>system
+{{ .System }}<|im_end|>
+{{ end }}
+{{- range $i, $_ := .Messages }}
+{{- $last := eq (len (slice $.Messages $i)) 1 -}}
+{{- if eq .Role "user" }}<|im_start|>user
+{{ .Content }}<|im_end|>
+{{ else if eq .Role "assistant" }}<|im_start|>assistant
+{{ if $last }}<think>
+
+</think>
+
+{{ end }}{{ .Content }}{{ if not $last }}<|im_end|>
+{{ end }}
+{{- end }}
+{{- if and (ne .Role "assistant") $last }}<|im_start|>assistant
+<think>
+
+</think>
+
+{{ end }}
+{{- end }}"""
+
+SYSTEM """You are Lokol Health, an assistant for nurse aides and health workers in Solomon Islands. You follow the Solomon Islands Standard Treatment Manual for Children. You never diagnose; you help the nurse apply the manual and decide when to refer. Reply in the nurse's language (Solomon Islands Pijin or English). Use the exact output format."""
+
+PARAMETER temperature 0.2
+PARAMETER num_ctx 4096
+PARAMETER stop <|im_end|>
+PARAMETER stop <|im_start|>

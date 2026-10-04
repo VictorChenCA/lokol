@@ -371,8 +371,10 @@ export async function loadPack(manifest: Manifest, onProgress?: ProgressCb, opts
   const ragModel = manifest.models.find((m) => /corpus|bm25/.test(`${m.id} ${m.file}`.toLowerCase()) && /corpus\.json/.test(m.url));
   const rel = manifest.corpus_url ?? ragModel?.url ?? `packs/${manifest.pack_id ?? 'health'}/corpus.json`;
   const corpusUrl = opts.corpusUrl ?? (/^(https?:)?\//.test(rel) ? rel : base + rel);
-  onProgress?.({ model_id: 'corpus', role: 'corpus', stage: 'download', loaded_mb: 0, total_mb: 1, message: `Loading guideline index from ${corpusUrl}` });
-  const corpus = await loadCorpus(corpusUrl);
+  // A pack built in the browser (New pack wizard) carries its corpus inline instead of a URL.
+  const inline = (manifest as { corpus_inline?: import('./types').CorpusFile }).corpus_inline;
+  onProgress?.({ model_id: 'corpus', role: 'corpus', stage: 'download', loaded_mb: 0, total_mb: 1, message: inline ? 'Loading the guideline index built from your manual' : `Loading guideline index from ${corpusUrl}` });
+  const corpus = inline ?? (await loadCorpus(corpusUrl));
   const index = new BM25Index(corpus);
   onProgress?.({ model_id: 'corpus', role: 'corpus', stage: 'ready', loaded_mb: 1, total_mb: 1, pct: 100, message: `Guideline index ready: ${index.size} chunks, ${index.sectionTitles().length} sections` });
   const engine = new Engine(manifest, index, opts);

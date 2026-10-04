@@ -12,6 +12,29 @@ export interface TranscribeResult {
   seconds: number;
 }
 
+/**
+ * Approximate Pijin voice-in on a phone: multilingual Whisper base in the browser. Whisper has no Pijin, so with
+ * language "en" and task "transcribe" it writes Pijin speech in English-like spelling. That is enough for Lokol:
+ * the model was trained on Pijin text and the retrieval expands Pijin and English terms. Moonshine stays the
+ * English default and STT_SUPPORT.pis stays false for the engine's own transcribe().
+ */
+export const PIS_APPROX = {
+  catalog_id: 'whisper-base',
+  model: 'onnx-community/whisper-base',
+  size_mb: 136,
+  language: 'en',
+  task: 'transcribe' as const,
+  label: 'Pijin, approximate (Whisper base)',
+  note: 'Approximate for Pijin: transcribes Pijin speech in English-like spelling; the Lokol model was trained on Pijin text and the retrieval expands Pijin and English terms.',
+};
+
+export interface TranscribeOpts {
+  /** Whisper only: spoken language hint. Leave unset for auto-detect. */
+  language?: string;
+  /** Whisper only: always "transcribe" here (never translate). */
+  task?: 'transcribe' | 'translate';
+}
+
 export const STT_SUPPORT: Record<Lang, { ok: boolean; reason?: string }> = {
   en: { ok: true },
   pis: { ok: false, reason: 'Pijin voice-in runs on the laptop sidecar (Omnilingual ASR / MMS), not in the browser yet. Type the message in Pijin, or speak English.' },
@@ -59,11 +82,28 @@ export class STT {
     return new STT(asr, modelId);
   }
 
-  async transcribe(audio: Blob | Float32Array, lang: Lang = 'en'): Promise<TranscribeResult> {
+  get isWhisper(): boolean {
+    return /whisper/i.test(this.modelId);
+  }
+
+  /**
+   * lang is the conversation language. A multilingual Whisper also accepts lang "pis" (approximate, see
+   * PIS_APPROX); English-only models refuse it with a reason.
+   */
+  async transcribe(audio: Blob | Float32Array, lang: Lang = 'en', opts: TranscribeOpts = {}): Promise<TranscribeResult> {
     const t0 = performance.now();
-    if (!STT_SUPPORT[lang].ok) return { text: '', reason: STT_SUPPORT[lang].reason, ms: 0, seconds: 0 };
+    const multilingual = this.isWhisper && !/\.en\b|whisper-[a-z]+\.en/i.test(this.modelId);
+    if (!STT_SUPPORT[lang].ok && !multilingual) return { text: '', reason: STT_SUPPORT[lang].reason, ms: 0, seconds: 0 };
     const pcm = audio instanceof Float32Array ? audio : await blobToPCM16k(audio);
-    const out: any = await this.asr(pcm);
+    const gen: Record<string, unknown> = {};
+    if (multilingual) {
+      gen.task = opts.task ?? 'transcribe';
+      const language = opts.language ?? (lang === 'pis' ? PIS_APPROX.language : lang);
+      if (language) gen.language = language;
+    }
+    // 30 s windows so a long voice note is not cut at Whisper's single-window limit
+    if (this.isWhisper && pcm.length > 16000 * 30) { gen.chunk_length_s = 30; gen.stride_length_s = 5; }
+    const out: any = await this.asr(pcm, gen);
     const text = (Array.isArray(out) ? out[0]?.text : out?.text) ?? '';
     return { text: text.trim(), ms: Math.round(performance.now() - t0), seconds: pcm.length / 16000 };
   }

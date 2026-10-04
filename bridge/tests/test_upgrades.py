@@ -268,7 +268,8 @@ def test_twilio_async_replies_via_rest(client, fresh_user, monkeypatch):
     user, _, pw = base64.b64decode(req.headers["authorization"].split()[1]).decode().partition(":")
     assert user == settings.twilio_account_sid and pw == settings.twilio_auth_token
     form = {k: v[0] for k, v in parse_qs(req.content.decode()).items()}
-    assert form["To"] == fresh_user and form["From"] == settings.twilio_whatsapp_from
+    # the reply goes out from the number the user wrote to (inbound "To"), falling back to the configured sender
+    assert form["To"] == fresh_user and form["From"] in (params.get("To"), settings.twilio_whatsapp_from)
     assert "STM: MALARIA" in form["Body"] and "MediaUrl" not in form
 
 

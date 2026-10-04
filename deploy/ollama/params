@@ -1,0 +1,8 @@
+{
+  "temperature": 0.2,
+  "num_ctx": 4096,
+  "stop": [
+    "<|im_end|>",
+    "<|im_start|>"
+  ]
+}

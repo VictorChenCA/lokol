@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import JSZip from "jszip";
-import { buildManifest, packZip, readme, installUrl, manifestUrl, packLlm, laptopCommands, isHosted } from "./pack";
+import { buildManifest, packZip, readme, installUrl, manifestUrl, packLlm, laptopCommands, isHosted, ollamaCommand, installerCommand, modelSize } from "./pack";
 import { HEALTH_GRAPH } from "./data/presets";
 
 describe("pack export", () => {
@@ -37,5 +37,19 @@ describe("pack export", () => {
     expect(cmds).toContain(`llama-server -m models/gguf/${llm!.file} --port 8080`);
     expect(cmds).toContain(".venv/bin/python -m bridge.server --port 8090");
     expect(cmds).toContain(".venv/bin/python sidecar/server.py");
+  });
+
+  it("writes the one-line deploy commands (Ollama from Hugging Face, laptop installer)", () => {
+    const m = buildManifest(HEALTH_GRAPH, "https://lokol.vercel.app");
+    const llm = packLlm(m);
+    expect(ollamaCommand(llm)).toMatch(/^ollama run hf\.co\/VictorChenCA\/lokol-health-qwen3-[\d.]+b-gguf$/);
+    expect(ollamaCommand({ url: "https://huggingface.co/VictorChenCA/lokol-health-qwen3-1.7b-gguf/resolve/main/x.gguf" })).toBe("ollama run hf.co/VictorChenCA/lokol-health-qwen3-1.7b-gguf");
+    expect(modelSize({ file: "lokol-health-qwen3-0.6b-Q4_K_M.gguf" })).toBe("0.6b");
+    expect(modelSize({ file: "lokol-health-qwen3-1.7b-Q4_K_M.gguf" })).toBe("1.7b");
+    expect(installerCommand("0.6b", { voice: true, tunnel: true })).toBe(
+      "curl -fsSL https://raw.githubusercontent.com/VictorChenCA/lokol/main/deploy/lokol-laptop.sh | bash -s -- --model 0.6b --voice --tunnel"
+    );
+    expect(readme(m)).toContain(ollamaCommand(llm));
+    expect(readme(m)).toContain("deploy/lokol-laptop.sh | bash -s -- --model");
   });
 });

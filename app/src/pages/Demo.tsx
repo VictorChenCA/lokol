@@ -6,6 +6,8 @@ import { ReplyCard, UserBubble, type BotMsg, type Msg, type VoiceState } from ".
 import { Composer, ConnectivityChip, FlagChips, LoadCard, ModelChip, RuntimeFooter } from "../components/demo/parts";
 import { PipelinePanel } from "../components/demo/PipelinePanel";
 import { useDemoEngine, useInstallPrompt, useOnline } from "../components/demo/useDemoEngine";
+import { PIS_APPROX_NOTE, TalkBar, VOICE_IN_KEY, VoiceInPicker, type TalkPhase, type VoiceIn } from "../components/demo/TalkPanel";
+import { listenOnce, pcmToWav, type ListenHandle } from "../runtime/vad";
 
 const ACTIONS: Action[] = ["ADVISE", "REFER_NOW", "REFER_NEXT_TRANSPORT", "ASK_PERSON"];
 const NOTES_KEY = "lokol.health.notes";
@@ -47,6 +49,27 @@ export default function Demo() {
   const recRef = useRef<MediaRecorder | null>(null);
   const timerRef = useRef<number | null>(null);
   const audioRef = useRef<{ ctx: AudioContext; srcs: AudioBufferSourceNode[]; gen: number } | null>(null);
+  const [voiceIn, setVoiceInState] = useState<VoiceIn>(() => {
+    try {
+      return localStorage.getItem(VOICE_IN_KEY) === "pis-approx" ? "pis-approx" : "en";
+    } catch {
+      return "en";
+    }
+  });
+  const setVoiceIn = (v: VoiceIn) => {
+    setVoiceInState(v);
+    try {
+      localStorage.setItem(VOICE_IN_KEY, v);
+    } catch {
+      /* storage blocked: the choice lasts for this visit */
+    }
+  };
+  const [talkPhase, setTalkPhase] = useState<TalkPhase>("off");
+  const [talkLevel, setTalkLevel] = useState(0);
+  const [talkHeard, setTalkHeard] = useState<string | null>(null);
+  const talkOnRef = useRef(false);
+  const listenRef = useRef<ListenHandle | null>(null);
+  const whisperRef = useRef<Promise<any> | null>(null);
 
   const ready = !!engine;
   const pis = flags.lang === "pis";
@@ -60,9 +83,9 @@ export default function Demo() {
   const patch = (id: number, p: Partial<BotMsg>) => setMsgs((all) => all.map((m) => (m.id === id && m.role === "bot" ? { ...m, ...p } : m)));
 
   const send = useCallback(
-    async (textIn: string, opt: { task?: Task; flags?: Flags; via?: "voice" | "text" } = {}) => {
+    async (textIn: string, opt: { task?: Task; flags?: Flags; via?: "voice" | "text" } = {}): Promise<BotMsg | null> => {
       const text = textIn.trim();
-      if (!engine || !text || busy) return;
+      if (!engine || !text || busy) return null;
       const f = opt.flags ?? flags;
       const task = opt.task ?? guessTask(text);
       setBusy(true);
@@ -101,7 +124,7 @@ export default function Demo() {
         const stm: string | null =
           g.stm !== undefined ? g.stm : g.overridden && g.red_flags?.length ? "DANGER SIGNS AND REFERRAL" : parsed.stm && parsed.stm !== "NONE" ? parsed.stm : null;
         const note = parsed.note && typeof parsed.note === "object" && g.action !== "ASK_PERSON" ? (parsed.note as Record<string, unknown>) : null;
-        patch(bid, {
+        const final: Partial<BotMsg> = {
           stage: "done",
           action: g.action,
           stm,
@@ -113,10 +136,13 @@ export default function Demo() {
           stats: parsed.stats ?? { ms: parsed.ms, tokens: parsed.tokens, tps: parsed.tokens_per_s },
           note,
           valid: parsed.valid
-        });
+        };
+        patch(bid, final);
         refreshStatus();
+        return { id: bid, role: "bot", lang: f.lang, task, ...final } as BotMsg;
       } catch (e) {
         patch(bid, { stage: "error", error: (e as Error).message });
+        return null;
       } finally {
         setBusy(false);
       }
@@ -150,8 +176,13 @@ export default function Demo() {
 
   // Sentence by sentence: the first sentence plays while the next ones are synthesised, so the nurse
   // hears the action within a couple of seconds instead of waiting for the whole reply.
-  const play = async (m: BotMsg) => {
-    if (!engine || voice.phase !== "idle") return;
+  const play = (m: BotMsg) => {
+    if (voice.phase !== "idle") return;
+    void speakMsg(m);
+  };
+
+  const speakMsg = async (m: BotMsg): Promise<void> => {
+    if (!engine) return;
     // Create the AudioContext inside the tap so mobile browsers allow playback.
     const Ctx = (window.AudioContext || (window as any).webkitAudioContext) as typeof AudioContext;
     if (!audioRef.current) audioRef.current = { ctx: new Ctx(), srcs: [], gen: 0 };
@@ -192,9 +223,16 @@ export default function Demo() {
         last = src;
         setVoice({ id: m.id, phase: "playing" });
       }
-      if (last) last.onended = () => a.gen === gen && setVoice((v) => (v.id === m.id ? { id: null, phase: "idle" } : v));
-      else setVoice({ id: null, phase: "idle" });
       refreshStatus();
+      if (last) {
+        const src = last;
+        await new Promise<void>((resolve) => {
+          src.onended = () => resolve();
+          // stopVoice() bumps gen and stops the sources; onended still fires, but guard against a context that never ends
+          window.setTimeout(resolve, Math.max(0, (at - ctx.currentTime) * 1000) + 1500);
+        });
+        if (a.gen === gen) setVoice((v) => (v.id === m.id ? { id: null, phase: "idle" } : v));
+      } else setVoice({ id: null, phase: "idle" });
     } catch (e) {
       setVoice({ id: null, phase: "idle" });
       setMicNote({ kind: "error", text: `Voice could not play: ${(e as Error).message}` });
@@ -203,7 +241,127 @@ export default function Demo() {
 
   /* ---------- voice in ---------- */
 
-  const startRecording = async (lang = flags.lang) => {
+  // English: the engine's own speech-in (Moonshine). Pijin, approximate: multilingual Whisper base, loaded on demand
+  // straight from runtime/stt (dynamic import, so the page bundle does not carry transformers.js).
+  const transcribeFor = async (audio: Blob, mode: VoiceIn = voiceIn): Promise<string> => {
+    if (!engine) return "";
+    if (mode === "en") return engine.transcribe(audio, "en");
+    if (shim) {
+      await new Promise((r) => setTimeout(r, 600));
+      return "Pikinini tri yia, hot bodi tu dei, no kaikai gud, no fit.";
+    }
+    if (!whisperRef.current) {
+      whisperRef.current = import("../runtime/stt").then(({ STT, PIS_APPROX }) =>
+        STT.load(PIS_APPROX.model, {
+          onProgress: (l, t) => t && setMicNote({ kind: "info", text: `Loading Whisper base for approximate Pijin: ${Math.round(l / 1e6)} of ${Math.round(t / 1e6)} MB, once.` })
+        })
+      );
+      whisperRef.current.catch(() => (whisperRef.current = null));
+    }
+    const stt = await whisperRef.current;
+    const r = await stt.transcribe(audio, "pis", { language: "en", task: "transcribe" });
+    return r.text;
+  };
+
+  /* ---------- hands-free talk (speech to speech) ---------- */
+
+  const sendRef = useRef(send);
+  sendRef.current = send;
+  const speakRef = useRef(speakMsg);
+  speakRef.current = speakMsg;
+  const transcribeRef = useRef(transcribeFor);
+  transcribeRef.current = transcribeFor;
+
+  const stopTalk = () => {
+    talkOnRef.current = false;
+    listenRef.current?.stop();
+    listenRef.current = null;
+    stopVoice();
+    setTalkPhase("off");
+    setTalkLevel(0);
+  };
+
+  const talkLoop = async () => {
+    let misses = 0;
+    while (talkOnRef.current) {
+      setTalkPhase("starting");
+      setTalkHeard(null);
+      let lastLevel = 0;
+      const h = listenOnce({
+        onLevel: (l) => {
+          // ~10 updates a second is plenty for the meter
+          if (Math.abs(l - lastLevel) > 0.002) {
+            lastLevel = l;
+            setTalkLevel(l);
+          }
+        },
+        onSpeech: () => setTalkPhase("hearing")
+      });
+      listenRef.current = h;
+      window.setTimeout(() => talkOnRef.current && listenRef.current === h && setTalkPhase((p) => (p === "starting" ? "listening" : p)), 350);
+      let u;
+      try {
+        u = await h.done;
+      } catch {
+        setMicNote({ kind: "error", text: "This browser did not give microphone access. Allow the microphone for this site, or type instead." });
+        break;
+      }
+      listenRef.current = null;
+      if (!talkOnRef.current || !u) break;
+      setTalkPhase("transcribing");
+      let text = "";
+      try {
+        text = (await transcribeRef.current(pcmToWav(u.pcm, 16000))).trim();
+      } catch (e) {
+        setMicNote({ kind: "error", text: `Speech-in failed: ${(e as Error).message}` });
+        break;
+      }
+      if (!talkOnRef.current) break;
+      if (!text) {
+        if (++misses >= 3) {
+          setMicNote({ kind: "error", text: "No words came through three times. Hold the phone closer, or type instead." });
+          break;
+        }
+        continue;
+      }
+      misses = 0;
+      setTalkHeard(text);
+      setTalkPhase("thinking");
+      const bot = await sendRef.current(text, { via: "voice" });
+      if (!talkOnRef.current) break;
+      if (bot && bot.stage === "done") {
+        setTalkPhase("speaking");
+        await speakRef.current(bot);
+      }
+    }
+    talkOnRef.current = false;
+    listenRef.current = null;
+    setTalkPhase("off");
+    setTalkLevel(0);
+  };
+
+  const toggleTalk = () => {
+    if (talkOnRef.current || talkPhase !== "off") return stopTalk();
+    if (!engine) return;
+    if (recording) recRef.current?.stop();
+    // Create/resume the AudioContext inside the tap so mobile browsers allow the spoken replies.
+    const Ctx = (window.AudioContext || (window as any).webkitAudioContext) as typeof AudioContext;
+    if (!audioRef.current) audioRef.current = { ctx: new Ctx(), srcs: [], gen: 0 };
+    void audioRef.current.ctx.resume();
+    talkOnRef.current = true;
+    setMicNote(voiceIn === "pis-approx" ? { kind: "info", text: PIS_APPROX_NOTE } : null);
+    void talkLoop();
+  };
+
+  useEffect(
+    () => () => {
+      talkOnRef.current = false;
+      listenRef.current?.stop();
+    },
+    []
+  );
+
+  const startRecording = async (mode: VoiceIn = voiceIn) => {
     if (!engine) return;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -215,12 +373,15 @@ export default function Demo() {
         if (timerRef.current) window.clearInterval(timerRef.current);
         setRecording(false);
         const blob = new Blob(parts, { type: rec.mimeType || "audio/webm" });
-        setMicNote({ kind: "info", text: "Transcribing on this phone. The first time loads a 52 MB English speech model." });
+        setMicNote({
+          kind: "info",
+          text: mode === "pis-approx" ? "Transcribing on this phone (approximate Pijin). The first time loads Whisper base, 136 MB." : "Transcribing on this phone. The first time loads a 52 MB English speech model."
+        });
         try {
-          const text = await engine.transcribe(blob, lang);
+          const text = await transcribeFor(blob, mode);
           if (text) {
             setInput(text);
-            setMicNote({ kind: "info", text: "Check the words, fix anything wrong, then send." });
+            setMicNote({ kind: "info", text: mode === "pis-approx" ? `Check the words, fix anything wrong, then send. ${PIS_APPROX_NOTE}` : "Check the words, fix anything wrong, then send." });
           } else {
             setMicNote({ kind: "error", text: "No words came through. Hold the phone closer and try again." });
           }
@@ -241,18 +402,19 @@ export default function Demo() {
   };
 
   const onMic = () => {
+    if (talkPhase !== "off") return;
     if (recording) {
       recRef.current?.stop();
       return;
     }
-    if (flags.lang === "pis") {
+    if (flags.lang === "pis" && voiceIn === "en") {
       setMicNote({
         kind: "pis",
-        text: "Pijin voice-in needs the laptop pack (Omnilingual ASR, 300M, too big for a phone tonight). On this phone: type in Pijin, or speak English."
+        text: "Full Pijin voice-in needs the laptop pack (Omnilingual ASR, 300M). On this phone: type in Pijin, speak English, or try approximate Pijin (Whisper base, 136 MB, writes Pijin in English-like spelling)."
       });
       return;
     }
-    void startRecording("en");
+    void startRecording(voiceIn);
   };
 
   /* ---------- copy / save ---------- */
@@ -314,6 +476,10 @@ export default function Demo() {
 
         <div className="mt-4">
           <FlagChips flags={flags} onChange={setFlags} disabled={busy} />
+          <div className="mt-2">
+            <VoiceInPicker value={voiceIn} onChange={setVoiceIn} disabled={recording || talkPhase !== "off"} />
+            {voiceIn === "pis-approx" && <p className="mt-1 text-[11.5px] leading-snug text-ink-3">{PIS_APPROX_NOTE}</p>}
+          </div>
         </div>
 
         {packNote && <p className="mt-3 rounded-xl bg-frangipani-tint px-3 py-2 text-[13px] text-[#7A4E05]">{packNote}</p>}
@@ -412,6 +578,16 @@ export default function Demo() {
                   >
                     Speak English instead
                   </button>
+                  <button
+                    type="button"
+                    className="rounded-full border border-line bg-white px-3 py-1 text-[12.5px] font-medium"
+                    onClick={() => {
+                      setVoiceIn("pis-approx");
+                      void startRecording("pis-approx");
+                    }}
+                  >
+                    Try approximate Pijin
+                  </button>
                   <button type="button" className="rounded-full border border-line bg-white px-3 py-1 text-[12.5px] font-medium" onClick={() => setMicNote(null)}>
                     Type in Pijin
                   </button>
@@ -419,6 +595,15 @@ export default function Demo() {
               )}
             </div>
           )}
+          <TalkBar
+            phase={talkPhase}
+            level={talkLevel}
+            onToggle={toggleTalk}
+            onFinish={() => listenRef.current?.finish()}
+            disabled={!ready || (busy && talkPhase === "off")}
+            voiceIn={voiceIn}
+            heard={talkHeard}
+          />
           <Composer
             value={input}
             onChange={setInput}

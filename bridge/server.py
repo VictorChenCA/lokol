@@ -44,6 +44,7 @@ from .llm import mock_reply
 from .retrieval import BM25, guideline_line
 from .speech import download_media, sidecar_ready, synthesize, transcribe
 from .state import StateStore, handle_command
+from . import twilio_poll
 
 log = logging.getLogger("lokol.bridge")
 logging.basicConfig(level=os.environ.get("LOKOL_LOGLEVEL", "INFO"), format="%(asctime)s %(levelname)s %(name)s %(message)s")
@@ -95,9 +96,13 @@ async def lifespan(app: FastAPI):
     if settings.llm_backend == "river" and not settings.mock:
         # open the River client/session in the background so the first message is not slower
         warm = asyncio.create_task(asyncio.to_thread(llm.RIVER.warm))
+    # TWILIO_MODE=poll (free trial tier, no webhook): poll the Messages list in the background.
+    poller = twilio_poll.start_background_poller()
     yield
     if warm is not None and not warm.done():
         warm.cancel()
+    if poller is not None:
+        poller.cancel()
 
 
 class PrivateNetworkAccess:
@@ -295,7 +300,7 @@ async def health() -> dict:
         "sidecar": {"url": settings.sidecar_url, "reachable": sidecar_up, "ready": sidecar_up},
         "public_base_url": _public_url(),
         "twilio": {"configured": twilio_configured, "signature_check": bool(settings.twilio_auth_token),
-                   "async": bool(settings.twilio_async and twilio_configured)},
+                   "async": bool(settings.twilio_async and twilio_configured), "poll": twilio_poll.status()},
         "messenger": {"configured": bool(settings.meta_page_token), "send_configured": bool(settings.meta_page_token)},
         "users": len(engine.store.all()),
     }
@@ -303,7 +308,7 @@ async def health() -> dict:
 
 @app.get("/")
 async def root() -> dict:
-    return {"name": "Lokol bridge", "version": __version__, "routes": ["/message", "/twilio/whatsapp", "/messenger/webhook", "/health"]}
+    return {"name": "Lokol bridge", "version": __version__, "routes": ["/message", "/twilio/whatsapp", "/twilio/sms", "/messenger/webhook", "/health"]}
 
 
 # ---------------------------------------------------------------------------------------------
@@ -361,10 +366,13 @@ def build_twiml(body: str, media_url: str | None = None) -> str:
 _twilio_transport: httpx.AsyncBaseTransport | None = None
 
 
-async def send_twilio_message(to: str, body: str, media_url: str | None = None) -> dict:
+async def send_twilio_message(to: str, body: str, media_url: str | None = None, from_: str | None = None) -> dict:
     """Twilio REST: POST /2010-04-01/Accounts/{SID}/Messages.json (Basic auth SID:token)."""
     url = f"https://api.twilio.com/2010-04-01/Accounts/{settings.twilio_account_sid}/Messages.json"
-    data = {"From": settings.twilio_whatsapp_from, "To": to, "Body": body[:1600]}
+    # Reply from the number the user wrote to. SMS numbers have no "whatsapp:" prefix (Twilio free trial: SMS webhooks work,
+    # WhatsApp sandbox webhooks need an upgrade), so match the channel of the recipient.
+    default_from = settings.twilio_whatsapp_from if to.startswith("whatsapp:") else settings.twilio_whatsapp_from.replace("whatsapp:", "")
+    data = {"From": from_ or default_from, "To": to, "Body": body[:1600]}
     if media_url:
         data["MediaUrl"] = media_url
     async with httpx.AsyncClient(timeout=30, auth=(settings.twilio_account_sid, settings.twilio_auth_token),
@@ -406,7 +414,7 @@ async def _twilio_reply_later(params: dict[str, str]) -> None:
     to = params.get("From", "")
     try:
         out = await _twilio_process(params)
-        res = await send_twilio_message(to, out["reply_text"], out.get("audio_url"))
+        res = await send_twilio_message(to, out["reply_text"], out.get("audio_url"), from_=params.get("To") or None)
         status = res.get("status")
         if not (isinstance(status, int) and 200 <= status < 300):
             err = (res.get("json") or {}).get("message") if isinstance(res.get("json"), dict) else res.get("text")
@@ -418,6 +426,7 @@ async def _twilio_reply_later(params: dict[str, str]) -> None:
 
 
 @app.post("/twilio/whatsapp")
+@app.post("/twilio/sms")
 async def twilio_whatsapp(request: Request, background: BackgroundTasks) -> Response:
     form = await request.form()
     params = {k: str(v) for k, v in form.items()}

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { GraphNode } from "../../types";
-import { NODE_META, RED_FLAG_LABELS, TRAINED_BY_LABEL, getModel, modelsFor, paramsLabel, type CatalogModel } from "../../models";
+import { AVAILABILITY_LABEL, NODE_META, RED_FLAG_LABELS, TRAINED_BY_LABEL, getModel, modelsFor, paramsLabel, type CatalogModel } from "../../models";
 import { useStudio } from "../../store";
 import { tierFor } from "../../recommend";
 import { computeBudget, gb, internetOn, isComputer } from "./budget";
@@ -54,7 +54,9 @@ function ModelPicker({ node }: { node: GraphNode }) {
                 <span className="lk-mopt__main">
                   <span className="lk-mopt__name">
                     {m.name}
-                    {m.lang && (node.type === "stt" || node.type === "tts") && <em>{m.lang.includes("pis") ? "Pijin" : "English"}</em>}
+                    {m.lang && (node.type === "stt" || node.type === "tts") && (
+                      <em>{m.approx_lang?.includes("pis") ? "English + Pijin (approx.)" : m.lang.includes("pis") ? "Pijin" : "English"}</em>
+                    )}
                   </span>
                   <span className="lk-mopt__meta">
                     {m.variant === "index" ? `BM25 index, ${mbShort(m.size_mb)}` : `${paramsLabel(m.active_b)} active, ${m.quant}, ${mbShort(m.size_mb)} file, ${mbShort(m.ram_mb)} RAM`}
@@ -64,6 +66,8 @@ function ModelPicker({ node }: { node: GraphNode }) {
                     <span className={`lk-tag ${/NC/.test(m.license) ? "lk-tag--warn" : ""}`}>{m.license}</span>
                     {warn ? <span className="lk-tag lk-tag--bad">Too big for tier {tier}</span> : <span className="lk-tag lk-tag--ok">Fits tier {tier}</span>}
                     {m.online_runtime && <span className="lk-tag">{net ? "Can run on River" : "River needs internet"}</span>}
+                    {m.availability !== "browser" && <span className={`lk-tag ${m.availability === "catalog only" ? "lk-tag--warn" : ""}`}>{AVAILABILITY_LABEL[m.availability]}</span>}
+                    {m.audio_llm && <span className="lk-tag">Audio LLM</span>}
                   </span>
                 </span>
                 <span className="lk-mopt__radio" aria-hidden>

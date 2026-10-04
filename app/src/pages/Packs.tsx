@@ -8,11 +8,15 @@ import {
   TWILIO_SANDBOX_NUMBER,
   buildManifest,
   download,
+  HOSTED_DEMO_URL,
   hfRepo,
   installUrl,
+  installerCommand,
   isHosted,
   laptopCommands,
   manifestUrl,
+  modelSize,
+  ollamaCommand,
   packLlm,
   packZip,
   qrDataUrl,
@@ -76,7 +80,7 @@ type BridgeHealth = {
   messenger?: { send_configured?: boolean };
   users?: number;
 };
-type Bridge = { state: "checking" } | { state: "up"; health: BridgeHealth } | { state: "reachable" } | { state: "down" };
+type Bridge = { state: "idle" } | { state: "checking" } | { state: "up"; health: BridgeHealth } | { state: "reachable" } | { state: "down" };
 
 async function probeBridge(): Promise<Bridge> {
   const url = `${BRIDGE_URL}/health`;
@@ -105,14 +109,12 @@ async function probeBridge(): Promise<Bridge> {
 }
 
 function useBridge() {
-  const [bridge, setBridge] = useState<Bridge>({ state: "checking" });
+  // Probed only on a click: an automatic probe of localhost shows a red connection error in devtools for every visitor.
+  const [bridge, setBridge] = useState<Bridge>({ state: "idle" });
   const check = useCallback(async () => {
     setBridge({ state: "checking" });
     setBridge(await probeBridge());
   }, []);
-  useEffect(() => {
-    check();
-  }, [check]);
   return { bridge, check };
 }
 
@@ -122,7 +124,9 @@ function BridgeStatus({ bridge, check }: { bridge: Bridge; check: () => void }) 
     <div className="rounded-xl border border-line bg-sand/70 p-3.5">
       <div className="flex items-center justify-between gap-3">
         <p className="flex items-center gap-2 text-[14px] font-semibold">
-          {bridge.state === "checking" ? (
+          {bridge.state === "idle" ? (
+            <><StatusDot tone="slate" /> Bridge on this laptop: not checked</>
+          ) : bridge.state === "checking" ? (
             <><Spinner className="h-3.5 w-3.5 text-ink-3" /> Checking the bridge on this laptop</>
           ) : bridge.state === "up" ? (
             <><StatusDot tone="palm" pulse /> Bridge running{h?.mock ? " (mock replies)" : ""}</>
@@ -132,8 +136,8 @@ function BridgeStatus({ bridge, check }: { bridge: Bridge; check: () => void }) 
             <><StatusDot tone="slate" /> Bridge not running</>
           )}
         </p>
-        <button type="button" className={btnClass("quiet", "sm")} onClick={check} disabled={bridge.state === "checking"}>
-          Check again
+        <button type="button" className={btnClass(bridge.state === "idle" ? "ghost" : "quiet", "sm")} onClick={check} disabled={bridge.state === "checking"}>
+          {bridge.state === "idle" ? "Check bridge" : "Check again"}
         </button>
       </div>
       {h && (
@@ -149,7 +153,9 @@ function BridgeStatus({ bridge, check }: { bridge: Bridge; check: () => void }) 
           ? h?.public_base_url
             ? `Public URL: ${h.public_base_url}`
             : "No PUBLIC_BASE_URL yet. Start cloudflared and put its https URL in .env."
-          : bridge.state === "reachable"
+          : bridge.state === "idle"
+            ? `Asks ${BRIDGE_URL}/health once you click. Start the bridge with the laptop installer first.`
+            : bridge.state === "reachable"
             ? "The bridge answers but this page cannot read its status (browser CORS). Run curl localhost:8090/health to see it."
             : `Polled ${BRIDGE_URL}/health. Start it with the laptop commands; open this page from localhost to see live status.`}
       </p>
@@ -231,6 +237,19 @@ function Inline({ children, copy }: { children: string; copy?: boolean }) {
   );
 }
 
+function OneLiner({ title, note, code }: { title: string; note?: string; code: string }) {
+  return (
+    <div className="min-w-0">
+      <div className="flex min-w-0 items-start gap-1.5 rounded-xl border border-canvas-line bg-canvas py-1.5 pl-3 pr-1.5">
+        <span className="select-none pt-[3px] font-mono text-[12.5px] leading-relaxed text-canvas-muted">$</span>
+        <code className="min-w-0 flex-1 break-all pt-[3px] font-mono text-[12.5px] leading-relaxed text-canvas-text">{code}</code>
+        <CopyButton text={code} />
+      </div>
+      <p className="mt-1 px-1 text-[12.5px] text-ink-3"><b className="font-semibold text-ink-2">{title}.</b> {note}</p>
+    </div>
+  );
+}
+
 /* ------------------------------------------------------------------ targets */
 
 function PhoneTarget({ m, qr }: { m: Manifest; qr: string }) {
@@ -283,10 +302,14 @@ function AndroidTarget({ m }: { m: Manifest }) {
           <Steps
             items={[
               <>Install <b className="font-semibold text-ink">PocketPal AI</b> from Google Play.</>,
-              <>
-                Copy <Inline>{llm.file}</Inline> to the phone by USB or SD card, or download it inside PocketPal{repo ? <> from <a className="link" href={`https://huggingface.co/${repo}`} target="_blank" rel="noreferrer">{repo}</a></> : null}.
-              </>,
-              <>In <b className="font-semibold text-ink">Models</b>, add the local file and load it. Paste the system prompt below into the chat settings.</>
+              repo ? (
+                <>
+                  <b className="font-semibold text-ink">Models</b>, <b className="font-semibold text-ink">+</b>, <b className="font-semibold text-ink">Add from Hugging Face</b>, search <Inline copy>{repo}</Inline> and download <Inline>{llm.file}</Inline>. No signal later? Copy the file by USB and use <b className="font-semibold text-ink">Add local model</b>.
+                </>
+              ) : (
+                <>Copy <Inline>{llm.file}</Inline> to the phone by USB or SD card, then <b className="font-semibold text-ink">Models</b>, <b className="font-semibold text-ink">Add local model</b>.</>
+              ),
+              <>Load it, open the model settings and paste the system prompt below. Then message in the Lokol protocol: flags line, guideline line, the nurse's question.</>
             ]}
           />
           <div className="mt-4 overflow-hidden rounded-xl border border-line bg-sand/60">
@@ -319,9 +342,8 @@ function LaptopTarget({ m, bridge, check }: { m: Manifest; bridge: Bridge; check
       title="Laptop or clinic PC"
       pis="Long laptop blong klinik"
       badges={<><Badge tone="palm" dot>Works offline</Badge>{model && <Badge tone="white">{mb(model.size_mb)}</Badge>}</>}
-      className="lg:col-span-2"
     >
-      <div className="grid gap-5 lg:grid-cols-[1fr_340px]">
+      <div className="grid gap-5">
       <div className="min-w-0">
       {big && packModel && big.id !== packModel.id && (
         <div className="mb-3">
@@ -336,12 +358,23 @@ function LaptopTarget({ m, bridge, check }: { m: Manifest; bridge: Bridge; check
           />
         </div>
       )}
-      <CodeBlock code={laptopCommands(model)} title="From the Lokol repo folder" />
+      {which === "9b" ? (
+        <CodeBlock code={laptopCommands(model)} title="From the Lokol repo folder" />
+      ) : (
+        <div className="space-y-3">
+          <OneLiner title="Ollama, one line" note="Template, system prompt and settings come from the Hugging Face repo." code={ollamaCommand(model)} />
+          <OneLiner title="Lokol installer: model server + WhatsApp/Messenger bridge" note="macOS or Linux. Add --voice for Pijin speech, --tunnel for a public URL, --dry-run to see the plan." code={installerCommand(modelSize(model))} />
+          <details className="group rounded-xl border border-line bg-white/60">
+            <summary className="cursor-pointer select-none px-3 py-2 text-[13px] font-medium text-ink-2 hover:text-ink">By hand, step by step</summary>
+            <div className="px-3 pb-3"><CodeBlock code={laptopCommands(model)} title="From the Lokol repo folder" /></div>
+          </details>
+        </div>
+      )}
       </div>
       <div className="min-w-0 space-y-3">
         <BridgeStatus bridge={bridge} check={check} />
         <p className="text-[13px] leading-relaxed text-ink-3">
-          llama-server answers on port 8080. The bridge reads it for WhatsApp and Messenger, and the sidecar adds Pijin speech (Omnilingual ASR in, MMS-TTS out). A 16 GB laptop runs the 9B; any laptop runs the phone models.
+          The installer checks for llama.cpp and Python, downloads the GGUF once, starts llama-server on 8080 and the bridge on 8090, and prints the URLs. After the first run it starts with no internet. A 16 GB laptop runs the 9B; any laptop runs the phone models.
         </p>
       </div>
       </div>
@@ -349,10 +382,31 @@ function LaptopTarget({ m, bridge, check }: { m: Manifest; bridge: Bridge; check
   );
 }
 
-function WhatsAppTarget({ bridge, check }: { bridge: Bridge; check: () => void }) {
+function ChatTarget({ bridge, check, m }: { bridge: Bridge; check: () => void; m: Manifest }) {
+  const [ch, setCh] = useState<"whatsapp" | "messenger">("whatsapp");
+  return (
+    <Target
+      icon={ch}
+      title="WhatsApp or Messenger"
+      pis="Tok long WhatsApp o Messenger"
+      badges={<><Badge tone="reef" dot>Needs signal</Badge><Badge tone="white">Model stays on the laptop</Badge></>}
+    >
+      <OneLiner title="Start the bridge with a public tunnel" note="Same installer as the laptop; prints the webhook URLs to paste below." code={installerCommand(modelSize(packLlm(m)), { tunnel: true })} />
+      <div className="mt-4 mb-3">
+        <Segmented value={ch} onChange={setCh} label="Channel" options={[{ value: "whatsapp", label: "WhatsApp (Twilio)" }, { value: "messenger", label: "Messenger" }]} />
+      </div>
+      {ch === "whatsapp" ? <WhatsAppSteps bridge={bridge} /> : <MessengerSteps bridge={bridge} />}
+      <div className="mt-auto pt-4">
+        <BridgeStatus bridge={bridge} check={check} />
+      </div>
+    </Target>
+  );
+}
+
+function WhatsAppSteps({ bridge }: { bridge: Bridge }) {
   const base = bridge.state === "up" && bridge.health.public_base_url ? bridge.health.public_base_url.replace(/\/$/, "") : "<PUBLIC_BASE_URL>";
   return (
-    <Target icon="whatsapp" title="WhatsApp" pis="Tok long WhatsApp" badges={<><Badge tone="reef" dot>Needs signal</Badge><Badge tone="white">Twilio Sandbox</Badge></>}>
+    <>
       <Steps
         items={[
           <>Start the bridge on the laptop, then a tunnel: <Inline copy>cloudflared tunnel --url http://localhost:8090</Inline>. Put the https address in <code className="font-mono text-[12.5px]">.env</code> as <code className="font-mono text-[12.5px]">PUBLIC_BASE_URL</code>.</>,
@@ -362,23 +416,16 @@ function WhatsAppTarget({ bridge, check }: { bridge: Bridge; check: () => void }
         ]}
       />
       <p className="mt-3 text-[13px] leading-relaxed text-ink-3">The sandbox only answers numbers that joined, and membership lapses after 72 hours. Messages go through the laptop's model, never a cloud LLM.</p>
-      <div className="mt-auto pt-4">
-        <BridgeStatus bridge={bridge} check={check} />
-      </div>
-    </Target>
+    </>
   );
 }
 
-function MessengerTarget({ bridge }: { bridge: Bridge }) {
+function MessengerSteps({ bridge }: { bridge: Bridge }) {
   const base = bridge.state === "up" && bridge.health.public_base_url ? bridge.health.public_base_url.replace(/\/$/, "") : "<PUBLIC_BASE_URL>";
   const ready = bridge.state === "up" && bridge.health.messenger?.send_configured;
   return (
-    <Target
-      icon="messenger"
-      title="Facebook Messenger"
-      pis="Tok long Messenger"
-      badges={<><Badge tone="reef" dot>Needs signal</Badge>{bridge.state === "up" && <Badge tone={ready ? "palm" : "white"}>{ready ? "Page token set" : "No page token"}</Badge>}</>}
-    >
+    <>
+      {bridge.state === "up" && <div className="mb-3"><Badge tone={ready ? "palm" : "white"}>{ready ? "Page token set" : "No page token"}</Badge></div>}
       <Steps
         items={[
           <>At developers.facebook.com create an app (type Business) and add the <b className="font-semibold text-ink">Messenger</b> product.</>,
@@ -388,7 +435,7 @@ function MessengerTarget({ bridge }: { bridge: Bridge }) {
         ]}
       />
       <p className="mt-3 text-[13px] leading-relaxed text-ink-3">Messaging in Solomon Islands leans towards Messenger, so the bridge treats it as a first-class channel next to WhatsApp.</p>
-    </Target>
+    </>
   );
 }
 
@@ -513,7 +560,7 @@ export default function Packs() {
             label="Pack details"
             className="border-b-0"
             tabs={[
-              { value: "targets", label: "Deploy targets", count: 5 },
+              { value: "targets", label: "Deploy targets", count: 4 },
               { value: "graph", label: "Graph and models", count: current.models.length },
               { value: "manifest", label: "Manifest" }
             ]}
@@ -537,23 +584,18 @@ export default function Packs() {
       <div className="page mt-6">
         {view === "targets" && (
           <div className="space-y-10">
-            <section aria-labelledby="t-offline">
-              <h2 id="t-offline" className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 font-display text-[22px] font-bold">
-                Runs with no signal <span className="text-[14px] font-normal text-ink-3" lang="pis">No nid signal</span>
+            <section aria-labelledby="t-pick">
+              <h2 id="t-pick" className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 font-display text-[22px] font-bold">
+                Pick where it runs <span className="text-[14px] font-normal text-ink-3" lang="pis">Wea nao hem bae ran?</span>
               </h2>
+              <p className="mt-1 text-[14px] text-ink-3">
+                Three run with no signal. Chat channels need a signal, but the model still answers from the clinic laptop. Hosted demo: <a className="link" href={HOSTED_DEMO_URL} target="_blank" rel="noreferrer">{HOSTED_DEMO_URL.replace("https://", "")}</a>
+              </p>
               <div className="mt-4 grid gap-5 lg:grid-cols-2">
                 <PhoneTarget m={current} qr={qr} />
                 <AndroidTarget m={current} />
                 <LaptopTarget m={current} bridge={bridge} check={check} />
-              </div>
-            </section>
-            <section aria-labelledby="t-online">
-              <h2 id="t-online" className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 font-display text-[22px] font-bold">
-                Chat channels <span className="text-[14px] font-normal text-ink-3">need a signal, model stays on the laptop</span>
-              </h2>
-              <div className="mt-4 grid gap-5 lg:grid-cols-2">
-                <WhatsAppTarget bridge={bridge} check={check} />
-                <MessengerTarget bridge={bridge} />
+                <ChatTarget m={current} bridge={bridge} check={check} />
               </div>
               <div className="mt-5">
                 <Callout tone="slate" title="Where the data sits">

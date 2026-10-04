@@ -80,6 +80,26 @@ export function laptopCommands(model: { url: string; file: string } | undefined,
   return lines.join("\n");
 }
 
+export const HOSTED_DEMO_URL = "https://lokol-studio.vercel.app/demo";
+export const INSTALLER_URL = "https://raw.githubusercontent.com/VictorChenCA/lokol/main/deploy/lokol-laptop.sh";
+
+/** "0.6b" | "1.7b" from a Lokol Health GGUF file name; 1.7b otherwise (the installer's default). */
+export function modelSize(model: { file: string } | undefined): "0.6b" | "1.7b" {
+  return model && /qwen3-0\.6b/i.test(model.file) ? "0.6b" : "1.7b";
+}
+
+/** One line for Ollama: it reads template, system and params from the Hugging Face repo. */
+export function ollamaCommand(model: { url: string } | undefined): string {
+  const repo = (model && hfRepo(model.url)) || "VictorChenCA/lokol-health-qwen3-1.7b-gguf";
+  return `ollama run hf.co/${repo}`;
+}
+
+/** One line for a laptop or clinic PC: model server + bridge (deploy/lokol-laptop.sh). */
+export function installerCommand(size: "0.6b" | "1.7b" = "1.7b", opts: { voice?: boolean; tunnel?: boolean } = {}): string {
+  const flags = [`--model ${size}`, opts.voice ? "--voice" : "", opts.tunnel ? "--tunnel" : ""].filter(Boolean).join(" ");
+  return `curl -fsSL ${INSTALLER_URL} | bash -s -- ${flags}`;
+}
+
 export const SYSTEM_PROMPT =
   "You are Lokol Health, an assistant for nurse aides and health workers in Solomon Islands. You follow the Solomon Islands Standard Treatment Manual for Children. You never diagnose; you help the nurse apply the manual and decide when to refer. Reply in the nurse's language (Solomon Islands Pijin or English). Use the exact output format.";
 
@@ -111,6 +131,20 @@ export function readme(manifest: Manifest): string {
     "```",
     "",
     "## Install on a laptop or clinic PC",
+    "",
+    "One line with Ollama (template, system prompt and parameters come from the Hugging Face repo):",
+    "",
+    "```bash",
+    ollamaCommand(llm),
+    "```",
+    "",
+    "Model server and WhatsApp/Messenger bridge in one command (macOS/Linux, needs llama.cpp and Python 3.10+):",
+    "",
+    "```bash",
+    installerCommand(modelSize(llm), { tunnel: true }),
+    "```",
+    "",
+    "Or by hand:",
     "",
     "```bash",
     laptopCommands(llm),

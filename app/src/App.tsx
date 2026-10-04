@@ -12,6 +12,7 @@ const Deploy = lazy(() => import("./pages/Packs"));
 const Eval = lazy(() => import("./pages/Eval"));
 
 const Train = lazy(() => import("./pages/Train"));
+const NewPack = lazy(() => import("./pages/NewPack"));
 
 function PageLoading() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
         <Route path="/eval" element={<Suspense fallback={<PageLoading />}><Eval /></Suspense>} />
         <Route path="/deploy" element={<Suspense fallback={<PageLoading />}><Deploy /></Suspense>} />
         <Route path="/packs" element={<Suspense fallback={<PageLoading />}><Deploy /></Suspense>} />
+        <Route path="/new" element={<Suspense fallback={<PageLoading />}><NewPack /></Suspense>} />
         <Route path="/demo" element={<Suspense fallback={<PageLoading />}><Demo /></Suspense>} />
         <Route path="*" element={<Home />} />
       </Route>

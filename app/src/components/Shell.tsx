@@ -5,6 +5,7 @@ import { SignalBars, Toaster } from "./ui";
 const NAV = [
   { to: "/recommend", label: "Recommend", pis: "Wanem nao fitim" },
   { to: "/studio", label: "Studio", pis: "Wokples" },
+  { to: "/new", label: "New pack", pis: "Niu pak" },
   { to: "/train", label: "Train", pis: "Trenem" },
   { to: "/eval", label: "Eval", pis: "Testem" },
   { to: "/deploy", label: "Deploy", pis: "Putum long fon" },

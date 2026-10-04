@@ -77,6 +77,8 @@ function Body({ node }: { node: GraphNode }) {
           )}
           {cat?.variant === "base" && <span className="lk-chip">Base, untuned</span>}
           {cat?.placeholder && <span className="lk-chip lk-chip--warn">Placeholder corpus</span>}
+          {cat?.availability === "catalog only" && <span className="lk-chip lk-chip--warn">Catalog only</span>}
+          {cat?.approx_lang?.includes("pis") && <span className="lk-chip">Pijin approx.</span>}
         </div>
       </>
     );
