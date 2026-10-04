@@ -23,19 +23,14 @@ The World Bank brief wants these points somewhere across the videos: the one-sen
 
 ## 2. Technical walkthrough
 
-**Covers:** tech stack, training, evidence it works, what was hard, limitations.
+**Covers:** tech stack, training, evidence it works, what was hard, limitations. About 140 words.
 
-"Lokol Studio is a React Flow app with a browser engine: llama.cpp compiled to WebAssembly runs the language model, transformers.js runs speech, and a BM25 index over the Solomon Islands children's treatment manual does retrieval, all offline.
-
-We trained the models ourselves. Open-weight teachers on River AI wrote thirty-eight hundred synthetic nurse cases from the manual, in Pijin and English. Eleven validation rules and a Claude judge kept thirty-six hundred. We fine-tuned Qwen 3.5 9B on River and 0.6 and 1.7 billion parameter models on a MacBook, then quantized them to 400 megabytes for phones.
-
-On 300 held-out cases, [the tuned 0.6B goes from X to Y percent correct action, and danger-sign recall from A to B]. *(fill from `eval/results.md`)*
-
-Hard parts: Pijin has little data, and Qwen 3.5's architecture trains slowly on a Mac. Limits: synthetic data, children's manual only, and Pijin voice input needs a laptop."
-
-*(about 130 words; trim the bracketed sentence to fit once the numbers are in)*
-
----
+| Time | Picture | Voice-over |
+|---|---|---|
+| 0–12 s | Studio canvas, trace mode lighting up the nodes | "Lokol Studio runs every node in the browser, offline: llama.cpp in WebAssembly for the language model, transformers.js for Pijin speech, and a search index over the Solomon Islands children's treatment manual." |
+| 12–28 s | Train page: pipeline graphic, River loss curve | "We trained the models ourselves. Open-weight teachers on River AI wrote thirty-eight hundred nurse cases from the manual, in Pijin and English. We fine-tuned Qwen 3.5 9B on River for under fifteen dollars, and 0.6 and 1.7 billion parameter models on a MacBook, then shrank them to 400 megabytes for phones." |
+| 28–45 s | Eval page: base vs tuned bars | "On 300 held-out cases, stock models never follow the protocol. Tuned, the 9B picks the right action 87 percent of the time, and every model catches over 90 percent of danger signs." |
+| 45–60 s | Eval dose audit, then README limitations | "Hardest part: models invent doses, even the teachers. So Lokol shows no dose that isn't printed in the cited page for that drug. Limits: synthetic data, the children's manual only, and Pijin voice input needs a laptop." |
 
 ## 3. Team introduction (you on camera)
 
