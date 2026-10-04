@@ -18,7 +18,7 @@
 
 **Prizes.** WB 04a/b/c: one winner per sector, a trip for one person to the Global AI & Digital Summit / Youth Summit in Seoul, Oct 19–22 (~$2,000, passport and visa required), Ignite Talk Oct 21. Overall winner: Venture Lab fast track + $2,000 Anthropic credits. Creativity / Best Quote / Go Viral: $500 Anthropic credits each (LinkedIn post tagging Hack-Nation before 09:00 ET Sunday) ([HackOS prizes](https://app.hack-nation.ai/?eventId=4ee144f2-dd47-4613-9290-cf3e47509011&view=prizes)).
 
-**Credits.** Anthropic $25 (all redeemed by 11:32 AM), BrightData $300 (code `hacknation26`, activation cap reported), ElevenLabs Creator 1 month (ElevenLabs redemption Discord, Luma email), Lovable Pro 1 month (individual code). "We can't give openAI credits for hack." Practical compute budget = your River balance ($1,009.18) + your subscriptions.
+**Credits.** Anthropic $25 (all redeemed by 11:32 AM), BrightData $300 (event code, activation cap reported), ElevenLabs Creator 1 month (ElevenLabs redemption Discord, Luma email), Lovable Pro 1 month (individual code). "We can't give openAI credits for hack." Practical compute budget = your River balance ($1,009.18) + your subscriptions.
 
 ---
 
