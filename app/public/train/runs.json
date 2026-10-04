@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-10-03T23:52:01-07:00",
+ "generated_at": "2026-10-04T00:40:16-07:00",
  "sample": false,
  "runs": [
   {
@@ -899,62 +899,224 @@
    "where": "This Mac (Apple M1 Max, mlx-lm)",
    "base_model": "mlx-community/Qwen3-1.7B-bf16",
    "smoke": false,
-   "status": "queued",
-   "started_at": null,
-   "updated_at": null,
+   "status": "done",
+   "started_at": "2026-10-03T23:27:54-07:00",
+   "updated_at": "2026-10-04T00:33:48-07:00",
    "config": {
-    "steps": 600,
+    "steps": 350,
     "batch": 4,
     "lr": 0.00015,
+    "rank": 8,
     "layers": 28,
-    "data": "data/mlx/0.8B"
+    "max_seq": 1280,
+    "data": "data/mlx/0.8B",
+    "trainable_pct": 0.507,
+    "trainable_m": 8.716,
+    "total_m": 1720.575
    },
-   "steps_done": 0,
-   "steps_total": 600,
-   "elapsed_s": 0,
+   "steps_done": 350,
+   "steps_total": 350,
+   "elapsed_s": 3954,
    "eta_s": null,
-   "loss": [],
-   "val_loss": [],
+   "tokens_per_s": 61,
+   "loss": [
+    {
+     "step": 10,
+     "loss": 3.05
+    },
+    {
+     "step": 20,
+     "loss": 2.081
+    },
+    {
+     "step": 30,
+     "loss": 1.893
+    },
+    {
+     "step": 40,
+     "loss": 1.642
+    },
+    {
+     "step": 50,
+     "loss": 1.683
+    },
+    {
+     "step": 60,
+     "loss": 1.542
+    },
+    {
+     "step": 70,
+     "loss": 1.508
+    },
+    {
+     "step": 80,
+     "loss": 1.516
+    },
+    {
+     "step": 90,
+     "loss": 1.452
+    },
+    {
+     "step": 100,
+     "loss": 1.519
+    },
+    {
+     "step": 110,
+     "loss": 1.414
+    },
+    {
+     "step": 120,
+     "loss": 1.297
+    },
+    {
+     "step": 130,
+     "loss": 1.313
+    },
+    {
+     "step": 140,
+     "loss": 1.364
+    },
+    {
+     "step": 150,
+     "loss": 1.231
+    },
+    {
+     "step": 160,
+     "loss": 1.109
+    },
+    {
+     "step": 170,
+     "loss": 1.269
+    },
+    {
+     "step": 180,
+     "loss": 1.123
+    },
+    {
+     "step": 190,
+     "loss": 1.285
+    },
+    {
+     "step": 200,
+     "loss": 1.251
+    },
+    {
+     "step": 210,
+     "loss": 1.239
+    },
+    {
+     "step": 220,
+     "loss": 1.168
+    },
+    {
+     "step": 230,
+     "loss": 1.24
+    },
+    {
+     "step": 240,
+     "loss": 1.165
+    },
+    {
+     "step": 250,
+     "loss": 1.07
+    },
+    {
+     "step": 260,
+     "loss": 1.136
+    },
+    {
+     "step": 270,
+     "loss": 1.147
+    },
+    {
+     "step": 280,
+     "loss": 1.112
+    },
+    {
+     "step": 290,
+     "loss": 1.027
+    },
+    {
+     "step": 300,
+     "loss": 1.08
+    },
+    {
+     "step": 310,
+     "loss": 1.029
+    },
+    {
+     "step": 320,
+     "loss": 1.112
+    },
+    {
+     "step": 330,
+     "loss": 1.012
+    },
+    {
+     "step": 340,
+     "loss": 1.03
+    },
+    {
+     "step": 350,
+     "loss": 1.009
+    }
+   ],
+   "val_loss": [
+    {
+     "step": 1,
+     "loss": 5.574
+    },
+    {
+     "step": 100,
+     "loss": 1.329
+    },
+    {
+     "step": 200,
+     "loss": 1.168
+    },
+    {
+     "step": 300,
+     "loss": 0.976
+    },
+    {
+     "step": 350,
+     "loss": 1.11
+    }
+   ],
    "val": [],
-   "checkpoints": [],
+   "checkpoints": [
+    {
+     "step": 100,
+     "id": "models/adapters/qwen3-1.7b/0000100_adapters.safetensors",
+     "kind": "adapter"
+    },
+    {
+     "step": 200,
+     "id": "models/adapters/qwen3-1.7b/0000200_adapters.safetensors",
+     "kind": "adapter"
+    },
+    {
+     "step": 300,
+     "id": "models/adapters/qwen3-1.7b/0000300_adapters.safetensors",
+     "kind": "adapter"
+    }
+   ],
+   "best": {
+    "step": 350,
+    "loss": 1.11,
+    "training": "models/adapters/qwen3-1.7b/adapters.safetensors"
+   },
+   "trained_tokens": 222100,
+   "gguf": {
+    "file": "lokol-health-qwen3-1.7b-Q4_K_M.gguf",
+    "size_mb": 1107.4
+   },
    "cost_usd_est": 0,
    "cost_note": "Local Apple silicon; no cloud cost.",
-   "attempts": 2,
-   "note": "Everyday-phone tier (3 to 5 GB RAM); same data and recipe as 0.6B.",
-   "log": null
-  },
-  {
-   "id": "mlx-0.8B",
-   "name": "Lokol Health 0.8B",
-   "catalog_id": "lokol-health-qwen3.5-0.8b",
-   "tier": "A",
-   "backend": "mlx",
-   "where": "This Mac (Apple M1 Max, mlx-lm)",
-   "base_model": "mlx-community/Qwen3.5-0.8B-MLX-bf16",
-   "smoke": false,
-   "status": "queued",
-   "started_at": null,
-   "updated_at": null,
-   "config": {
-    "steps": 700,
-    "batch": 4,
-    "lr": 0.0002,
-    "layers": 1,
-    "data": "data/mlx/0.8B"
-   },
-   "steps_done": 0,
-   "steps_total": 700,
-   "elapsed_s": 0,
-   "eta_s": null,
-   "loss": [],
-   "val_loss": [],
-   "val": [],
-   "checkpoints": [],
-   "cost_usd_est": 0,
-   "cost_note": "Local Apple silicon; no cloud cost.",
-   "attempts": 6,
-   "note": "Qwen3.5 mixes linear-attention blocks; mlx-lm trains them through a slow per-token loop that macOS aborted ('Impacting Interactivity'). LoRA on the top full-attention layer only keeps it on the fused kernel. 6 earlier attempts logged.",
-   "log": null
+   "attempts": 1,
+   "error": null,
+   "log": "models/logs/train_mlx_qwen3-1.7b_232754.log",
+   "note": "Fused from the final adapter, step 350 (val 1.110); lowest validation loss 0.976 at step 300. Everyday-phone tier (3 to 5 GB RAM); same data and recipe as 0.6B, all 28 layers."
   },
   {
    "id": "mlx-qwen3-0.6b",
@@ -965,7 +1127,7 @@
    "where": "This Mac (Apple M1 Max, mlx-lm)",
    "base_model": "mlx-community/Qwen3-0.6B-bf16",
    "smoke": false,
-   "status": "stopped",
+   "status": "done",
    "started_at": "2026-10-03T22:15:41-07:00",
    "updated_at": "2026-10-03T22:57:59-07:00",
    "config": {
@@ -981,7 +1143,7 @@
     "total_m": 596.05
    },
    "steps_done": 450,
-   "steps_total": 700,
+   "steps_total": 450,
    "elapsed_s": 2539,
    "eta_s": null,
    "tokens_per_s": 128,
@@ -1212,13 +1374,23 @@
      "kind": "adapter"
     }
    ],
-   "gguf": null,
+   "best": {
+    "step": 300,
+    "loss": 1.314,
+    "training": "models/adapters/qwen3-0.6b/0000300_adapters.safetensors",
+    "inference": "models/gguf/lokol-health-qwen3-0.6b-Q4_K_M.gguf"
+   },
+   "trained_tokens": 286500,
+   "gguf": {
+    "file": "lokol-health-qwen3-0.6b-Q4_K_M.gguf",
+    "size_mb": 396.7
+   },
    "cost_usd_est": 0,
    "cost_note": "Local Apple silicon; no cloud cost.",
    "attempts": 0,
    "error": null,
    "log": "models/logs/train_mlx_qwen3-0.6b_221541.log",
-   "note": "Standard attention, so all 28 layers get LoRA; the default phone-tier model because wllama runs Qwen3 in the browser."
+   "note": "Shipped checkpoint: step 300 (val 1.314), the lowest validation loss. Planned 700 iterations; stopped on purpose at 450 once validation loss rose (1.419 at step 400). Standard attention, so all 28 layers get LoRA; the default phone-tier model because wllama runs Qwen3 in the browser."
   },
   {
    "id": "river-smoke",
@@ -1485,6 +1657,8 @@
      "kind": "adapter"
     }
    ],
+   "best": null,
+   "trained_tokens": 5800,
    "gguf": null,
    "cost_usd_est": 0,
    "cost_note": "Local Apple silicon; no cloud cost.",
@@ -1492,6 +1666,14 @@
    "error": null,
    "log": "models/logs/train_mlx_0.8B-verify_220403.log",
    "note": "30-iteration smoke test of train, fuse and GGUF export on 40 stub rows."
+  }
+ ],
+ "cancelled": [
+  {
+   "id": "mlx-0.8B",
+   "name": "Lokol Health 0.8B",
+   "base_model": "Qwen/Qwen3.5-0.8B",
+   "reason": "Cancelled: Qwen3.5's linear attention trains too slowly on Apple silicon, so the phone tiers moved to Qwen3."
   }
  ]
 }

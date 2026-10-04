@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-03T23:56:32-0700",
+  "generated": "2026-10-04T00:43:59-0700",
   "models": [
     {
       "name": "base-qwen3.5-9b",
@@ -107,12 +107,12 @@
         "n": 300,
         "notes_skipped": 0,
         "replies_with_dose": 63,
-        "unsupported_replies": 28,
-        "unsupported_rate": 0.444,
-        "unsupported_per_reply": 0.093,
+        "unsupported_replies": 33,
+        "unsupported_rate": 0.524,
+        "unsupported_per_reply": 0.11,
         "system_unsupported_replies": 0,
         "system_unsupported_rate": 0.0,
-        "rule": "bridge/doseguard.py: dose (number/range + mg|mcg|g|ml[/kg]|units/kg|IU) must appear in the guideline excerpt, or be weight x an excerpt per-kg dose within 15%; unsupported_rate = unsupported_replies / replies_with_dose",
+        "rule": "bridge/doseguard.py v3 (nearest-drug ownership): dose (number/range + mg|mcg|g|ml[/kg]|units/kg|IU) must appear in the guideline excerpt, or be weight x an excerpt per-kg dose within 15%; when the reply names a drug for the dose (curated list bridge/drug_lexicon.json, one-edit typos, unknown drug suffixes unsupported), only excerpt doses OWNED by that drug (nearest drug name before the page dose) count; a drug-less dose must not be owned by two different drugs on the page; unsupported_rate = unsupported_replies / replies_with_dose",
         "examples": [
           {
             "id": "j8-00032-0",
@@ -241,12 +241,12 @@
         "n": 300,
         "notes_skipped": 37,
         "replies_with_dose": 134,
-        "unsupported_replies": 81,
-        "unsupported_rate": 0.604,
-        "unsupported_per_reply": 0.27,
+        "unsupported_replies": 84,
+        "unsupported_rate": 0.627,
+        "unsupported_per_reply": 0.28,
         "system_unsupported_replies": 0,
         "system_unsupported_rate": 0.0,
-        "rule": "bridge/doseguard.py: dose (number/range + mg|mcg|g|ml[/kg]|units/kg|IU) must appear in the guideline excerpt, or be weight x an excerpt per-kg dose within 15%; unsupported_rate = unsupported_replies / replies_with_dose",
+        "rule": "bridge/doseguard.py v3 (nearest-drug ownership): dose (number/range + mg|mcg|g|ml[/kg]|units/kg|IU) must appear in the guideline excerpt, or be weight x an excerpt per-kg dose within 15%; when the reply names a drug for the dose (curated list bridge/drug_lexicon.json, one-edit typos, unknown drug suffixes unsupported), only excerpt doses OWNED by that drug (nearest drug name before the page dose) count; a drug-less dose must not be owned by two different drugs on the page; unsupported_rate = unsupported_replies / replies_with_dose",
         "examples": [
           {
             "id": "j8-00050-1",
@@ -375,12 +375,12 @@
         "n": 300,
         "notes_skipped": 0,
         "replies_with_dose": 67,
-        "unsupported_replies": 13,
-        "unsupported_rate": 0.194,
-        "unsupported_per_reply": 0.043,
+        "unsupported_replies": 17,
+        "unsupported_rate": 0.254,
+        "unsupported_per_reply": 0.057,
         "system_unsupported_replies": 0,
         "system_unsupported_rate": 0.0,
-        "rule": "bridge/doseguard.py: dose (number/range + mg|mcg|g|ml[/kg]|units/kg|IU) must appear in the guideline excerpt, or be weight x an excerpt per-kg dose within 15%; unsupported_rate = unsupported_replies / replies_with_dose",
+        "rule": "bridge/doseguard.py v3 (nearest-drug ownership): dose (number/range + mg|mcg|g|ml[/kg]|units/kg|IU) must appear in the guideline excerpt, or be weight x an excerpt per-kg dose within 15%; when the reply names a drug for the dose (curated list bridge/drug_lexicon.json, one-edit typos, unknown drug suffixes unsupported), only excerpt doses OWNED by that drug (nearest drug name before the page dose) count; a drug-less dose must not be owned by two different drugs on the page; unsupported_rate = unsupported_replies / replies_with_dose",
         "examples": [
           {
             "id": "j8-00070-4",
@@ -509,12 +509,12 @@
         "n": 300,
         "notes_skipped": 64,
         "replies_with_dose": 109,
-        "unsupported_replies": 93,
-        "unsupported_rate": 0.853,
-        "unsupported_per_reply": 0.31,
+        "unsupported_replies": 96,
+        "unsupported_rate": 0.881,
+        "unsupported_per_reply": 0.32,
         "system_unsupported_replies": 0,
         "system_unsupported_rate": 0.0,
-        "rule": "bridge/doseguard.py: dose (number/range + mg|mcg|g|ml[/kg]|units/kg|IU) must appear in the guideline excerpt, or be weight x an excerpt per-kg dose within 15%; unsupported_rate = unsupported_replies / replies_with_dose",
+        "rule": "bridge/doseguard.py v3 (nearest-drug ownership): dose (number/range + mg|mcg|g|ml[/kg]|units/kg|IU) must appear in the guideline excerpt, or be weight x an excerpt per-kg dose within 15%; when the reply names a drug for the dose (curated list bridge/drug_lexicon.json, one-edit typos, unknown drug suffixes unsupported), only excerpt doses OWNED by that drug (nearest drug name before the page dose) count; a drug-less dose must not be owned by two different drugs on the page; unsupported_rate = unsupported_replies / replies_with_dose",
         "examples": [
           {
             "id": "j8-00074-0",
@@ -643,12 +643,12 @@
         "n": 300,
         "notes_skipped": 74,
         "replies_with_dose": 119,
-        "unsupported_replies": 75,
-        "unsupported_rate": 0.63,
-        "unsupported_per_reply": 0.25,
+        "unsupported_replies": 76,
+        "unsupported_rate": 0.639,
+        "unsupported_per_reply": 0.253,
         "system_unsupported_replies": 0,
         "system_unsupported_rate": 0.0,
-        "rule": "bridge/doseguard.py: dose (number/range + mg|mcg|g|ml[/kg]|units/kg|IU) must appear in the guideline excerpt, or be weight x an excerpt per-kg dose within 15%; unsupported_rate = unsupported_replies / replies_with_dose",
+        "rule": "bridge/doseguard.py v3 (nearest-drug ownership): dose (number/range + mg|mcg|g|ml[/kg]|units/kg|IU) must appear in the guideline excerpt, or be weight x an excerpt per-kg dose within 15%; when the reply names a drug for the dose (curated list bridge/drug_lexicon.json, one-edit typos, unknown drug suffixes unsupported), only excerpt doses OWNED by that drug (nearest drug name before the page dose) count; a drug-less dose must not be owned by two different drugs on the page; unsupported_rate = unsupported_replies / replies_with_dose",
         "examples": [
           {
             "id": "j8-00033-0",

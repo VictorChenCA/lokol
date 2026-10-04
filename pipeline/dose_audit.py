@@ -4,7 +4,9 @@ For each eval/*.json (stubs skipped), every prediction is matched to its data/sy
 turn's line 2 is "[guideline: SECTION pN] <excerpt>" or "[guideline: none] none"; the rest after the flags line
 is the nurse message. A reply body (the part after '---', or the whole text when the model ignored the format)
 counts as UNSUPPORTED when bridge/doseguard.py finds at least one dose in it that the excerpt does not support
-(same rule the shipped gate applies). JSON visit notes record the nurse's own dictation and are skipped, as in
+(same rule the shipped gate applies, including v3 drug binding: a dose bound to a drug in the reply counts only when
+the cited page gives that dose for that same drug, i.e. the page dose is owned by that drug, the nearest drug name
+before it). JSON visit notes record the nurse's own dictation and are skipped, as in
 the gate.
 
 model-only = the raw reply. system = the same reply after bridge/gate.py apply_gate (which runs the dose guard),
@@ -75,8 +77,11 @@ def audit(eval_path: Path, rows: dict) -> dict:
     out = {"n": n, "notes_skipped": notes, "replies_with_dose": with_dose, "unsupported_replies": bad,
            "unsupported_rate": r(bad, with_dose), "unsupported_per_reply": r(bad, n),
            "system_unsupported_replies": sys_bad, "system_unsupported_rate": r(sys_bad, with_dose),
-           "rule": "bridge/doseguard.py: dose (number/range + mg|mcg|g|ml[/kg]|units/kg|IU) must appear in the guideline excerpt, "
-                   "or be weight x an excerpt per-kg dose within 15%; unsupported_rate = unsupported_replies / replies_with_dose",
+           "rule": "bridge/doseguard.py v3 (nearest-drug ownership): dose (number/range + mg|mcg|g|ml[/kg]|units/kg|IU) must appear in the "
+                   "guideline excerpt, or be weight x an excerpt per-kg dose within 15%; when the reply names a drug for the dose (curated list "
+                   "bridge/drug_lexicon.json, one-edit typos, unknown drug suffixes unsupported), only excerpt doses OWNED by that drug (nearest "
+                   "drug name before the page dose) count; a drug-less dose must not be owned by two different drugs on the page; "
+                   "unsupported_rate = unsupported_replies / replies_with_dose",
            "examples": examples}
     fresh = json.load(open(eval_path))  # re-read right before writing: other jobs may update these files
     fresh["dose_audit"] = out

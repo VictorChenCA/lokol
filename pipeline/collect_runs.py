@@ -2,6 +2,9 @@
 
     .venv/bin/python pipeline/collect_runs.py            # writes app/public/train/{runs,dataset}.json
     .venv/bin/python pipeline/collect_runs.py --print    # also prints a one-line summary per run
+    nohup nice -n 10 .venv/bin/python pipeline/collect_runs.py --watch 60 > models/logs/collect_runs_watch.log 2>&1 &
+                                                         # re-collects runs.json every 60 s; exits 5 min after the last
+                                                         # mlx train/fuse/export process ends
 
 Idempotent: re-run it any time (for example while the River 9B run is still appending to steps.jsonl, or after the
 local mlx queue finishes). Reads only; never touches the training processes.
@@ -9,10 +12,12 @@ local mlx queue finishes). Reads only; never touches the training processes.
 Inputs
   data/synth/stats.json, data/DATA_CARD.md, data/synth/{train,val,test}.jsonl     -> dataset.json (DatasetCard)
   models/river/*/{steps.jsonl,checkpoint.json,val_samples.jsonl}, models/logs/river_9b.log
-  models/logs/queue.log, models/logs/train_mlx_*.log, pipeline/train_local_queue.sh -> runs.json (TrainRuns)
+  models/logs/train_mlx_*.log (latest per tag), models/logs/{queue,local_jobs}.log events,
+  models/adapters/<tag>/, models/fused/<tag>/, models/gguf/                        -> runs.json (TrainRuns)
+  An mlx run is "done" once its log shows the final iteration and models/fused/<tag>/ holds the fused model.
 Shapes: TrainRuns / DatasetCard in app/src/types.ts (below the '// TRAIN-EVAL types below' marker).
 """
-import argparse, json, os, re, time
+import argparse, json, os, re, subprocess, sys, time, traceback
 from datetime import datetime
 from pathlib import Path
 
@@ -146,17 +151,41 @@ def river_runs():
 
 
 # ----------------------------------------------------------------------------- mlx runs
-ROW_VAL = re.compile(r"^\s*(\d+)\s+val\s+([\d.]+)")
-ROW_TRAIN = re.compile(r"^\s*(\d+)\s+([\d.]+)\s*[▼▲=]?\s+(\d+)\s+([\d.]+k?)\s*$")
-STD_TRAIN = re.compile(r"Iter (\d+): Train loss ([\d.]+)(?:.*?It/sec ([\d.]+))?(?:.*?Tokens/sec ([\d.]+))?")
+# mlx-lm 0.32 prints a coloured table; after stripping ANSI codes the rows read
+#   "   120    1.297 ▼       67     77.5k"   iter, train_loss (+ trend arrow), tok/s, cumulative tokens
+#   "   200    val 1.168    36.49s"          iter, val loss, seconds the val pass took
+# Older mlx-lm prints "Iter N: Train loss X, ... Tokens/sec Y" and "Iter N: Val loss X"; both are parsed.
+ROW_VAL = re.compile(r"^\s*(\d+)\s+val\s+([\d.]+)(?:\s+([\d.]+)s)?\s*$")
+ROW_TRAIN = re.compile(r"^\s*(\d+)\s+([\d.]+)\s*[▼▲=]?\s+(\d+)\s+([\d.]+[kKMG]?)\s*$")
+STD_TRAIN = re.compile(r"Iter (\d+): Train loss ([\d.]+)(?:.*?It/sec ([\d.]+))?(?:.*?Tokens/sec ([\d.]+))?(?:.*?Trained Tokens (\d+))?")
 STD_VAL = re.compile(r"Iter (\d+): Val loss ([\d.]+)")
-PROGRESS = re.compile(r"(\d+)\s*/\s*(\d+)\s*$")
+FINISHED = re.compile(r"Saved final weights|100%\s*·?\s*\d+\s*/\s*\d+")
+JOB_EVENT = re.compile(r"\[(?:queue|jobs) (\d\d:\d\d:\d\d)\] (start|train|trained|exported|FAILED train|FAILED export) (\S+)")
+TRAIN_PROC = re.compile(r"train_mlx_launch\.py|mlx_lm[. ]lora|mlx_lm[. ]fuse|train_mlx\.sh|export_gguf(?:_std)?\.sh")
+WHERE_MLX = "This Mac (Apple M1 Max, mlx-lm)"
+
+# Runs that were cancelled before they trained: left off the page, kept in runs.json under "cancelled" with the reason.
+CANCELLED = {
+    "0.8B": "Cancelled: Qwen3.5's linear attention trains too slowly on Apple silicon, so the phone tiers moved to Qwen3.",
+}
+# Runs stopped on purpose that ship an earlier checkpoint than their last one (step -> the adapter fused into the GGUF).
+SHIPPED = {"qwen3-0.6b": 300}
+GGUF_NAME = {"qwen3-0.6b": "lokol-health-qwen3-0.6b-Q4_K_M.gguf", "0.8B": "lokol-health-0.8b-Q4_K_M.gguf",
+             "qwen3-1.7b": "lokol-health-qwen3-1.7b-Q4_K_M.gguf"}
+
+
+def tokens_num(s):
+    mult = {"k": 1e3, "K": 1e3, "M": 1e6, "G": 1e9}.get(s[-1:], 1)
+    return round(float(s.rstrip("kKMG")) * mult)
 
 
 def parse_mlx_log(p):
     text = clean(p.read_text(errors="replace"))
-    info = {"loss": [], "val_loss": [], "tok_s": []}
-    for line in text.splitlines():
+    lines = text.splitlines()
+    if lines and not text.endswith("\n"):
+        lines = lines[:-1]  # the last line may still be half-written while training appends
+    info = {"loss": [], "val_loss": [], "tok_s": [], "tokens": None}
+    for line in lines:
         s = line.strip("│ ").strip()
         if m := re.match(r"model\s+(\S+)", s):
             info["model"] = m.group(1)
@@ -177,102 +206,115 @@ def parse_mlx_log(p):
         elif m := ROW_TRAIN.match(line):
             info["loss"].append({"step": int(m.group(1)), "loss": float(m.group(2))})
             info["tok_s"].append(float(m.group(3)))
+            info["tokens"] = tokens_num(m.group(4))
         elif m := STD_VAL.search(line):
             info["val_loss"].append({"step": int(m.group(1)), "loss": float(m.group(2))})
         elif m := STD_TRAIN.search(line):
             info["loss"].append({"step": int(m.group(1)), "loss": float(m.group(2))})
             if m.group(4):
                 info["tok_s"].append(float(m.group(4)))
-        if "train" in line and "%" in line and (m := PROGRESS.search(line.strip())):
-            info["progress"] = (int(m.group(1)), int(m.group(2)))
-    info["finished"] = bool(re.search(r"Saved final weights|100%\s*·?\s*\d+\s*/\s*\d+", text)) or (
-        info.get("iters") and info["loss"] and info["loss"][-1]["step"] >= info["iters"])
+            if m.group(5):
+                info["tokens"] = int(m.group(5))
+    last = info["loss"][-1]["step"] if info["loss"] else 0
+    info["finished"] = bool(FINISHED.search(text)) or bool(info.get("iters") and last >= info["iters"])
     info["failed"] = "Traceback" in text or "RuntimeError" in text
-    info["error"] = next((l.strip() for l in reversed(text.splitlines()) if "Error" in l), None) if info["failed"] else None
+    info["error"] = next((l.strip() for l in reversed(lines) if "Error" in l), None) if info["failed"] else None
     return info
 
 
-def mlx_runs():
-    logs_dir = ROOT / "models" / "logs"
-    queue_log = logs_dir / "queue.log"
-    qtext = clean(queue_log.read_text(errors="replace")) if queue_log.exists() else ""
-    script = ROOT / "pipeline" / "train_local_queue.sh"
-    order = []  # (tag, model, layers, iters, batch, lr) from the queue script
-    if script.exists():
-        for m in re.finditer(r"^if run_std (\S+) (\S+) (\d+) (\d+) (\d+) (\S+);", script.read_text(), re.M):
-            order.append(m.groups())
-    started = {m.group(1): m.group(2) for m in re.finditer(r"start (\S+) \(.*?\)\n.*?\(log (models/logs/\S+?\.log)\)", qtext, re.S)}
+def job_events():
+    """Per tag, the queue/jobs events since that tag's latest start ('trained', 'FAILED train', 'exported <gguf stem>' ...)."""
     events = {}
-    for m in re.finditer(r"\[queue (\d\d:\d\d:\d\d)\] (start|trained|exported|FAILED train|FAILED export) (\S+)", qtext):
-        events.setdefault(m.group(3), []).append((m.group(2), m.group(1)))
-    queue_done = "QUEUE DONE" in qtext
+    for name in ("queue.log", "local_jobs.log"):
+        p = ROOT / "models" / "logs" / name
+        if not p.exists():
+            continue
+        for m in JOB_EVENT.finditer(clean(p.read_text(errors="replace"))):
+            kind, tag = m.group(2), m.group(3)
+            if kind in ("start", "train"):
+                events[tag] = []  # a new attempt; earlier outcomes belong to the earlier log
+            events.setdefault(tag, []).append(kind)
+    return events
+
+
+def train_procs():
+    """Command lines of live mlx training / fuse / export processes (ps is cheap; no psutil in the venv)."""
+    try:
+        out = subprocess.run(["ps", "-axo", "command="], capture_output=True, text=True, timeout=10).stdout
+    except Exception:
+        return []
+    return [l for l in out.splitlines() if TRAIN_PROC.search(l) and "collect_runs" not in l]
+
+
+def mlx_runs(procs=None):
+    procs = train_procs() if procs is None else procs
+    logs_dir = ROOT / "models" / "logs"
+    events = job_events()
     by_tag = {}
-    for p in sorted(logs_dir.glob("train_mlx_*.log")):
-        m = re.match(r"train_mlx_(.+)_(\d{6})\.log$", p.name)
-        if m:
+    for p in logs_dir.glob("train_mlx_*.log"):
+        if m := re.match(r"train_mlx_(.+)_(\d{6})\.log$", p.name):
             by_tag.setdefault(m.group(1), []).append(p)
     runs = []
-    tags = [o[0] for o in order] + [t for t in by_tag if t not in {o[0] for o in order}]
-    for tag in tags:
-        q = next((o for o in order if o[0] == tag), None)
-        logs = by_tag.get(tag, [])
-        log = (ROOT / started[tag]) if tag in started and (ROOT / started[tag]).exists() else None
-        if log is None and q is None and logs:
-            log = logs[-1]
+    for tag, logs in sorted(by_tag.items()):
+        if tag in CANCELLED:
+            continue
+        logs.sort(key=lambda p: p.stat().st_mtime)
+        log, earlier = logs[-1], logs[:-1]  # the latest attempt is the run; earlier logs count as attempts
         smoke = tag.endswith("-verify") or tag not in CATALOG
         cat = CATALOG.get(tag)
-        earlier = [p for p in logs if p != log]
-        if log is None:  # queued in the script, not started yet
-            if queue_done:
-                continue
-            runs.append({
-                "id": f"mlx-{tag}", "name": cat[1] if cat else tag, "catalog_id": cat[0] if cat else None, "tier": cat[2] if cat else None,
-                "backend": "mlx", "where": "This Mac (Apple M1 Max, mlx-lm)", "base_model": q[1], "smoke": False, "status": "queued",
-                "started_at": None, "updated_at": None,
-                "config": {"steps": int(q[3]), "batch": int(q[4]), "lr": float(q[5]), "layers": int(q[2]), "data": "data/mlx/0.8B"},
-                "steps_done": 0, "steps_total": int(q[3]), "elapsed_s": 0, "eta_s": None, "loss": [], "val_loss": [], "val": [],
-                "checkpoints": [], "cost_usd_est": 0, "cost_note": "Local Apple silicon; no cloud cost.",
-                "attempts": len(earlier), "note": queue_note(tag, len(earlier)), "log": None,
-            })
-            continue
         info = parse_mlx_log(log)
         mtime = log.stat().st_mtime
         hhmmss = re.search(r"_(\d{6})\.log$", log.name).group(1)
         day = datetime.fromtimestamp(mtime)
-        start_dt = day.replace(hour=int(hhmmss[:2]), minute=int(hhmmss[2:4]), second=int(hhmmss[4:]), microsecond=0)
-        start_ts = start_dt.timestamp()
+        start_ts = day.replace(hour=int(hhmmss[:2]), minute=int(hhmmss[2:4]), second=int(hhmmss[4:]), microsecond=0).timestamp()
         if start_ts > mtime:
             start_ts -= 86400
-        ev = [e[0] for e in events.get(tag, [])]
-        iters = info.get("iters") or (int(q[3]) if q else 0)
+        ev = events.get(tag, [])
+        iters = info.get("iters") or 0
         last = info["loss"][-1]["step"] if info["loss"] else 0
-        if info["finished"] or "trained" in ev:
+        fused = ROOT / "models" / "fused" / tag
+        fused_ok = (fused / "config.json").exists() and any(fused.glob("*.safetensors")) and fused.stat().st_mtime >= start_ts
+        alive = any(f"models/adapters/{tag} " in c + " " or f" {tag} " in c + " " for c in procs)
+        shipped = SHIPPED.get(tag)
+        if shipped:
             status = "done"
         elif info["failed"] or "FAILED train" in ev:
             status = "failed"
-        elif NOW - mtime < 6 * 60:
+        elif info["finished"] and (smoke or fused_ok or "trained" in ev) and not alive:  # alive = fuse still writing
+            status = "done"
+        elif alive or NOW - mtime < 6 * 60:
             status = "running"
         else:
             status = "stopped"
-        elapsed = round(mtime - start_ts)
+        elapsed = round((NOW if status == "running" else mtime) - start_ts)
         eta = None
-        if status == "running" and last:
-            eta = round(elapsed / last * (iters - last))
+        if status == "running" and last and iters:
+            per_iter = (mtime - start_ts) / last
+            eta = max(0, round(per_iter * (iters - last) - (NOW - mtime)))
         adapter_dir = ROOT / "models" / "adapters" / tag
         ckpts = [{"step": int(c.name[:7]), "id": str(c.relative_to(ROOT)), "kind": "adapter"}
                  for c in sorted(adapter_dir.glob("*_adapters.safetensors"))] if adapter_dir.exists() else []
-        gguf_name = {"qwen3-0.6b": "lokol-health-qwen3-0.6b-Q4_K_M.gguf", "0.8B": "lokol-health-0.8b-Q4_K_M.gguf",
-                     "qwen3-1.7b": "lokol-health-qwen3-1.7b-Q4_K_M.gguf"}.get(tag)
+        gguf_name = GGUF_NAME.get(tag)
         gguf = ROOT / "models" / "gguf" / gguf_name if gguf_name else None
-        exported = any(e == "exported" for e in ev)
+        gguf_ready = bool(gguf and gguf.exists() and (("exported" in events.get(gguf_name.replace("-Q4_K_M.gguf", ""), []))
+                                                      or NOW - gguf.stat().st_mtime > 180))
+        vals = {v["step"]: v["loss"] for v in info["val_loss"]}
+        best = None
+        if shipped:
+            best = {"step": shipped, "loss": vals.get(shipped), "training": f"models/adapters/{tag}/{shipped:07d}_adapters.safetensors"}
+            if gguf_ready:
+                best["inference"] = f"models/gguf/{gguf_name}"
+        elif status == "done" and not smoke and info["val_loss"]:
+            final = vals.get(last)
+            best = {"step": last, "loss": final, "training": f"models/adapters/{tag}/adapters.safetensors"} if final is not None else None
         runs.append({
             "id": f"mlx-{tag}",
             "name": cat[1] if cat else f"mlx smoke ({tag})",
             "catalog_id": cat[0] if cat else None,
             "tier": cat[2] if cat else None,
             "backend": "mlx",
-            "where": "This Mac (Apple M1 Max, mlx-lm)",
-            "base_model": info.get("model") or (q[1] if q else None),
+            "where": WHERE_MLX,
+            "base_model": info.get("model") or (cat[3] if cat else None),
             "smoke": smoke,
             "status": status,
             "started_at": iso(start_ts),
@@ -281,7 +323,8 @@ def mlx_runs():
                        "layers": info.get("layers"), "max_seq": info.get("max_seq"), "data": info.get("data"),
                        "trainable_pct": info.get("trainable_pct"), "trainable_m": info.get("trainable_m"), "total_m": info.get("total_m")},
             "steps_done": last,
-            "steps_total": iters,
+            # a run stopped on purpose is complete at the step it stopped; config.steps keeps the plan
+            "steps_total": last if shipped else iters,
             "elapsed_s": elapsed,
             "eta_s": eta,
             "tokens_per_s": round(sum(info["tok_s"]) / len(info["tok_s"])) if info["tok_s"] else None,
@@ -289,25 +332,52 @@ def mlx_runs():
             "val_loss": info["val_loss"],
             "val": [],
             "checkpoints": ckpts,
-            "gguf": {"file": gguf.name, "size_mb": round(gguf.stat().st_size / 1e6, 1)} if (gguf and gguf.exists() and (exported or status == "done") and not smoke) else None,
+            "best": best,
+            "trained_tokens": info["tokens"],
+            "gguf": {"file": gguf.name, "size_mb": round(gguf.stat().st_size / 1e6, 1)} if (gguf_ready and status == "done" and not smoke) else None,
             "cost_usd_est": 0,
             "cost_note": "Local Apple silicon; no cloud cost.",
             "attempts": len(earlier),
             "error": info.get("error"),
             "log": str(log.relative_to(ROOT)),
-            "note": queue_note(tag, len(earlier)) if not smoke else "30-iteration smoke test of train, fuse and GGUF export on 40 stub rows.",
+            "note": run_note(tag, status, info, vals, last, iters, fused_ok) if not smoke
+                    else "30-iteration smoke test of train, fuse and GGUF export on 40 stub rows.",
         })
     return runs
 
 
-def queue_note(tag, earlier):
-    if tag == "0.8B":
-        return ("Qwen3.5 mixes linear-attention blocks; mlx-lm trains them through a slow per-token loop that macOS aborted "
-                f"('Impacting Interactivity'). LoRA on the top full-attention layer only keeps it on the fused kernel. {earlier} earlier attempts logged.")
+def lowest_val(vals):
+    real = {s: v for s, v in vals.items() if s > 1}  # step 1 is the untrained baseline
+    return min(real.items(), key=lambda kv: kv[1]) if real else None
+
+
+def run_note(tag, status, info, vals, last, iters, fused_ok):
+    low = lowest_val(vals)
+    if tag in SHIPPED:
+        s = SHIPPED[tag]
+        v = vals.get(s)
+        after = [(st, x) for st, x in sorted(vals.items()) if st > s]
+        rose = f" once validation loss rose ({after[0][1]:.3f} at step {after[0][0]})" if after and v is not None and after[0][1] > v else ""
+        ship = f"Shipped checkpoint: step {s} (val {v:.3f})" if v is not None else f"Shipped checkpoint: step {s}"
+        if low and low[0] == s:
+            ship += ", the lowest validation loss"
+        return (f"{ship}. Planned {iters} iterations; stopped on purpose at {last}{rose}. "
+                + base_note(tag))
+    if status == "running" and info["finished"] and not fused_ok:
+        return f"Training finished at step {last}; fusing the adapter into the base model, then GGUF export. " + base_note(tag)
+    if status == "done" and last in vals:
+        tail = f"Fused from the final adapter, step {last} (val {vals[last]:.3f})"
+        if low and low[0] != last:
+            tail += f"; lowest validation loss {low[1]:.3f} at step {low[0]}"
+        return tail + ". " + base_note(tag)
+    return base_note(tag)
+
+
+def base_note(tag):
     if tag == "qwen3-0.6b":
         return "Standard attention, so all 28 layers get LoRA; the default phone-tier model because wllama runs Qwen3 in the browser."
     if tag == "qwen3-1.7b":
-        return "Everyday-phone tier (3 to 5 GB RAM); same data and recipe as 0.6B."
+        return "Everyday-phone tier (3 to 5 GB RAM); same data and recipe as 0.6B, all 28 layers."
     return ""
 
 
@@ -478,31 +548,61 @@ def dataset_card():
     }
 
 
+def write_json(path, obj):
+    """Write via a temp file and rename, so the page polling runs.json never reads a half-written file."""
+    tmp = path.with_name(f".{path.name}.tmp")
+    tmp.write_text(json.dumps(obj, indent=1, ensure_ascii=False))
+    os.replace(tmp, path)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=str(OUT))
     ap.add_argument("--print", action="store_true")
-    ap.add_argument("--watch", type=int, default=0, help="re-collect every N seconds (keeps the Train page live while runs train)")
+    ap.add_argument("--watch", type=int, default=0, metavar="SECS",
+                    help="re-collect runs.json every SECS seconds while mlx training runs; exits after --idle-exit seconds with none running")
+    ap.add_argument("--idle-exit", type=int, default=300, metavar="SECS", help="with --watch: exit once no mlx training process has run for this long (default 300)")
     a = ap.parse_args()
-    if a.watch:
-        global NOW
-        while True:
-            NOW = time.time()
-            collect(a)
-            time.sleep(a.watch)
+    global NOW
+    if not a.watch:
+        collect(a)
+        return
+    # Watch mode: dataset.json once (it does not change while training; it reads the 11 MB train split), runs.json every tick.
     collect(a)
+    last_seen = time.time()
+    while True:
+        time.sleep(a.watch)
+        NOW = time.time()
+        procs = train_procs()
+        if procs:
+            last_seen = NOW
+        try:
+            collect(a, dataset=False, procs=procs)
+        except Exception:
+            traceback.print_exc()
+        sys.stdout.flush()
+        if NOW - last_seen >= a.idle_exit:
+            print(f"[watch {datetime.now():%H:%M:%S}] no mlx training process for {a.idle_exit}s; final collect done, exiting")
+            return
 
 
-def collect(a):
+def collect(a, dataset=True, procs=None):
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
-    runs = river_runs() + mlx_runs()
+    runs = river_runs() + mlx_runs(procs)
     order = {"running": 0, "queued": 2, "done": 1, "stopped": 3, "failed": 4}
     runs.sort(key=lambda r: (r["smoke"], {"D": 0, "B": 1, "A": 2}.get(r.get("tier") or "", 3), order.get(r["status"], 5)))
-    tr = {"generated_at": iso(NOW), "sample": False, "runs": runs}
-    (out / "runs.json").write_text(json.dumps(tr, indent=1, ensure_ascii=False))
-    card = dataset_card()
-    (out / "dataset.json").write_text(json.dumps(card, indent=1, ensure_ascii=False))
-    print(f"wrote {out/'runs.json'} ({len(runs)} runs) and {out/'dataset.json'} ({card['splits']})")
+    cancelled = [{"id": f"mlx-{t}", "name": CATALOG[t][1] if t in CATALOG else t, "base_model": CATALOG[t][3] if t in CATALOG else None,
+                  "reason": why} for t, why in CANCELLED.items()]
+    tr = {"generated_at": iso(NOW), "sample": False, "runs": runs, "cancelled": cancelled}
+    write_json(out / "runs.json", tr)
+    msg = f"[{datetime.now():%H:%M:%S}] wrote {out/'runs.json'} ({len(runs)} runs"
+    live = [r for r in runs if r["status"] == "running"]
+    msg += "".join(f"; {r['id']} {r['steps_done']}/{r['steps_total']}" for r in live) + ")"
+    if dataset:
+        card = dataset_card()
+        write_json(out / "dataset.json", card)
+        msg += f" and {out/'dataset.json'} ({card['splits']})"
+    print(msg)
     if a.print:
         for r in runs:
             last = r["loss"][-1]["loss"] if r["loss"] else None

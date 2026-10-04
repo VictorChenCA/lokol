@@ -73,15 +73,15 @@ Held-out test set: 300 synthetic cases, 150 of them with 14 presentations never 
 
 | Model | Follows the protocol | Right action: model / with gate | Danger signs referred, with gate | Advice cases answered, with gate | Doses not on the cited page: model / with gate |
 |---|---|---|---|---|---|
-| Qwen3.5-9B (base) | 0% | 0% / 45% | 75% | 0% | 44% / **0%** |
-| **Lokol Health 9B** (River LoRA) | **97%** | **87% / 84%** | **88%** | **78%** | 60% / **0%** |
-| Qwen3-0.6B (base) | 0% | 0% / 45% | 75% | 0% | 19% / **0%** |
-| **Lokol Health 0.6B** (on-device, 397 MB) | **98%** | **64% / 62%** | **93%** | 29% | 85% / **0%** |
+| Qwen3.5-9B (base) | 0% | 0% / 45% | 75% | 0% | 52% / **0%** |
+| **Lokol Health 9B** (River LoRA) | **97%** | **87% / 84%** | **88%** | **78%** | 63% / **0%** |
+| Qwen3-0.6B (base) | 0% | 0% / 45% | 75% | 0% | 25% / **0%** |
+| **Lokol Health 0.6B** (on-device, 397 MB) | **98%** | **64% / 62%** | **93%** | 29% | 88% / **0%** |
 
 - Stock models never follow the protocol, so with the gate they can only refer or say "ask a person": safe, but they never help (0% of advice cases answered). The tuned 9B answers 78% of them correctly.
 - The tuned models reply in Pijin when the nurse writes Pijin 97–100% of the time (base: 45–69%).
 - The 0.6B phone model is cautious: it catches 93% of danger signs but over-refers and rarely abstains. The recommender puts the larger models on devices that can hold them.
-- Models invent doses. Even the teacher's reference answers cite doses that are not on the retrieved page 57% of the time. So Lokol never shows one: the dose guard replaces any dose that is not printed on the cited page (or computed from that page's per-kg dose and the child's weight) with "check the dose on page N".
+- Models invent doses. Even the teacher's reference answers give a dose that the retrieved page does not give for that drug 58% of the time. So Lokol checks every dose: it must be printed on the cited page **for the same drug** (each dose on the page belongs to the nearest medicine name before it, from a curated list of 99 medicines), or be that drug's per-kg dose times the child's weight. Anything else becomes "check the dose on page N".
 
 Full tables, per-language and per-task scores, judge scores and limitations: [`eval/results.md`](eval/results.md).
 
@@ -126,6 +126,7 @@ WhatsApp (Twilio Sandbox), Messenger and Android steps: [`bridge/README.md`](bri
 - **Real patients and native speakers.** All training text is synthetic and was not reviewed by a Pijin-speaking clinician. Pijin has no official spelling, so variants (blong/bilong) appear.
 - **Pijin voice input on phones.** The Pijin speech model (300M) needs the laptop tier; phones get Pijin text in and Pijin voice out.
 - **The other 70 languages of Solomon Islands.** A vernacular speaker falls back to Pijin. Pijin, Tok Pisin and Bislama are close creoles, so the same pipeline can pool data across them.
+- **Dose checking is a safety net, not a guarantee.** The manual's PDF tables lose their column layout when extracted, so on a few pages (malaria p53, drug tables p118) a dose can be attributed to the neighbouring drug, and the guard can let a wrong pairing through or block a right one. A nurse must still check every dose against the printed manual.
 - **Clinical validation.** This is a prototype. It must be reviewed by MHMS and tested with nurse aides before any use with patients.
 
 ## What localizing AI means to us

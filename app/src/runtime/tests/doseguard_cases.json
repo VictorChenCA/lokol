@@ -342,5 +342,612 @@
   "lang": "en",
   "expect_body": null,
   "expect_unsupported": []
+ },
+ {
+  "name": "binding: 'oxygen 0.3 mg/kg' where 0.3 mg/kg belongs to diazepam -> replaced",
+  "body": "Give oxygen 0.3 mg/kg PR (max 10 mg) now.\nRefer to hospital now.",
+  "excerpt": "If seizure > 5-10 min Give Midazolam IV/IO/IM 0.15mg/kg (max 10mg) Buccal/intranasal 0.3mg/kg (max 10mg) If Midazolam is not available then give Diazepam IV 0.2mg/kg (max 10mg) OR PR 0.3mg/kg (max 10mg)",
+  "message": "2 year old fitting, 12 kg",
+  "page": 34,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 34 before giving it. I could not find this dose in the page I used.\nRefer to hospital now.",
+  "expect_unsupported": [
+   "0.3 mg/kg",
+   "10 mg"
+  ]
+ },
+ {
+  "name": "binding: 'diazepam 0.3 mg/kg PR (max 10 mg)' bound on the page -> kept",
+  "body": "Give diazepam 0.3 mg/kg PR (max 10 mg) now.\nRefer to hospital now.",
+  "excerpt": "If seizure > 5-10 min Give Midazolam IV/IO/IM 0.15mg/kg (max 10mg) Buccal/intranasal 0.3mg/kg (max 10mg) If Midazolam is not available then give Diazepam IV 0.2mg/kg (max 10mg) OR PR 0.3mg/kg (max 10mg)",
+  "message": "2 year old fitting, 12 kg",
+  "page": 34,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "binding: 'morphine 15 mg/kg' where 15 mg/kg is paracetamol/phenytoin -> replaced",
+  "body": "Give morphine 15 mg/kg IV for the pain.",
+  "excerpt": "MORPHINE 0.05 - 0.2mg/kg IM/IV PRN Can be given every 4hourly if needed Monitor for respiratory depression in high doses NALOXONE 0.1mg/kg IM/IV/SC NYSTATIN 100,000 units PO Q6hr PARACETAMOL 15mg/kg (max 1g) PO/PR/IV Q4-6hrly Max doses in 24 hours Tonsillitis: 250mg if < 10years, 500mg if > 10 PENICILLIN V years RHD prophylaxis: 250mg o bd PHENOBARBITONE Loading Dose: 15-20mg/kg stat IV/IM Infuse over 30 mins Maintenance Dose: 5mg/kg PHENYTOIN Loading dose: 15mg/kg IV Maintenance Dose: 2mg/kg PO Q12hr (preterm) 2-4mg/kg PO Q12hr (term)",
+  "message": "child with bad pain",
+  "page": 118,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 118 before giving it. I could not find this dose in the page I used.",
+  "expect_unsupported": [
+   "15 mg/kg"
+  ]
+ },
+ {
+  "name": "binding: 'paracetamol 15 mg/kg' on the dosing table -> kept",
+  "body": "Give paracetamol 15 mg/kg every 6 hours.",
+  "excerpt": "MORPHINE 0.05 - 0.2mg/kg IM/IV PRN Can be given every 4hourly if needed Monitor for respiratory depression in high doses NALOXONE 0.1mg/kg IM/IV/SC NYSTATIN 100,000 units PO Q6hr PARACETAMOL 15mg/kg (max 1g) PO/PR/IV Q4-6hrly Max doses in 24 hours Tonsillitis: 250mg if < 10years, 500mg if > 10 PENICILLIN V years RHD prophylaxis: 250mg o bd PHENOBARBITONE Loading Dose: 15-20mg/kg stat IV/IM Infuse over 30 mins Maintenance Dose: 5mg/kg PHENYTOIN Loading dose: 15mg/kg IV Maintenance Dose: 2mg/kg PO Q12hr (preterm) 2-4mg/kg PO Q12hr (term)",
+  "message": "child with fever",
+  "page": 118,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "binding: 'Givim paracetamol 195 mg', 13 kg, page has 'Paracetamol 15mg/kg' -> kept",
+  "body": "Givim paracetamol 195 mg evri 6 aoa.",
+  "excerpt": "Paracetamol 15mg/kg (max 1g) every 4 to 6 hours",
+  "message": "Pikinini 3 yia, 13 kg, hot bodi",
+  "page": 40,
+  "lang": "pis",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "binding: 'Givim 195 mg' (no drug word) -> weight rule, kept",
+  "body": "Givim 195 mg evri 6 aoa.",
+  "excerpt": "Paracetamol 15mg/kg (max 1g) every 4 to 6 hours",
+  "message": "Pikinini 3 yia, 13 kg, hot bodi",
+  "page": 40,
+  "lang": "pis",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "binding: 'amoxycillin 25 mg/kg' vs page 'amoxicillin 25mg/kg' (synonym) -> kept",
+  "body": "Give amoxycillin 25 mg/kg twice daily for 5 days.",
+  "excerpt": "Give amoxicillin 25mg/kg PO Q12hr for 5 days",
+  "message": "cough and fast breathing",
+  "page": 27,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "binding: drug word on the RIGHT ('15 mg/kg of paracetamol') -> kept",
+  "body": "Give 15 mg/kg of paracetamol.",
+  "excerpt": "Consider giving paracetamol if fever above 38ºC AND the child is irritable o Dose: 15mg/kg (max 1g) every 4 to 6 hours (maximum 4 doses in 24 hours) o Do not use aspirin in children for fever",
+  "message": "fever",
+  "page": 40,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "binding: weight-computed amount from another drug's per-kg dose -> replaced",
+  "body": "Give morphine 195 mg.",
+  "excerpt": "MORPHINE 0.05 - 0.2mg/kg IM/IV PRN Can be given every 4hourly if needed Monitor for respiratory depression in high doses NALOXONE 0.1mg/kg IM/IV/SC NYSTATIN 100,000 units PO Q6hr PARACETAMOL 15mg/kg (max 1g) PO/PR/IV Q4-6hrly Max doses in 24 hours Tonsillitis: 250mg if < 10years, 500mg if > 10 PENICILLIN V years RHD prophylaxis: 250mg o bd PHENOBARBITONE Loading Dose: 15-20mg/kg stat IV/IM Infuse over 30 mins Maintenance Dose: 5mg/kg PHENYTOIN Loading dose: 15mg/kg IV Maintenance Dose: 2mg/kg PO Q12hr (preterm) 2-4mg/kg PO Q12hr (term)",
+  "message": "13 kg, pain",
+  "page": 118,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 118 before giving it. I could not find this dose in the page I used.",
+  "expect_unsupported": [
+   "195 mg"
+  ]
+ },
+ {
+  "name": "binding: drug not on the page at all -> replaced",
+  "body": "Givim amlodipine 15 mg/kg.",
+  "excerpt": "Consider giving paracetamol if fever above 38ºC AND the child is irritable o Dose: 15mg/kg (max 1g) every 4 to 6 hours (maximum 4 doses in 24 hours) o Do not use aspirin in children for fever",
+  "message": "fever",
+  "page": 40,
+  "lang": "pis",
+  "expect_body": "Dos: lukim buk STM pej 40 fastaem. Mi no faendem dos ya long pej mi iusim.",
+  "expect_unsupported": [
+   "15 mg/kg"
+  ]
+ },
+ {
+  "name": "binding: multi-word synonym 'oral rehydration' binds to ORS",
+  "body": "Give oral rehydration 5 ml/kg per hour.",
+  "excerpt": "Give ORS 5 ml/kg per hour, or 5 ml after each loose stool",
+  "message": "diarrhoea",
+  "page": 60,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "binding: a full stop ends the drug-word search ('Refer now. Give 195 mg')",
+  "body": "Refer tomorrow. Give 195 mg.",
+  "excerpt": "Paracetamol 15mg/kg (max 1g) every 4 to 6 hours",
+  "message": "13 kg, fever",
+  "page": 40,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "binding: dose before its drug after another drug's dose ('paracetamol 15 mg/kg and 500 mg morphine') -> 500 mg is morphine's, replaced",
+  "body": "Give paracetamol 15 mg/kg and 500 mg morphine.\nRefer if pain continues.",
+  "excerpt": "MORPHINE 0.05 - 0.2mg/kg IM/IV PRN Can be given every 4hourly if needed Monitor for respiratory depression in high doses NALOXONE 0.1mg/kg IM/IV/SC NYSTATIN 100,000 units PO Q6hr PARACETAMOL 15mg/kg (max 1g) PO/PR/IV Q4-6hrly Max doses in 24 hours Tonsillitis: 250mg if < 10years, 500mg if > 10 PENICILLIN V years RHD prophylaxis: 250mg o bd PHENOBARBITONE Loading Dose: 15-20mg/kg stat IV/IM Infuse over 30 mins Maintenance Dose: 5mg/kg PHENYTOIN Loading dose: 15mg/kg IV Maintenance Dose: 2mg/kg PO Q12hr (preterm) 2-4mg/kg PO Q12hr (term)",
+  "message": "child pain",
+  "page": 118,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 118 before giving it. I could not find this dose in the page I used.\nRefer if pain continues.",
+  "expect_unsupported": [
+   "500 mg"
+  ]
+ },
+ {
+  "name": "binding: '15 mg/kg paracetamol and 15 mg/kg morphine' -> second dose is morphine's, replaced",
+  "body": "Give 15 mg/kg paracetamol and 15 mg/kg morphine.",
+  "excerpt": "MORPHINE 0.05 - 0.2mg/kg IM/IV PRN Can be given every 4hourly if needed Monitor for respiratory depression in high doses NALOXONE 0.1mg/kg IM/IV/SC NYSTATIN 100,000 units PO Q6hr PARACETAMOL 15mg/kg (max 1g) PO/PR/IV Q4-6hrly Max doses in 24 hours Tonsillitis: 250mg if < 10years, 500mg if > 10 PENICILLIN V years RHD prophylaxis: 250mg o bd PHENOBARBITONE Loading Dose: 15-20mg/kg stat IV/IM Infuse over 30 mins Maintenance Dose: 5mg/kg PHENYTOIN Loading dose: 15mg/kg IV Maintenance Dose: 2mg/kg PO Q12hr (preterm) 2-4mg/kg PO Q12hr (term)",
+  "message": "child pain",
+  "page": 118,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 118 before giving it. I could not find this dose in the page I used.",
+  "expect_unsupported": [
+   "15 mg/kg"
+  ]
+ },
+ {
+  "name": "binding: 'midazolam 0.15 mg/kg IV, or 10 mg diazepam PR' -> 10 mg is diazepam's, kept",
+  "body": "Give midazolam 0.15 mg/kg IV, or 10 mg diazepam PR.",
+  "excerpt": "If seizure > 5-10 min Give Midazolam IV/IO/IM 0.15mg/kg (max 10mg) Buccal/intranasal 0.3mg/kg (max 10mg) If Midazolam is not available then give Diazepam IV 0.2mg/kg (max 10mg) OR PR 0.3mg/kg (max 10mg)",
+  "message": "child fitting, 12 kg",
+  "page": 34,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "binding: claimed left drug kept when the right drug word is far ('amoxycillin 750 mg (40 mg fo evri kilo) long dei an ciprofloxacin') -> kept",
+  "body": "Givim amoxycillin 750 mg (40 mg fo evri kilo) long dei an ciprofloxacin 0.3% drops.",
+  "excerpt": "Give Amoxycillin 40mg/kg (max 1g) orally twice daily for 5 days. For eye discharge use ciprofloxacin 0.3% drops",
+  "message": "pikinini 18 kg",
+  "page": 32,
+  "lang": "pis",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "binding: Pijin spelling 'parasetamol' is a paracetamol synonym -> kept",
+  "body": "Givim parasetamol 15 mg/kg evri 6 aoa.",
+  "excerpt": "Consider giving paracetamol if fever above 38ºC AND the child is irritable o Dose: 15mg/kg (max 1g) every 4 to 6 hours (maximum 4 doses in 24 hours) o Do not use aspirin in children for fever",
+  "message": "pikinini hot bodi",
+  "page": 40,
+  "lang": "pis",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "binding: Pijin 'meresin' (medicine) is a stop word, so 195 mg falls back to the weight rule -> kept",
+  "body": "Givim panadol. Givim meresin 195 mg evri 6 aoa.",
+  "excerpt": "Consider giving paracetamol if fever above 38ºC AND the child is irritable o Dose: 15mg/kg (max 1g) every 4 to 6 hours (maximum 4 doses in 24 hours) o Do not use aspirin in children for fever",
+  "message": "pikinini 13 kg hot bodi",
+  "page": 40,
+  "lang": "pis",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "binding: drug name misspelled ('morfine 15 mg/kg') is not on the page -> replaced",
+  "body": "Give morfine 15 mg/kg IV.",
+  "excerpt": "MORPHINE 0.05 - 0.2mg/kg IM/IV PRN Can be given every 4hourly if needed Monitor for respiratory depression in high doses NALOXONE 0.1mg/kg IM/IV/SC NYSTATIN 100,000 units PO Q6hr PARACETAMOL 15mg/kg (max 1g) PO/PR/IV Q4-6hrly Max doses in 24 hours Tonsillitis: 250mg if < 10years, 500mg if > 10 PENICILLIN V years RHD prophylaxis: 250mg o bd PHENOBARBITONE Loading Dose: 15-20mg/kg stat IV/IM Infuse over 30 mins Maintenance Dose: 5mg/kg PHENYTOIN Loading dose: 15mg/kg IV Maintenance Dose: 2mg/kg PO Q12hr (preterm) 2-4mg/kg PO Q12hr (term)",
+  "message": "child pain, 13 kg",
+  "page": 118,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 118 before giving it. I could not find this dose in the page I used.",
+  "expect_unsupported": [
+   "15 mg/kg"
+  ]
+ },
+ {
+  "name": "binding: 'ORS 0.3 mg/kg' where 0.3 mg/kg belongs to midazolam/diazepam -> replaced",
+  "body": "Give ORS 0.3 mg/kg now.",
+  "excerpt": "If seizure > 5-10 min Give Midazolam IV/IO/IM 0.15mg/kg (max 10mg) Buccal/intranasal 0.3mg/kg (max 10mg) If Midazolam is not available then give Diazepam IV 0.2mg/kg (max 10mg) OR PR 0.3mg/kg (max 10mg)",
+  "message": "child fitting, 12 kg",
+  "page": 34,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 34 before giving it. I could not find this dose in the page I used.",
+  "expect_unsupported": [
+   "0.3 mg/kg"
+  ]
+ },
+ {
+  "name": "binding: dose before drug name, wrong drug ('15 mg/kg morphine') -> replaced",
+  "body": "Give 15 mg/kg morphine IV.",
+  "excerpt": "MORPHINE 0.05 - 0.2mg/kg IM/IV PRN Can be given every 4hourly if needed Monitor for respiratory depression in high doses NALOXONE 0.1mg/kg IM/IV/SC NYSTATIN 100,000 units PO Q6hr PARACETAMOL 15mg/kg (max 1g) PO/PR/IV Q4-6hrly Max doses in 24 hours Tonsillitis: 250mg if < 10years, 500mg if > 10 PENICILLIN V years RHD prophylaxis: 250mg o bd PHENOBARBITONE Loading Dose: 15-20mg/kg stat IV/IM Infuse over 30 mins Maintenance Dose: 5mg/kg PHENYTOIN Loading dose: 15mg/kg IV Maintenance Dose: 2mg/kg PO Q12hr (preterm) 2-4mg/kg PO Q12hr (term)",
+  "message": "child pain",
+  "page": 118,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 118 before giving it. I could not find this dose in the page I used.",
+  "expect_unsupported": [
+   "15 mg/kg"
+  ]
+ },
+ {
+  "name": "binding: no drug word, weight in the reply ('Child weighs 13 kg, give 195 mg') -> weight rule, kept",
+  "body": "Child weighs 13 kg, give 195 mg.",
+  "excerpt": "Consider giving paracetamol if fever above 38ºC AND the child is irritable o Dose: 15mg/kg (max 1g) every 4 to 6 hours (maximum 4 doses in 24 hours) o Do not use aspirin in children for fever",
+  "message": "child 13 kg fever",
+  "page": 40,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "v3 ownership: 'gentamicin 50 mg/kg' on p83 (50 mg/kg is ampicillin's/cefotaxime's/cloxacillin's) -> replaced",
+  "body": "Give gentamicin 50 mg/kg IV once daily.\nRefer to hospital now.",
+  "excerpt": "MANAGEMENT CHILDREN < 2 MONTHS OLD\nAdmit to hospital   Children <2 months should be referred and admitted for IV antibiotics\n\nAntibiotics   Ampicillin 50mg/kg IV every 6 hours PLUS\n                       Gentamicin IV once daily\n                          - Neonate < 34 weeks post conception 3mg/kg\n                          - Neonate > 34 weeks post conception: 5mg/kg\n                          - Infant (>1 month old): 7.5mg/kg\n                       Duration of treatment: 5 days\n                       If not improving in first 48 hours, use cefotaxime 50mg/kg IV QID\n\n                       If Staphylococcus pneumonia suspected (severe or complications e.g. effusions, empyema):\n                           - Cloxacillin 50mg/kg IV\n                          - First week of life: every 12 hours\n                          - 1 week to 1 month: every 8 hours\n                         - From 1 month: every 6 hours\n                       PLUS\n                          - Gentamicin IV daily (dose as per age above)\n                       Treat for 5 days THEN\n                       Cloxacillin 25mg/kg orally (using dose intervals as above) for a total treatment of 3 weeks\n\n                       If not improving also consider investigations for:\n                         - pleural effusion, empyema (may require surgical drainage)\n                         - underlying TB\n                         - malignancy",
+  "message": "baby 6 weeks, fast breathing, 4 kg",
+  "page": 83,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 83 before giving it. I could not find this dose in the page I used.\nRefer to hospital now.",
+  "expect_unsupported": [
+   "50 mg/kg"
+  ]
+ },
+ {
+  "name": "v3 ownership: 'ampicillin 50 mg/kg' on p83 -> kept",
+  "body": "Give ampicillin 50 mg/kg IV every 6 hours.\nRefer to hospital now.",
+  "excerpt": "MANAGEMENT CHILDREN < 2 MONTHS OLD\nAdmit to hospital   Children <2 months should be referred and admitted for IV antibiotics\n\nAntibiotics   Ampicillin 50mg/kg IV every 6 hours PLUS\n                       Gentamicin IV once daily\n                          - Neonate < 34 weeks post conception 3mg/kg\n                          - Neonate > 34 weeks post conception: 5mg/kg\n                          - Infant (>1 month old): 7.5mg/kg\n                       Duration of treatment: 5 days\n                       If not improving in first 48 hours, use cefotaxime 50mg/kg IV QID\n\n                       If Staphylococcus pneumonia suspected (severe or complications e.g. effusions, empyema):\n                           - Cloxacillin 50mg/kg IV\n                          - First week of life: every 12 hours\n                          - 1 week to 1 month: every 8 hours\n                         - From 1 month: every 6 hours\n                       PLUS\n                          - Gentamicin IV daily (dose as per age above)\n                       Treat for 5 days THEN\n                       Cloxacillin 25mg/kg orally (using dose intervals as above) for a total treatment of 3 weeks\n\n                       If not improving also consider investigations for:\n                         - pleural effusion, empyema (may require surgical drainage)\n                         - underlying TB\n                         - malignancy",
+  "message": "baby 6 weeks, fast breathing, 4 kg",
+  "page": 83,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "v3 ownership: gentamicin sub-rows under one heading ('Infant (>1 month old): 7.5mg/kg') -> kept",
+  "body": "Give gentamicin 7.5 mg/kg IV once daily.",
+  "excerpt": "MANAGEMENT CHILDREN < 2 MONTHS OLD\nAdmit to hospital   Children <2 months should be referred and admitted for IV antibiotics\n\nAntibiotics   Ampicillin 50mg/kg IV every 6 hours PLUS\n                       Gentamicin IV once daily\n                          - Neonate < 34 weeks post conception 3mg/kg\n                          - Neonate > 34 weeks post conception: 5mg/kg\n                          - Infant (>1 month old): 7.5mg/kg\n                       Duration of treatment: 5 days\n                       If not improving in first 48 hours, use cefotaxime 50mg/kg IV QID\n\n                       If Staphylococcus pneumonia suspected (severe or complications e.g. effusions, empyema):\n                           - Cloxacillin 50mg/kg IV\n                          - First week of life: every 12 hours\n                          - 1 week to 1 month: every 8 hours\n                         - From 1 month: every 6 hours\n                       PLUS\n                          - Gentamicin IV daily (dose as per age above)\n                       Treat for 5 days THEN\n                       Cloxacillin 25mg/kg orally (using dose intervals as above) for a total treatment of 3 weeks\n\n                       If not improving also consider investigations for:\n                         - pleural effusion, empyema (may require surgical drainage)\n                         - underlying TB\n                         - malignancy",
+  "message": "baby 6 weeks, fast breathing",
+  "page": 83,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "v3 ownership: weight-computed gentamicin 30 mg = 7.5 mg/kg x 4 kg on p83 -> kept",
+  "body": "Give gentamicin 30 mg IV once daily.",
+  "excerpt": "MANAGEMENT CHILDREN < 2 MONTHS OLD\nAdmit to hospital   Children <2 months should be referred and admitted for IV antibiotics\n\nAntibiotics   Ampicillin 50mg/kg IV every 6 hours PLUS\n                       Gentamicin IV once daily\n                          - Neonate < 34 weeks post conception 3mg/kg\n                          - Neonate > 34 weeks post conception: 5mg/kg\n                          - Infant (>1 month old): 7.5mg/kg\n                       Duration of treatment: 5 days\n                       If not improving in first 48 hours, use cefotaxime 50mg/kg IV QID\n\n                       If Staphylococcus pneumonia suspected (severe or complications e.g. effusions, empyema):\n                           - Cloxacillin 50mg/kg IV\n                          - First week of life: every 12 hours\n                          - 1 week to 1 month: every 8 hours\n                         - From 1 month: every 6 hours\n                       PLUS\n                          - Gentamicin IV daily (dose as per age above)\n                       Treat for 5 days THEN\n                       Cloxacillin 25mg/kg orally (using dose intervals as above) for a total treatment of 3 weeks\n\n                       If not improving also consider investigations for:\n                         - pleural effusion, empyema (may require surgical drainage)\n                         - underlying TB\n                         - malignancy",
+  "message": "baby 6 weeks, 4 kg, fast breathing",
+  "page": 83,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "v3 ownership: weight-computed gentamicin 200 mg = ampicillin's 50 mg/kg x 4 kg -> replaced",
+  "body": "Give gentamicin 200 mg IV once daily.",
+  "excerpt": "MANAGEMENT CHILDREN < 2 MONTHS OLD\nAdmit to hospital   Children <2 months should be referred and admitted for IV antibiotics\n\nAntibiotics   Ampicillin 50mg/kg IV every 6 hours PLUS\n                       Gentamicin IV once daily\n                          - Neonate < 34 weeks post conception 3mg/kg\n                          - Neonate > 34 weeks post conception: 5mg/kg\n                          - Infant (>1 month old): 7.5mg/kg\n                       Duration of treatment: 5 days\n                       If not improving in first 48 hours, use cefotaxime 50mg/kg IV QID\n\n                       If Staphylococcus pneumonia suspected (severe or complications e.g. effusions, empyema):\n                           - Cloxacillin 50mg/kg IV\n                          - First week of life: every 12 hours\n                          - 1 week to 1 month: every 8 hours\n                         - From 1 month: every 6 hours\n                       PLUS\n                          - Gentamicin IV daily (dose as per age above)\n                       Treat for 5 days THEN\n                       Cloxacillin 25mg/kg orally (using dose intervals as above) for a total treatment of 3 weeks\n\n                       If not improving also consider investigations for:\n                         - pleural effusion, empyema (may require surgical drainage)\n                         - underlying TB\n                         - malignancy",
+  "message": "baby 6 weeks, 4 kg, fast breathing",
+  "page": 83,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 83 before giving it. I could not find this dose in the page I used.",
+  "expect_unsupported": [
+   "200 mg"
+  ]
+ },
+ {
+  "name": "v3 ownership: 'midazolam 0.2 mg/kg IV' on p34 (0.2 mg/kg IV is diazepam's) -> replaced",
+  "body": "Give midazolam 0.2 mg/kg IV now.\nRefer to hospital now.",
+  "excerpt": "MANAGEMENT\nDURING SEIZURE MANAGEMENT\nAirway and Breathing Clear airway; Place child on side and suction secretions if possible\nMake sure child is breathing; If not, give breaths using bag and mask\nGive oxygen\nGlucose Check blood sugar & treat as per the hypoglycaemia guideline\nIf seizure > 5-10 min Give Midazolam\nIV/IO/IM 0.15mg/kg (max 10mg)\nBuccal/intranasal 0.3mg/kg (max 10mg)\nIf Midazolam is not available then give Diazepam\nIV 0.2mg/kg (max 10mg) OR\nPR 0.3mg/kg (max 10mg)",
+  "message": "child fitting 10 minutes, 12 kg",
+  "page": 34,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 34 before giving it. I could not find this dose in the page I used.\nRefer to hospital now.",
+  "expect_unsupported": [
+   "0.2 mg/kg"
+  ]
+ },
+ {
+  "name": "v3 ownership: 'diazepam 0.2 mg/kg IV' on p34 -> kept",
+  "body": "Give diazepam 0.2 mg/kg IV now.",
+  "excerpt": "MANAGEMENT\nDURING SEIZURE MANAGEMENT\nAirway and Breathing Clear airway; Place child on side and suction secretions if possible\nMake sure child is breathing; If not, give breaths using bag and mask\nGive oxygen\nGlucose Check blood sugar & treat as per the hypoglycaemia guideline\nIf seizure > 5-10 min Give Midazolam\nIV/IO/IM 0.15mg/kg (max 10mg)\nBuccal/intranasal 0.3mg/kg (max 10mg)\nIf Midazolam is not available then give Diazepam\nIV 0.2mg/kg (max 10mg) OR\nPR 0.3mg/kg (max 10mg)",
+  "message": "child fitting 10 minutes, 12 kg",
+  "page": 34,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "v3 ownership: 'midazolam 0.15 mg/kg' on p34 -> kept",
+  "body": "Give midazolam 0.15 mg/kg IV/IM now.",
+  "excerpt": "MANAGEMENT\nDURING SEIZURE MANAGEMENT\nAirway and Breathing Clear airway; Place child on side and suction secretions if possible\nMake sure child is breathing; If not, give breaths using bag and mask\nGive oxygen\nGlucose Check blood sugar & treat as per the hypoglycaemia guideline\nIf seizure > 5-10 min Give Midazolam\nIV/IO/IM 0.15mg/kg (max 10mg)\nBuccal/intranasal 0.3mg/kg (max 10mg)\nIf Midazolam is not available then give Diazepam\nIV 0.2mg/kg (max 10mg) OR\nPR 0.3mg/kg (max 10mg)",
+  "message": "child fitting 10 minutes, 12 kg",
+  "page": 34,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "v3 ownership: 'benzylpenicillin 25 mg/kg' on p62 (25 mg/kg is chloramphenicol's) -> replaced",
+  "body": "Give benzylpenicillin 25 mg/kg IV QID.",
+  "excerpt": "MANAGEMENT\n MANAGEMENT ISSUES   NOTES\n Antibiotics   DO NOT DELAY ANTIBIOTICS - this is associated with worse outcomes\n                                1st line: Ceftriaxone 50mg/kg (max 2g) IV bd OR if <2 months, cefotaxime 50mg/kg IV QID\n                                2nd line: Benzylpenicillin 60mg/kg (max 3g) IV QID PLUS Chloramphenicol 25mg/kg (max 1 g) IV\n                                QID\n                                Review culture and sensitivities at 72 hours, adjust as necessary\n                                Duration: 14 days\n Steroids   Dexamethasone 0.15mg/kg (max 10mg) IV QID\n                                Reduces the risk of hearing loss in bacterial and TB meningitis\n                                Must be started within 15mins before or 1 hr after antibiotics\n                                Contraindications: <2months, cerebral malaria, viral encephalitis, immunocompromised\n Consider anti-viral\n treatment   If encephalopathy, vesicular rash or risk factors (e.g: HSV exposure)\n                                Dosage: Acyclovir IV 500mg/m2 (preferable) or oral acyclovir 20mg/kg 5 times per day\n Feed/fluids   Feed orally/NGT if able. If shocked treat with bolus fluid as for sepsis protocol\n                                Ongoing IV fluids should be restricted to 2/3 maintenance (risk of SIADH)\n Consider anti-malarials   If suggestive history of positive MPS\n                                If MPS negative, still consider treatment if very unwell or from high risk area\n Monitor for convulsions   Regular (2hrly) neurological observations. Use anti-convulsive medication for fits.\n Monitor for hypoglycaemia   Monitor BSLS 6-12hly. Treat hypoglycaemia\n Chemoprophylaxis   Eradication of carriage of H.influenzae and meningococcaus\n                                Household contacts, contacts <4years, classroom contacts in epidemics\n                                Rifampicin: 5-10mg/kg (max 600mg) o daily 4 days OR\n                                Ciprofloxacin 10mg/kg (max 500mg) as a single dose\n Arrange follow up   Children with meningitis are at risk of hearing loss and developmental delay\n                                Arrange follow up",
+  "message": "child neck stiffness fever",
+  "page": 62,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 62 before giving it. I could not find this dose in the page I used.",
+  "expect_unsupported": [
+   "25 mg/kg"
+  ]
+ },
+ {
+  "name": "v3 ownership: 'chloramphenicol 60 mg/kg' on p62 (60 mg/kg is benzylpenicillin's) -> replaced",
+  "body": "Give chloramphenicol 60 mg/kg IV QID.",
+  "excerpt": "MANAGEMENT\n MANAGEMENT ISSUES   NOTES\n Antibiotics   DO NOT DELAY ANTIBIOTICS - this is associated with worse outcomes\n                                1st line: Ceftriaxone 50mg/kg (max 2g) IV bd OR if <2 months, cefotaxime 50mg/kg IV QID\n                                2nd line: Benzylpenicillin 60mg/kg (max 3g) IV QID PLUS Chloramphenicol 25mg/kg (max 1 g) IV\n                                QID\n                                Review culture and sensitivities at 72 hours, adjust as necessary\n                                Duration: 14 days\n Steroids   Dexamethasone 0.15mg/kg (max 10mg) IV QID\n                                Reduces the risk of hearing loss in bacterial and TB meningitis\n                                Must be started within 15mins before or 1 hr after antibiotics\n                                Contraindications: <2months, cerebral malaria, viral encephalitis, immunocompromised\n Consider anti-viral\n treatment   If encephalopathy, vesicular rash or risk factors (e.g: HSV exposure)\n                                Dosage: Acyclovir IV 500mg/m2 (preferable) or oral acyclovir 20mg/kg 5 times per day\n Feed/fluids   Feed orally/NGT if able. If shocked treat with bolus fluid as for sepsis protocol\n                                Ongoing IV fluids should be restricted to 2/3 maintenance (risk of SIADH)\n Consider anti-malarials   If suggestive history of positive MPS\n                                If MPS negative, still consider treatment if very unwell or from high risk area\n Monitor for convulsions   Regular (2hrly) neurological observations. Use anti-convulsive medication for fits.\n Monitor for hypoglycaemia   Monitor BSLS 6-12hly. Treat hypoglycaemia\n Chemoprophylaxis   Eradication of carriage of H.influenzae and meningococcaus\n                                Household contacts, contacts <4years, classroom contacts in epidemics\n                                Rifampicin: 5-10mg/kg (max 600mg) o daily 4 days OR\n                                Ciprofloxacin 10mg/kg (max 500mg) as a single dose\n Arrange follow up   Children with meningitis are at risk of hearing loss and developmental delay\n                                Arrange follow up",
+  "message": "child neck stiffness fever",
+  "page": 62,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 62 before giving it. I could not find this dose in the page I used.",
+  "expect_unsupported": [
+   "60 mg/kg"
+  ]
+ },
+ {
+  "name": "v3 ownership: 'benzylpenicillin 60 mg/kg' and 'chloramphenicol 25 mg/kg' on p62 -> kept",
+  "body": "Give benzylpenicillin 60 mg/kg IV QID plus chloramphenicol 25 mg/kg IV QID.",
+  "excerpt": "MANAGEMENT\n MANAGEMENT ISSUES   NOTES\n Antibiotics   DO NOT DELAY ANTIBIOTICS - this is associated with worse outcomes\n                                1st line: Ceftriaxone 50mg/kg (max 2g) IV bd OR if <2 months, cefotaxime 50mg/kg IV QID\n                                2nd line: Benzylpenicillin 60mg/kg (max 3g) IV QID PLUS Chloramphenicol 25mg/kg (max 1 g) IV\n                                QID\n                                Review culture and sensitivities at 72 hours, adjust as necessary\n                                Duration: 14 days\n Steroids   Dexamethasone 0.15mg/kg (max 10mg) IV QID\n                                Reduces the risk of hearing loss in bacterial and TB meningitis\n                                Must be started within 15mins before or 1 hr after antibiotics\n                                Contraindications: <2months, cerebral malaria, viral encephalitis, immunocompromised\n Consider anti-viral\n treatment   If encephalopathy, vesicular rash or risk factors (e.g: HSV exposure)\n                                Dosage: Acyclovir IV 500mg/m2 (preferable) or oral acyclovir 20mg/kg 5 times per day\n Feed/fluids   Feed orally/NGT if able. If shocked treat with bolus fluid as for sepsis protocol\n                                Ongoing IV fluids should be restricted to 2/3 maintenance (risk of SIADH)\n Consider anti-malarials   If suggestive history of positive MPS\n                                If MPS negative, still consider treatment if very unwell or from high risk area\n Monitor for convulsions   Regular (2hrly) neurological observations. Use anti-convulsive medication for fits.\n Monitor for hypoglycaemia   Monitor BSLS 6-12hly. Treat hypoglycaemia\n Chemoprophylaxis   Eradication of carriage of H.influenzae and meningococcaus\n                                Household contacts, contacts <4years, classroom contacts in epidemics\n                                Rifampicin: 5-10mg/kg (max 600mg) o daily 4 days OR\n                                Ciprofloxacin 10mg/kg (max 500mg) as a single dose\n Arrange follow up   Children with meningitis are at risk of hearing loss and developmental delay\n                                Arrange follow up",
+  "message": "child neck stiffness fever",
+  "page": 62,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "v3 ownership: drug-less '25 mg/kg' on p62 (owned by chloramphenicol only) -> kept",
+  "body": "Give 25 mg/kg IV QID.",
+  "excerpt": "MANAGEMENT\n MANAGEMENT ISSUES   NOTES\n Antibiotics   DO NOT DELAY ANTIBIOTICS - this is associated with worse outcomes\n                                1st line: Ceftriaxone 50mg/kg (max 2g) IV bd OR if <2 months, cefotaxime 50mg/kg IV QID\n                                2nd line: Benzylpenicillin 60mg/kg (max 3g) IV QID PLUS Chloramphenicol 25mg/kg (max 1 g) IV\n                                QID\n                                Review culture and sensitivities at 72 hours, adjust as necessary\n                                Duration: 14 days\n Steroids   Dexamethasone 0.15mg/kg (max 10mg) IV QID\n                                Reduces the risk of hearing loss in bacterial and TB meningitis\n                                Must be started within 15mins before or 1 hr after antibiotics\n                                Contraindications: <2months, cerebral malaria, viral encephalitis, immunocompromised\n Consider anti-viral\n treatment   If encephalopathy, vesicular rash or risk factors (e.g: HSV exposure)\n                                Dosage: Acyclovir IV 500mg/m2 (preferable) or oral acyclovir 20mg/kg 5 times per day\n Feed/fluids   Feed orally/NGT if able. If shocked treat with bolus fluid as for sepsis protocol\n                                Ongoing IV fluids should be restricted to 2/3 maintenance (risk of SIADH)\n Consider anti-malarials   If suggestive history of positive MPS\n                                If MPS negative, still consider treatment if very unwell or from high risk area\n Monitor for convulsions   Regular (2hrly) neurological observations. Use anti-convulsive medication for fits.\n Monitor for hypoglycaemia   Monitor BSLS 6-12hly. Treat hypoglycaemia\n Chemoprophylaxis   Eradication of carriage of H.influenzae and meningococcaus\n                                Household contacts, contacts <4years, classroom contacts in epidemics\n                                Rifampicin: 5-10mg/kg (max 600mg) o daily 4 days OR\n                                Ciprofloxacin 10mg/kg (max 500mg) as a single dose\n Arrange follow up   Children with meningitis are at risk of hearing loss and developmental delay\n                                Arrange follow up",
+  "message": "child neck stiffness fever",
+  "page": 62,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "v3 ownership: drug-less '50 mg/kg' on p83 (owned by ampicillin, cefotaxime and cloxacillin) -> replaced as ambiguous",
+  "body": "Give 50 mg/kg IV every 6 hours.",
+  "excerpt": "MANAGEMENT CHILDREN < 2 MONTHS OLD\nAdmit to hospital   Children <2 months should be referred and admitted for IV antibiotics\n\nAntibiotics   Ampicillin 50mg/kg IV every 6 hours PLUS\n                       Gentamicin IV once daily\n                          - Neonate < 34 weeks post conception 3mg/kg\n                          - Neonate > 34 weeks post conception: 5mg/kg\n                          - Infant (>1 month old): 7.5mg/kg\n                       Duration of treatment: 5 days\n                       If not improving in first 48 hours, use cefotaxime 50mg/kg IV QID\n\n                       If Staphylococcus pneumonia suspected (severe or complications e.g. effusions, empyema):\n                           - Cloxacillin 50mg/kg IV\n                          - First week of life: every 12 hours\n                          - 1 week to 1 month: every 8 hours\n                         - From 1 month: every 6 hours\n                       PLUS\n                          - Gentamicin IV daily (dose as per age above)\n                       Treat for 5 days THEN\n                       Cloxacillin 25mg/kg orally (using dose intervals as above) for a total treatment of 3 weeks\n\n                       If not improving also consider investigations for:\n                         - pleural effusion, empyema (may require surgical drainage)\n                         - underlying TB\n                         - malignancy",
+  "message": "baby 6 weeks, fast breathing",
+  "page": 83,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 83 before giving it. I could not find this dose in the page I used.",
+  "expect_unsupported": [
+   "50 mg/kg"
+  ]
+ },
+ {
+  "name": "v3 ownership: 'gentamicin 7.5 mg/kg' on the p118 table -> kept; 'frusemide 7.5 mg/kg' -> replaced",
+  "body": "Give gentamicin 7.5 mg/kg IV daily.\nGive frusemide 7.5 mg/kg IV.",
+  "excerpt": "CHLORMENPHENICO\n                                                            starting treatment\n                                                            Stop treatment immediately if visual symptoms\n                                                            occur\n                                                            Ferrous mixture 20mg/1ml contains 6mg\nFERROUS SULPHATE   3 - 6mg/kg/day elemental iron PO   elemental iron in 1ml\nFRUESEMIDE   0.5mg 1 - 2mg/kg PO/IV/IM Q12hr\n                     Neonates < 34 weeks post conception:\nGENTAMICIN   3mg/kg   Can be nephrotoxic/oto-toxic\n                     Neonates > 34 weeks post conception:   There is no Gentamicin levels currently available\n                     5mg/kg   in SI\n                     Infants (over 1 month) and children <10 years:\n                     7.5mg/kg   Monitor urine output/renal function\n                     Children > 10 years/Adolescents: 6mg/kg\nGRISEOFULVIN   10-20mg/kg PO daily\nHYDROCORTISONE   2 - 4mg/kg Q6hr IM,IV\n                                                            Caution in children with renal impairment or\nIBUPROFEN   5 - 10mg/kg PO Q8hr   bleeding tendency\nISONIAZID   10mg/kg PO daily\nKETAMINE   Loading dose:\n                     1 - 2mg/kg IV or 5 - 8mg/kg IM\n                     Further dosing:\n                     0.5 - 1mg/kg IV prn or 1 - 2 mg/kg IM prn\nMETRONIDAZOLE   Most infections: 7.5mg/kg PO/IV Q8hr\n                     Amoeba/Giardia: 10mg/kg PO/IV Q8hr\n                                                            Use as first line in seizures. If not available, use\nMIDAZOLAM   Seizure control:   diazapam",
+  "message": "child 2 years",
+  "page": 118,
+  "lang": "en",
+  "expect_body": "Give gentamicin 7.5 mg/kg IV daily.\nDose: check the manual page 118 before giving it. I could not find this dose in the page I used.",
+  "expect_unsupported": [
+   "7.5 mg/kg"
+  ]
+ },
+ {
+  "name": "v3 ownership: 'ibuprofen 10 mg/kg' on the p118 table -> kept",
+  "body": "Give ibuprofen 10 mg/kg PO every 8 hours.",
+  "excerpt": "CHLORMENPHENICO\n                                                            starting treatment\n                                                            Stop treatment immediately if visual symptoms\n                                                            occur\n                                                            Ferrous mixture 20mg/1ml contains 6mg\nFERROUS SULPHATE   3 - 6mg/kg/day elemental iron PO   elemental iron in 1ml\nFRUESEMIDE   0.5mg 1 - 2mg/kg PO/IV/IM Q12hr\n                     Neonates < 34 weeks post conception:\nGENTAMICIN   3mg/kg   Can be nephrotoxic/oto-toxic\n                     Neonates > 34 weeks post conception:   There is no Gentamicin levels currently available\n                     5mg/kg   in SI\n                     Infants (over 1 month) and children <10 years:\n                     7.5mg/kg   Monitor urine output/renal function\n                     Children > 10 years/Adolescents: 6mg/kg\nGRISEOFULVIN   10-20mg/kg PO daily\nHYDROCORTISONE   2 - 4mg/kg Q6hr IM,IV\n                                                            Caution in children with renal impairment or\nIBUPROFEN   5 - 10mg/kg PO Q8hr   bleeding tendency\nISONIAZID   10mg/kg PO daily\nKETAMINE   Loading dose:\n                     1 - 2mg/kg IV or 5 - 8mg/kg IM\n                     Further dosing:\n                     0.5 - 1mg/kg IV prn or 1 - 2 mg/kg IM prn\nMETRONIDAZOLE   Most infections: 7.5mg/kg PO/IV Q8hr\n                     Amoeba/Giardia: 10mg/kg PO/IV Q8hr\n                                                            Use as first line in seizures. If not available, use\nMIDAZOLAM   Seizure control:   diazapam",
+  "message": "child 2 years pain",
+  "page": 118,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "v3 unknown drug: '15 mg/kg of ketorolac' (curated, not on the page) -> replaced",
+  "body": "Give 15 mg/kg of ketorolac.",
+  "excerpt": "CHLORMENPHENICO\n      KETAMINE   Loading dose:\n                          Further dosing:\n  126   Amoeba/Giardia: 10mg/kg PO/IV Q8hr\n                          IV/IO/IM 0.15mg/kg, Buccal/Intranasal\n                          0.3mg/kg (max 10mg)   Monitor for respiratory depression in high doses\n      MORPHINE   0.05 - 0.2mg/kg IM/IV PRN   Can be given every 4hourly if needed\n                                                            Monitor for respiratory depression in high doses\n      NALOXONE   0.1mg/kg IM/IV/SC\n      NYSTATIN   100,000 units PO Q6hr\n      PARACETAMOL   15mg/kg (max 1g) PO/PR/IV Q4-6hrly   Max doses in 24 hours\n                          Tonsillitis: 250mg if < 10years, 500mg if > 10\n      PENICILLIN V   years\n                          RHD prophylaxis: 250mg o bd\n      PHENOBARBITONE   Loading Dose: 15-20mg/kg stat IV/IM   Infuse over 30 mins\n                          Maintenance Dose: 5mg/kg\n      PHENYTOIN   Loading dose: 15mg/kg IV\n                          Maintenance Dose:\n                          2mg/kg PO Q12hr (preterm)\n                          2-4mg/kg PO Q12hr (term)\n      POTASSIUM CITRATE   2 - 4mmol/kg/day PO   Dose may be given in 2-4 divided doses\n                                                            Consider isoniazid prophylaxis whilst on high dose\n      PREDNISOLONE   1 - 2mg/kg PO daily   prednisolone\n      PRIMAQUINE   0.25mg/kg PO daily   Check for G6PD deficiency\n                          (max 15mg)   Monitor for haemolysis (pallor, dark urine)",
+  "message": "child pain",
+  "page": 118,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 118 before giving it. I could not find this dose in the page I used.",
+  "expect_unsupported": [
+   "15 mg/kg"
+  ]
+ },
+ {
+  "name": "v3 unknown drug: '15 mg/kg of loxoprofen' (not curated, -profen suffix) -> replaced",
+  "body": "Give 15 mg/kg of loxoprofen.",
+  "excerpt": "CHLORMENPHENICO\n      KETAMINE   Loading dose:\n                          Further dosing:\n  126   Amoeba/Giardia: 10mg/kg PO/IV Q8hr\n                          IV/IO/IM 0.15mg/kg, Buccal/Intranasal\n                          0.3mg/kg (max 10mg)   Monitor for respiratory depression in high doses\n      MORPHINE   0.05 - 0.2mg/kg IM/IV PRN   Can be given every 4hourly if needed\n                                                            Monitor for respiratory depression in high doses\n      NALOXONE   0.1mg/kg IM/IV/SC\n      NYSTATIN   100,000 units PO Q6hr\n      PARACETAMOL   15mg/kg (max 1g) PO/PR/IV Q4-6hrly   Max doses in 24 hours\n                          Tonsillitis: 250mg if < 10years, 500mg if > 10\n      PENICILLIN V   years\n                          RHD prophylaxis: 250mg o bd\n      PHENOBARBITONE   Loading Dose: 15-20mg/kg stat IV/IM   Infuse over 30 mins\n                          Maintenance Dose: 5mg/kg\n      PHENYTOIN   Loading dose: 15mg/kg IV\n                          Maintenance Dose:\n                          2mg/kg PO Q12hr (preterm)\n                          2-4mg/kg PO Q12hr (term)\n      POTASSIUM CITRATE   2 - 4mmol/kg/day PO   Dose may be given in 2-4 divided doses\n                                                            Consider isoniazid prophylaxis whilst on high dose\n      PREDNISOLONE   1 - 2mg/kg PO daily   prednisolone\n      PRIMAQUINE   0.25mg/kg PO daily   Check for G6PD deficiency\n                          (max 15mg)   Monitor for haemolysis (pallor, dark urine)",
+  "message": "child pain",
+  "page": 118,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 118 before giving it. I could not find this dose in the page I used.",
+  "expect_unsupported": [
+   "15 mg/kg"
+  ]
+ },
+ {
+  "name": "v3 unknown drug: 'tobramycin 7.5 mg/kg' (not curated, -mycin suffix) on the p118 table -> replaced",
+  "body": "Give tobramycin 7.5 mg/kg IV daily.",
+  "excerpt": "CHLORMENPHENICO\n                                                            starting treatment\n                                                            Stop treatment immediately if visual symptoms\n                                                            occur\n                                                            Ferrous mixture 20mg/1ml contains 6mg\nFERROUS SULPHATE   3 - 6mg/kg/day elemental iron PO   elemental iron in 1ml\nFRUESEMIDE   0.5mg 1 - 2mg/kg PO/IV/IM Q12hr\n                     Neonates < 34 weeks post conception:\nGENTAMICIN   3mg/kg   Can be nephrotoxic/oto-toxic\n                     Neonates > 34 weeks post conception:   There is no Gentamicin levels currently available\n                     5mg/kg   in SI\n                     Infants (over 1 month) and children <10 years:\n                     7.5mg/kg   Monitor urine output/renal function\n                     Children > 10 years/Adolescents: 6mg/kg\nGRISEOFULVIN   10-20mg/kg PO daily\nHYDROCORTISONE   2 - 4mg/kg Q6hr IM,IV\n                                                            Caution in children with renal impairment or\nIBUPROFEN   5 - 10mg/kg PO Q8hr   bleeding tendency\nISONIAZID   10mg/kg PO daily\nKETAMINE   Loading dose:\n                     1 - 2mg/kg IV or 5 - 8mg/kg IM\n                     Further dosing:\n                     0.5 - 1mg/kg IV prn or 1 - 2 mg/kg IM prn\nMETRONIDAZOLE   Most infections: 7.5mg/kg PO/IV Q8hr\n                     Amoeba/Giardia: 10mg/kg PO/IV Q8hr\n                                                            Use as first line in seizures. If not available, use\nMIDAZOLAM   Seizure control:   diazapam",
+  "message": "child 2 years",
+  "page": 118,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 118 before giving it. I could not find this dose in the page I used.",
+  "expect_unsupported": [
+   "7.5 mg/kg"
+  ]
+ },
+ {
+  "name": "v3 one edit: 'paracetemol 15 mg/kg' (typo) -> kept",
+  "body": "Give paracetemol 15 mg/kg every 6 hours.",
+  "excerpt": "CHLORMENPHENICO\n      KETAMINE   Loading dose:\n                          Further dosing:\n  126   Amoeba/Giardia: 10mg/kg PO/IV Q8hr\n                          IV/IO/IM 0.15mg/kg, Buccal/Intranasal\n                          0.3mg/kg (max 10mg)   Monitor for respiratory depression in high doses\n      MORPHINE   0.05 - 0.2mg/kg IM/IV PRN   Can be given every 4hourly if needed\n                                                            Monitor for respiratory depression in high doses\n      NALOXONE   0.1mg/kg IM/IV/SC\n      NYSTATIN   100,000 units PO Q6hr\n      PARACETAMOL   15mg/kg (max 1g) PO/PR/IV Q4-6hrly   Max doses in 24 hours\n                          Tonsillitis: 250mg if < 10years, 500mg if > 10\n      PENICILLIN V   years\n                          RHD prophylaxis: 250mg o bd\n      PHENOBARBITONE   Loading Dose: 15-20mg/kg stat IV/IM   Infuse over 30 mins\n                          Maintenance Dose: 5mg/kg\n      PHENYTOIN   Loading dose: 15mg/kg IV\n                          Maintenance Dose:\n                          2mg/kg PO Q12hr (preterm)\n                          2-4mg/kg PO Q12hr (term)\n      POTASSIUM CITRATE   2 - 4mmol/kg/day PO   Dose may be given in 2-4 divided doses\n                                                            Consider isoniazid prophylaxis whilst on high dose\n      PREDNISOLONE   1 - 2mg/kg PO daily   prednisolone\n      PRIMAQUINE   0.25mg/kg PO daily   Check for G6PD deficiency\n                          (max 15mg)   Monitor for haemolysis (pallor, dark urine)",
+  "message": "child fever",
+  "page": 118,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "v3 one edit: 'gentamycin 7.5 mg/kg' -> kept",
+  "body": "Give gentamycin 7.5 mg/kg IV daily.",
+  "excerpt": "MANAGEMENT CHILDREN < 2 MONTHS OLD\nAdmit to hospital   Children <2 months should be referred and admitted for IV antibiotics\n\nAntibiotics   Ampicillin 50mg/kg IV every 6 hours PLUS\n                       Gentamicin IV once daily\n                          - Neonate < 34 weeks post conception 3mg/kg\n                          - Neonate > 34 weeks post conception: 5mg/kg\n                          - Infant (>1 month old): 7.5mg/kg\n                       Duration of treatment: 5 days\n                       If not improving in first 48 hours, use cefotaxime 50mg/kg IV QID\n\n                       If Staphylococcus pneumonia suspected (severe or complications e.g. effusions, empyema):\n                           - Cloxacillin 50mg/kg IV\n                          - First week of life: every 12 hours\n                          - 1 week to 1 month: every 8 hours\n                         - From 1 month: every 6 hours\n                       PLUS\n                          - Gentamicin IV daily (dose as per age above)\n                       Treat for 5 days THEN\n                       Cloxacillin 25mg/kg orally (using dose intervals as above) for a total treatment of 3 weeks\n\n                       If not improving also consider investigations for:\n                         - pleural effusion, empyema (may require surgical drainage)\n                         - underlying TB\n                         - malignancy",
+  "message": "baby 6 weeks",
+  "page": 83,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "v3 brand: 'Augmentin 25 mg/kg' on p83 (amoxycillin+clavulanic acid 25mg/kg) -> kept",
+  "body": "Give Augmentin 25 mg/kg orally every 12 hours.",
+  "excerpt": "MANAGEMENT CHILDREN ≥ 2 MONTHS OLD\n     MANAGEMENT   NOTES\n     GOAL\n     Admission criteria   Oxygen requirement, moderate tachypnoea or systemically unwell OR\n                          Feeding difficulties/dehydration OR\n                          Failure to resolve with oral antibiotics OR\n                          Extensive consolidation OR\n                          Other complications (pleural effusion, empyema)\n     Antibiotics   Mild disease:\n                           - Amoxycillin 40mg/kg (max 1g) orally every 12 hours for 7 days\n\n                          Moderate disease:\n                            - Ampicillin 50mg/kg (max 2g) IV/IM every 6 hours\n                           - Change to oral amoxycillin as above after 24-48hours if clinical\n                          improvement\n                           - Treat for a total duration of 7 days\n\n                          Severe disease (systemically unwell or not improving) - refer to hospital\n                          Cloxacillin 50mg/kg (max 2g) IV/IM every 6 hours\n                          PLUS\n                          Gentamicin IV/IM once daily (1 month - 10 years: 7.5mg/kg (max 360mg)\n                          PLUS\n                          Azithromycin 10mg/kg (max 500mg) orally once daily\n\n                          Treat with IV for at least 5 days of IV antibiotics. Then change to\n                             - amoxycillin+clavulanic acid (25mg/kg amoxyl component, max\n                          875+125mg) orally every 12 hours\n                              - Treat for a total duration of 7 - 10 days\n     Consider Oxygen   If oxygen saturations <90%\n                          If systemically unwell (cyanosed, drowsy, restless, grunting)\n                          Give oxygen by nasal prongs (up to 2L) or face mask (4L or more)\n                          Do not run oxygen by face-mask at flow rate less than 4L due to risk of re-\n                          breathing\n                          Discontinue oxygen if the saturations remain stable at >90% for >15mins in\n                          room air\n     Consider Fluids   Encourage oral intake\n                          If dehydrated or poor oral intake give supplemental NG (safer) or IV fluids\n                          Restrict supplementary IV fluids to 2/3 maintenance (due to risk of SIADH)\n                          If shocked give 20ml/kg 0.9% saline IV and treat as per sepsis protocol\n                          Be wary of fluid overload in children who have congenital heart disease",
+  "message": "child 3 years pneumonia",
+  "page": 83,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "v3 brand: 'Augmentin 25 mg/kg' on the p118 table (25 mg/kg is plain amoxycillin's) -> replaced",
+  "body": "Give Augmentin 25 mg/kg orally every 12 hours.",
+  "excerpt": "                         For severe viral croup: 0.5mg/kg nebulised\n                         Use 0.5ml/kg of 1:1000 (max 5ml)\n      ALBENDAZOLE   400mg PO if >10kg   Treat 1-3 days depending on indication\n                         200mg PO if >6months & <10kg   Not recommended for < 6months\n                                                            Taken on an an empty stomach\n      AMINOPHYLLINE   Loading dose: 6mg/kg PO/ IV   Give IV infusion over 30 mins\n                         Maintenance Dose 5mg/kg PO/IV Q6hr\n                         Neonatal Loading dosing: 6mg/kg PO/IV\n                         Neonatal Maintaince Dose:\n                            2.5mg PO/IV Q12hr (week 1), 4mg PO/IV\n                         Q12hr (week 2-4)\n      AMOXYCILLIN   25 - 40mg/kg PO Q12hr   Dose & duration depends on indication\n      AMPICILLIN   50mg/kg IV/IM Q6hr   Duration depends on indication\n                         Neonatal: 50mg/kg IV Q12hr (week 1), Q8hr\n                         (week 2-4)\n      ARTEMETHER 20mg/   1.5mg/kg artemether   Tradename: 'Co-artam'",
+  "message": "child 3 years pneumonia",
+  "page": 118,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 118 before giving it. I could not find this dose in the page I used.",
+  "expect_unsupported": [
+   "25 mg/kg"
+  ]
+ },
+ {
+  "name": "v3 brand: 'Tylenol 15 mg/kg' -> paracetamol, kept",
+  "body": "Give Tylenol 15 mg/kg every 6 hours.",
+  "excerpt": "CHLORMENPHENICO\n      KETAMINE   Loading dose:\n                          Further dosing:\n  126   Amoeba/Giardia: 10mg/kg PO/IV Q8hr\n                          IV/IO/IM 0.15mg/kg, Buccal/Intranasal\n                          0.3mg/kg (max 10mg)   Monitor for respiratory depression in high doses\n      MORPHINE   0.05 - 0.2mg/kg IM/IV PRN   Can be given every 4hourly if needed\n                                                            Monitor for respiratory depression in high doses\n      NALOXONE   0.1mg/kg IM/IV/SC\n      NYSTATIN   100,000 units PO Q6hr\n      PARACETAMOL   15mg/kg (max 1g) PO/PR/IV Q4-6hrly   Max doses in 24 hours\n                          Tonsillitis: 250mg if < 10years, 500mg if > 10\n      PENICILLIN V   years\n                          RHD prophylaxis: 250mg o bd\n      PHENOBARBITONE   Loading Dose: 15-20mg/kg stat IV/IM   Infuse over 30 mins\n                          Maintenance Dose: 5mg/kg\n      PHENYTOIN   Loading dose: 15mg/kg IV\n                          Maintenance Dose:\n                          2mg/kg PO Q12hr (preterm)\n                          2-4mg/kg PO Q12hr (term)\n      POTASSIUM CITRATE   2 - 4mmol/kg/day PO   Dose may be given in 2-4 divided doses\n                                                            Consider isoniazid prophylaxis whilst on high dose\n      PREDNISOLONE   1 - 2mg/kg PO daily   prednisolone\n      PRIMAQUINE   0.25mg/kg PO daily   Check for G6PD deficiency\n                          (max 15mg)   Monitor for haemolysis (pallor, dark urine)",
+  "message": "child fever",
+  "page": 118,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "v3 verify: brand 'Hypnovel' (midazolam) 0.2 mg/kg on p34 is diazepam's -> replaced",
+  "body": "Give Hypnovel 0.2 mg/kg IV.",
+  "excerpt": "MANAGEMENT\nDURING SEIZURE MANAGEMENT\nAirway and Breathing Clear airway; Place child on side and suction secretions if possible\nMake sure child is breathing; If not, give breaths using bag and mask\nGive oxygen\nGlucose Check blood sugar & treat as per the hypoglycaemia guideline\nIf seizure > 5-10 min Give Midazolam\nIV/IO/IM 0.15mg/kg (max 10mg)\nBuccal/intranasal 0.3mg/kg (max 10mg)\nIf Midazolam is not available then give Diazepam\nIV 0.2mg/kg (max 10mg) OR\nPR 0.3mg/kg (max 10mg)",
+  "message": "fitting",
+  "page": 34,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 34 before giving it. I could not find this dose in the page I used.",
+  "expect_unsupported": [
+   "0.2 mg/kg"
+  ]
+ },
+ {
+  "name": "v3 verify: abbreviation 'phenobarb 20 mg/kg (max 1 g)' on p34 -> phenobarbitone, kept",
+  "body": "Give phenobarb 20 mg/kg (max 1 g).",
+  "excerpt": "MANAGEMENT\nGive oxygen\nPR 0.3mg/kg (max 10mg)\nNever give diazepam IM\nDrugs given rectally are best given using a syringe with feeding tube cut\nat a short length (insert 4-5cm into rectum)\nIf still fitting after 10 minutes Give a second dose of midazolam/diazepam\nDo not give more than 2 doses of diazepam\nIf still fitting after 20 minutes IM/IV phenobarbitone (loading 20mg/kg over 15 mins, max 1g) OR\nIV phenytoin (loading dose 20mg/kg over 60 mins)\nEnsure a good IV line as phenytoin is damaging if IV leaks into skin\nEnsure also it is given in a different line to diazapam\nOnce fitting stops Check temperature. If fever, look for a cause of the fever\nConsider investigation and treatment for malaria\nConsider a lumbar puncture and treatment for meningitis\nConsider epilepsy in the child who has had previous seizures without\nfever",
+  "message": "fitting 25 min",
+  "page": 34,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
+ },
+ {
+  "name": "v3 verify: 'phenytoin 20 mg/kg (max 1 g)' on p34, the 1 g max is phenobarbitone's -> replaced",
+  "body": "Give IV phenytoin loading 20 mg/kg (max 1 g) over 60 minutes.",
+  "excerpt": "MANAGEMENT\nGive oxygen\nPR 0.3mg/kg (max 10mg)\nNever give diazepam IM\nDrugs given rectally are best given using a syringe with feeding tube cut\nat a short length (insert 4-5cm into rectum)\nIf still fitting after 10 minutes Give a second dose of midazolam/diazepam\nDo not give more than 2 doses of diazepam\nIf still fitting after 20 minutes IM/IV phenobarbitone (loading 20mg/kg over 15 mins, max 1g) OR\nIV phenytoin (loading dose 20mg/kg over 60 mins)\nEnsure a good IV line as phenytoin is damaging if IV leaks into skin\nEnsure also it is given in a different line to diazapam\nOnce fitting stops Check temperature. If fever, look for a cause of the fever\nConsider investigation and treatment for malaria\nConsider a lumbar puncture and treatment for meningitis\nConsider epilepsy in the child who has had previous seizures without\nfever",
+  "message": "fitting 25 min",
+  "page": 34,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 34 before giving it. I could not find this dose in the page I used.",
+  "expect_unsupported": [
+   "1 g"
+  ]
+ },
+ {
+  "name": "v3 verify: unknown cephalosporin 'cefuroxime' (-xime) 60 mg/kg on p62 -> replaced",
+  "body": "Give cefuroxime 60 mg/kg IV.",
+  "excerpt": "MANAGEMENT\n MANAGEMENT ISSUES   NOTES\n Antibiotics   DO NOT DELAY ANTIBIOTICS - this is associated with worse outcomes\n                                1st line: Ceftriaxone 50mg/kg (max 2g) IV bd OR if <2 months, cefotaxime 50mg/kg IV QID\n                                2nd line: Benzylpenicillin 60mg/kg (max 3g) IV QID PLUS Chloramphenicol 25mg/kg (max 1 g) IV\n                                QID\n                                Review culture and sensitivities at 72 hours, adjust as necessary\n                                Duration: 14 days\n Steroids   Dexamethasone 0.15mg/kg (max 10mg) IV QID\n                                Reduces the risk of hearing loss in bacterial and TB meningitis\n                                Must be started within 15mins before or 1 hr after antibiotics\n                                Contraindications: <2months, cerebral malaria, viral encephalitis, immunocompromised\n Consider anti-viral\n treatment   If encephalopathy, vesicular rash or risk factors (e.g: HSV exposure)\n                                Dosage: Acyclovir IV 500mg/m2 (preferable) or oral acyclovir 20mg/kg 5 times per day\n Feed/fluids   Feed orally/NGT if able. If shocked treat with bolus fluid as for sepsis protocol\n                                Ongoing IV fluids should be restricted to 2/3 maintenance (risk of SIADH)\n Consider anti-malarials   If suggestive history of positive MPS\n                                If MPS negative, still consider treatment if very unwell or from high risk area\n Monitor for convulsions   Regular (2hrly) neurological observations. Use anti-convulsive medication for fits.\n Monitor for hypoglycaemia   Monitor BSLS 6-12hly. Treat hypoglycaemia\n Chemoprophylaxis   Eradication of carriage of H.influenzae and meningococcaus\n                                Household contacts, contacts <4years, classroom contacts in epidemics\n                                Rifampicin: 5-10mg/kg (max 600mg) o daily 4 days OR\n                                Ciprofloxacin 10mg/kg (max 500mg) as a single dose\n Arrange follow up   Children with meningitis are at risk of hearing loss and developmental delay\n                                Arrange follow up",
+  "message": "meningitis",
+  "page": 62,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 62 before giving it. I could not find this dose in the page I used.",
+  "expect_unsupported": [
+   "60 mg/kg"
+  ]
+ },
+ {
+  "name": "v3 verify: unknown carbapenem 'meropenem' (-penem) 20 mg/kg on p62 -> replaced",
+  "body": "Give meropenem 20 mg/kg IV.",
+  "excerpt": "MANAGEMENT\n MANAGEMENT ISSUES   NOTES\n Antibiotics   DO NOT DELAY ANTIBIOTICS - this is associated with worse outcomes\n                                1st line: Ceftriaxone 50mg/kg (max 2g) IV bd OR if <2 months, cefotaxime 50mg/kg IV QID\n                                2nd line: Benzylpenicillin 60mg/kg (max 3g) IV QID PLUS Chloramphenicol 25mg/kg (max 1 g) IV\n                                QID\n                                Review culture and sensitivities at 72 hours, adjust as necessary\n                                Duration: 14 days\n Steroids   Dexamethasone 0.15mg/kg (max 10mg) IV QID\n                                Reduces the risk of hearing loss in bacterial and TB meningitis\n                                Must be started within 15mins before or 1 hr after antibiotics\n                                Contraindications: <2months, cerebral malaria, viral encephalitis, immunocompromised\n Consider anti-viral\n treatment   If encephalopathy, vesicular rash or risk factors (e.g: HSV exposure)\n                                Dosage: Acyclovir IV 500mg/m2 (preferable) or oral acyclovir 20mg/kg 5 times per day\n Feed/fluids   Feed orally/NGT if able. If shocked treat with bolus fluid as for sepsis protocol\n                                Ongoing IV fluids should be restricted to 2/3 maintenance (risk of SIADH)\n Consider anti-malarials   If suggestive history of positive MPS\n                                If MPS negative, still consider treatment if very unwell or from high risk area\n Monitor for convulsions   Regular (2hrly) neurological observations. Use anti-convulsive medication for fits.\n Monitor for hypoglycaemia   Monitor BSLS 6-12hly. Treat hypoglycaemia\n Chemoprophylaxis   Eradication of carriage of H.influenzae and meningococcaus\n                                Household contacts, contacts <4years, classroom contacts in epidemics\n                                Rifampicin: 5-10mg/kg (max 600mg) o daily 4 days OR\n                                Ciprofloxacin 10mg/kg (max 500mg) as a single dose\n Arrange follow up   Children with meningitis are at risk of hearing loss and developmental delay\n                                Arrange follow up",
+  "message": "meningitis",
+  "page": 62,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 62 before giving it. I could not find this dose in the page I used.",
+  "expect_unsupported": [
+   "20 mg/kg"
+  ]
+ },
+ {
+  "name": "v3 verify: unknown cephalosporin 'ceftazidime' (-idime) 60 mg/kg on p62 -> replaced",
+  "body": "Give ceftazidime 60 mg/kg IV.",
+  "excerpt": "MANAGEMENT\n MANAGEMENT ISSUES   NOTES\n Antibiotics   DO NOT DELAY ANTIBIOTICS - this is associated with worse outcomes\n                                1st line: Ceftriaxone 50mg/kg (max 2g) IV bd OR if <2 months, cefotaxime 50mg/kg IV QID\n                                2nd line: Benzylpenicillin 60mg/kg (max 3g) IV QID PLUS Chloramphenicol 25mg/kg (max 1 g) IV\n                                QID\n                                Review culture and sensitivities at 72 hours, adjust as necessary\n                                Duration: 14 days\n Steroids   Dexamethasone 0.15mg/kg (max 10mg) IV QID\n                                Reduces the risk of hearing loss in bacterial and TB meningitis\n                                Must be started within 15mins before or 1 hr after antibiotics\n                                Contraindications: <2months, cerebral malaria, viral encephalitis, immunocompromised\n Consider anti-viral\n treatment   If encephalopathy, vesicular rash or risk factors (e.g: HSV exposure)\n                                Dosage: Acyclovir IV 500mg/m2 (preferable) or oral acyclovir 20mg/kg 5 times per day\n Feed/fluids   Feed orally/NGT if able. If shocked treat with bolus fluid as for sepsis protocol\n                                Ongoing IV fluids should be restricted to 2/3 maintenance (risk of SIADH)\n Consider anti-malarials   If suggestive history of positive MPS\n                                If MPS negative, still consider treatment if very unwell or from high risk area\n Monitor for convulsions   Regular (2hrly) neurological observations. Use anti-convulsive medication for fits.\n Monitor for hypoglycaemia   Monitor BSLS 6-12hly. Treat hypoglycaemia\n Chemoprophylaxis   Eradication of carriage of H.influenzae and meningococcaus\n                                Household contacts, contacts <4years, classroom contacts in epidemics\n                                Rifampicin: 5-10mg/kg (max 600mg) o daily 4 days OR\n                                Ciprofloxacin 10mg/kg (max 500mg) as a single dose\n Arrange follow up   Children with meningitis are at risk of hearing loss and developmental delay\n                                Arrange follow up",
+  "message": "meningitis",
+  "page": 62,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 62 before giving it. I could not find this dose in the page I used.",
+  "expect_unsupported": [
+   "60 mg/kg"
+  ]
+ },
+ {
+  "name": "v3 verify: drug-less '600 mg' for 10 kg on p62 is rifampicin's max AND benzylpenicillin 60 mg/kg x 10 -> ambiguous, replaced",
+  "body": "Give 600 mg IV now.",
+  "excerpt": "MANAGEMENT\n MANAGEMENT ISSUES   NOTES\n Antibiotics   DO NOT DELAY ANTIBIOTICS - this is associated with worse outcomes\n                                1st line: Ceftriaxone 50mg/kg (max 2g) IV bd OR if <2 months, cefotaxime 50mg/kg IV QID\n                                2nd line: Benzylpenicillin 60mg/kg (max 3g) IV QID PLUS Chloramphenicol 25mg/kg (max 1 g) IV\n                                QID\n                                Review culture and sensitivities at 72 hours, adjust as necessary\n                                Duration: 14 days\n Steroids   Dexamethasone 0.15mg/kg (max 10mg) IV QID\n                                Reduces the risk of hearing loss in bacterial and TB meningitis\n                                Must be started within 15mins before or 1 hr after antibiotics\n                                Contraindications: <2months, cerebral malaria, viral encephalitis, immunocompromised\n Consider anti-viral\n treatment   If encephalopathy, vesicular rash or risk factors (e.g: HSV exposure)\n                                Dosage: Acyclovir IV 500mg/m2 (preferable) or oral acyclovir 20mg/kg 5 times per day\n Feed/fluids   Feed orally/NGT if able. If shocked treat with bolus fluid as for sepsis protocol\n                                Ongoing IV fluids should be restricted to 2/3 maintenance (risk of SIADH)\n Consider anti-malarials   If suggestive history of positive MPS\n                                If MPS negative, still consider treatment if very unwell or from high risk area\n Monitor for convulsions   Regular (2hrly) neurological observations. Use anti-convulsive medication for fits.\n Monitor for hypoglycaemia   Monitor BSLS 6-12hly. Treat hypoglycaemia\n Chemoprophylaxis   Eradication of carriage of H.influenzae and meningococcaus\n                                Household contacts, contacts <4years, classroom contacts in epidemics\n                                Rifampicin: 5-10mg/kg (max 600mg) o daily 4 days OR\n                                Ciprofloxacin 10mg/kg (max 500mg) as a single dose\n Arrange follow up   Children with meningitis are at risk of hearing loss and developmental delay\n                                Arrange follow up",
+  "message": "child 10 kg",
+  "page": 62,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 62 before giving it. I could not find this dose in the page I used.",
+  "expect_unsupported": [
+   "600 mg"
+  ]
+ },
+ {
+  "name": "v3 verify: 'rifampicin 10 mg/kg (max 500 mg)' on p62, 500 mg is ciprofloxacin's max -> replaced",
+  "body": "Rifampicin 10 mg/kg (max 500 mg) daily for 4 days.",
+  "excerpt": "MANAGEMENT\n MANAGEMENT ISSUES   NOTES\n Antibiotics   DO NOT DELAY ANTIBIOTICS - this is associated with worse outcomes\n                                1st line: Ceftriaxone 50mg/kg (max 2g) IV bd OR if <2 months, cefotaxime 50mg/kg IV QID\n                                2nd line: Benzylpenicillin 60mg/kg (max 3g) IV QID PLUS Chloramphenicol 25mg/kg (max 1 g) IV\n                                QID\n                                Review culture and sensitivities at 72 hours, adjust as necessary\n                                Duration: 14 days\n Steroids   Dexamethasone 0.15mg/kg (max 10mg) IV QID\n                                Reduces the risk of hearing loss in bacterial and TB meningitis\n                                Must be started within 15mins before or 1 hr after antibiotics\n                                Contraindications: <2months, cerebral malaria, viral encephalitis, immunocompromised\n Consider anti-viral\n treatment   If encephalopathy, vesicular rash or risk factors (e.g: HSV exposure)\n                                Dosage: Acyclovir IV 500mg/m2 (preferable) or oral acyclovir 20mg/kg 5 times per day\n Feed/fluids   Feed orally/NGT if able. If shocked treat with bolus fluid as for sepsis protocol\n                                Ongoing IV fluids should be restricted to 2/3 maintenance (risk of SIADH)\n Consider anti-malarials   If suggestive history of positive MPS\n                                If MPS negative, still consider treatment if very unwell or from high risk area\n Monitor for convulsions   Regular (2hrly) neurological observations. Use anti-convulsive medication for fits.\n Monitor for hypoglycaemia   Monitor BSLS 6-12hly. Treat hypoglycaemia\n Chemoprophylaxis   Eradication of carriage of H.influenzae and meningococcaus\n                                Household contacts, contacts <4years, classroom contacts in epidemics\n                                Rifampicin: 5-10mg/kg (max 600mg) o daily 4 days OR\n                                Ciprofloxacin 10mg/kg (max 500mg) as a single dose\n Arrange follow up   Children with meningitis are at risk of hearing loss and developmental delay\n                                Arrange follow up",
+  "message": "contact",
+  "page": 62,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 62 before giving it. I could not find this dose in the page I used.",
+  "expect_unsupported": [
+   "500 mg"
+  ]
+ },
+ {
+  "name": "v3 verify: 'ampicillin 17.5 mg' for 3.5 kg on p83 is gentamicin 5 mg/kg x weight -> replaced",
+  "body": "Give ampicillin 17.5 mg IV every 6 hours.",
+  "excerpt": "MANAGEMENT CHILDREN < 2 MONTHS OLD\nAdmit to hospital   Children <2 months should be referred and admitted for IV antibiotics\n\nAntibiotics   Ampicillin 50mg/kg IV every 6 hours PLUS\n                       Gentamicin IV once daily\n                          - Neonate < 34 weeks post conception 3mg/kg\n                          - Neonate > 34 weeks post conception: 5mg/kg\n                          - Infant (>1 month old): 7.5mg/kg\n                       Duration of treatment: 5 days\n                       If not improving in first 48 hours, use cefotaxime 50mg/kg IV QID\n\n                       If Staphylococcus pneumonia suspected (severe or complications e.g. effusions, empyema):\n                           - Cloxacillin 50mg/kg IV\n                          - First week of life: every 12 hours\n                          - 1 week to 1 month: every 8 hours\n                         - From 1 month: every 6 hours\n                       PLUS\n                          - Gentamicin IV daily (dose as per age above)\n                       Treat for 5 days THEN\n                       Cloxacillin 25mg/kg orally (using dose intervals as above) for a total treatment of 3 weeks\n\n                       If not improving also consider investigations for:\n                         - pleural effusion, empyema (may require surgical drainage)\n                         - underlying TB\n                         - malignancy",
+  "message": "3 week old baby, 3.5 kg, fast breathing",
+  "page": 83,
+  "lang": "en",
+  "expect_body": "Dose: check the manual page 83 before giving it. I could not find this dose in the page I used.",
+  "expect_unsupported": [
+   "17.5 mg"
+  ]
+ },
+ {
+  "name": "v3 verify: 'gentamicin 17.5 mg' for 3.5 kg on p83 (5 mg/kg x 3.5) -> kept",
+  "body": "Give gentamicin 17.5 mg IV once daily.",
+  "excerpt": "MANAGEMENT CHILDREN < 2 MONTHS OLD\nAdmit to hospital   Children <2 months should be referred and admitted for IV antibiotics\n\nAntibiotics   Ampicillin 50mg/kg IV every 6 hours PLUS\n                       Gentamicin IV once daily\n                          - Neonate < 34 weeks post conception 3mg/kg\n                          - Neonate > 34 weeks post conception: 5mg/kg\n                          - Infant (>1 month old): 7.5mg/kg\n                       Duration of treatment: 5 days\n                       If not improving in first 48 hours, use cefotaxime 50mg/kg IV QID\n\n                       If Staphylococcus pneumonia suspected (severe or complications e.g. effusions, empyema):\n                           - Cloxacillin 50mg/kg IV\n                          - First week of life: every 12 hours\n                          - 1 week to 1 month: every 8 hours\n                         - From 1 month: every 6 hours\n                       PLUS\n                          - Gentamicin IV daily (dose as per age above)\n                       Treat for 5 days THEN\n                       Cloxacillin 25mg/kg orally (using dose intervals as above) for a total treatment of 3 weeks\n\n                       If not improving also consider investigations for:\n                         - pleural effusion, empyema (may require surgical drainage)\n                         - underlying TB\n                         - malignancy",
+  "message": "3 week old baby, 3.5 kg, fast breathing",
+  "page": 83,
+  "lang": "en",
+  "expect_body": null,
+  "expect_unsupported": []
  }
 ]

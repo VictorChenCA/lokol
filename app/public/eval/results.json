@@ -1,6 +1,6 @@
 {
   "sample": false,
-  "generated_at": "2026-10-03T23:56:32-0700",
+  "generated_at": "2026-10-04T00:43:59-0700",
   "test_set": {
     "n": 300,
     "path": "data/synth/test.jsonl",
@@ -41,7 +41,7 @@
         "system_abstain_recall": 0.889,
         "unsafe_advise_rate": 0.0,
         "advise_kept": 0.0,
-        "unsupported_dose_rate": 0.444,
+        "unsupported_dose_rate": 0.524,
         "system_unsupported_dose_rate": 0.0
       },
       "per_lang": {
@@ -125,7 +125,7 @@
         "system_abstain_recall": 0.75,
         "unsafe_advise_rate": 0.045,
         "advise_kept": 0.778,
-        "unsupported_dose_rate": 0.604,
+        "unsupported_dose_rate": 0.627,
         "system_unsupported_dose_rate": 0.0
       },
       "per_lang": {
@@ -211,7 +211,7 @@
         "system_abstain_recall": 0.889,
         "unsafe_advise_rate": 0.0,
         "advise_kept": 0.0,
-        "unsupported_dose_rate": 0.194,
+        "unsupported_dose_rate": 0.254,
         "system_unsupported_dose_rate": 0.0
       },
       "per_lang": {
@@ -296,7 +296,7 @@
         "system_abstain_recall": 0.222,
         "unsafe_advise_rate": 0.019,
         "advise_kept": 0.292,
-        "unsupported_dose_rate": 0.853,
+        "unsupported_dose_rate": 0.881,
         "system_unsupported_dose_rate": 0.0
       },
       "per_lang": {
@@ -383,7 +383,7 @@
         "system_abstain_recall": 0.611,
         "unsafe_advise_rate": 0.032,
         "advise_kept": 0.75,
-        "unsupported_dose_rate": 0.63,
+        "unsupported_dose_rate": 0.639,
         "system_unsupported_dose_rate": 0.0
       },
       "per_lang": {
@@ -681,18 +681,18 @@
     "Limitation: Visit-note JSON validity is only 27% to 43% for the tuned models, so a nurse must check the note form.",
     "Limitation: The 0.6B model over-refers (refers 62% of the cases that should be ADVISE) and rarely says 'ask a person' (abstain recall 21%).",
     "Limitation: With-gate scores include Lokol's rule-based safety gate (danger-sign keywords, protocol check, dose guard). They describe the shipped system, not the weights.",
-    "Limitation: Most doses the models write are not on the manual page they were given (see the dose audit); the teacher's own reference replies fail the same check about half the time, so the shipped dose guard replaces those lines with 'ask a person for the dose'."
+    "Limitation: Most doses the models write are not on the manual page they were given for that same drug (see the dose audit); the teacher's own reference replies fail the same check 58% of the time (70 of 120 replies with a dose), so the shipped dose guard replaces those lines with 'ask a person for the dose'."
   ],
   "meta": {
     "test_set": "300 held-out synthetic test cases (data/synth/test.jsonl, same teacher pipeline as training). 150 of them use 14 presentations that never appear in training. Languages: Pijin 122, English 126, code-switched 52. Tasks: guidance 121, referral 61, visit note 60, follow-up 32, abstain 26.",
-    "date": "2026-10-03T23:56:32-0700",
+    "date": "2026-10-04T00:43:59-0700",
     "limitations": [
       "The test data is synthetic and written by the same teacher models as the training data, so it rewards imitating the teacher; it is not a clinical validation.",
       "Judge faithfulness (headless Claude, 0 to 3, first 60 cases) is low for every model and lowest for the small ones: tuned 9B 1.3, tuned 0.6B 0.5.",
       "Visit-note JSON validity is only 27% to 43% for the tuned models, so a nurse must check the note form.",
       "The 0.6B model over-refers (refers 62% of the cases that should be ADVISE) and rarely says 'ask a person' (abstain recall 21%).",
       "With-gate scores include Lokol's rule-based safety gate (danger-sign keywords, protocol check, dose guard). They describe the shipped system, not the weights.",
-      "Most doses the models write are not on the manual page they were given (see the dose audit); the teacher's own reference replies fail the same check about half the time, so the shipped dose guard replaces those lines with 'ask a person for the dose'."
+      "Most doses the models write are not on the manual page they were given for that same drug (see the dose audit); the teacher's own reference replies fail the same check 58% of the time (70 of 120 replies with a dose), so the shipped dose guard replaces those lines with 'ask a person for the dose'."
     ],
     "sources": [
       "eval/*.json (pipeline/eval.py)",
