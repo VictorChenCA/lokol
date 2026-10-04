@@ -10,9 +10,9 @@ Built for Hack-Nation 7 × World Bank **Small AI for Development**, Track A: Hea
 
 | | |
 |---|---|
-| Live demo | RESULTS_PENDING (Vercel URL) |
+| Live demo | **https://lokol-studio.vercel.app** (works offline after the first visit; add `?runtime=shim` for canned replies without downloading models) |
 | Videos | Demo · Tech · Team (links added at submission) |
-| Models | RESULTS_PENDING (Hugging Face links) |
+| Models | [Lokol Health 0.6B GGUF](https://huggingface.co/VictorChenCA/lokol-health-qwen3-0.6b-gguf) · [Lokol Health 1.7B GGUF](https://huggingface.co/VictorChenCA/lokol-health-qwen3-1.7b-gguf) · [Pijin TTS ONNX](https://huggingface.co/VictorChenCA/lokol-mms-tts-pis-onnx) · 9B: River LoRA checkpoint (hosted) |
 
 ---
 
@@ -98,6 +98,7 @@ Full tables, per-language and per-task scores, judge scores and limitations: [`e
 
 ```bash
 git clone https://github.com/VictorChenCA/lokol && cd lokol
+# hosted: https://lokol-studio.vercel.app
 # web app (Studio + offline demo)
 cd app && npm install && npm run dev            # http://localhost:5173
 # laptop pack: model server + WhatsApp/Messenger bridge + speech sidecar
